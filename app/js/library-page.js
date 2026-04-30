@@ -1,3 +1,5 @@
+import { renderSpellsList } from './spells-list.js';
+
 /**
  * Renders the Library tab content into the given container.
  *
@@ -16,10 +18,6 @@ export function renderLibraryPage(container) {
   title.textContent = 'Library';
   container.appendChild(title);
 
-  const placeholder = document.createElement('p');
-  placeholder.className = 'page-placeholder';
-  placeholder.textContent = 'todo';
-  container.appendChild(placeholder);
-
+  renderSpellsList(container);
   return true;
 }

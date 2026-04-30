@@ -21,6 +21,8 @@ const APP_SHELL_FILES = [
   './js/dice-roller.js',
   './js/generate-page.js',
   './js/library-page.js',
+  './js/spells-list.js',
+  './js/spells-data.js',
   './js/settings-page.js',
   './js/tab-bar.js',
   './js/home-feed.js',

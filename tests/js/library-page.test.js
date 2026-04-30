@@ -1,11 +1,18 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+vi.mock('../../app/js/spells-list.js', () => ({
+  renderSpellsList: vi.fn().mockReturnValue(true),
+}));
+
 import { renderLibraryPage } from '../../app/js/library-page.js';
+import { renderSpellsList }  from '../../app/js/spells-list.js';
 
 describe('renderLibraryPage', () => {
   let container;
 
   beforeEach(() => {
     container = document.createElement('div');
+    vi.clearAllMocks();
   });
 
   // ── Happy path ──────────────────────────────────────────────────────────
@@ -24,14 +31,14 @@ describe('renderLibraryPage', () => {
     expect(container.querySelector('.page-title').textContent).toBe('Library');
   });
 
-  it('renders a placeholder element', () => {
+  it('calls renderSpellsList with the container', () => {
     renderLibraryPage(container);
-    expect(container.querySelector('.page-placeholder')).not.toBeNull();
+    expect(renderSpellsList).toHaveBeenCalledWith(container);
   });
 
-  it('placeholder text is "todo"', () => {
+  it('does not render a placeholder element', () => {
     renderLibraryPage(container);
-    expect(container.querySelector('.page-placeholder').textContent).toBe('todo');
+    expect(container.querySelector('.page-placeholder')).toBeNull();
   });
 
   // ── Invalid container ───────────────────────────────────────────────────
@@ -46,5 +53,10 @@ describe('renderLibraryPage', () => {
 
   it('returns false when container is not an Element', () => {
     expect(renderLibraryPage('#page-library')).toBe(false);
+  });
+
+  it('does not call renderSpellsList when container is invalid', () => {
+    renderLibraryPage(null);
+    expect(renderSpellsList).not.toHaveBeenCalled();
   });
 });
