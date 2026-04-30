@@ -30,6 +30,14 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v4
 
+      # Inject the short commit SHA into the service worker cache name so that
+      # every deploy gets a unique name. The activate handler then deletes the
+      # previous deploy's cache automatically — no manual version bumping needed.
+      - name: Stamp service worker with commit SHA
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          sed -i "s/DEPLOY_COMMIT_SHA/$SHORT_SHA/" app/service-worker.js
+
       # Upload only the app/ folder — keeps docs/, tests/, and node_modules
       # out of the public site entirely
       - name: Upload app/ as Pages artifact

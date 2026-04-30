@@ -1,6 +1,9 @@
-// Cache name is versioned so we can bust it by bumping the number
-// when the app shell files change in a future deploy.
-const CACHE_NAME = 'shadowdark-tools-v1';
+// DEPLOY_COMMIT_SHA is replaced with the actual git commit SHA by the
+// GitHub Actions deploy workflow before the file is uploaded to Pages.
+// This means every deploy gets a unique cache name, so the activate
+// handler below always clears out the previous deploy's stale cache —
+// no manual version bumping ever needed.
+const CACHE_NAME = 'shadowdark-tools-DEPLOY_COMMIT_SHA';
 
 // Files that make up the app shell — everything needed to render the UI
 // with zero network access. Add new JS/CSS files here as the app grows.
