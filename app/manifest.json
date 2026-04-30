@@ -2,14 +2,15 @@
   "name": "ShadowDark Tools",
   "short_name": "SD Tools",
   "description": "Shadowdark RPG companion toolkit for players and game masters",
-  "start_url": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0d0d0d",
   "theme_color": "#0d0d0d",
   "icons": [
     {
-      "src": "/icons/apple-touch-icon.png",
+      "src": "./icons/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png"
     }
