@@ -26,6 +26,14 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* The browser's built-in [hidden] { display: none } lives in the user-agent
+   stylesheet, which our author CSS overrides. Any element with display: flex
+   or display: block would ignore hidden without this rule. !important keeps
+   hidden reliable regardless of what display value the element normally has. */
+[hidden] {
+  display: none !important;
+}
+
 body {
   margin: 0;
   padding: 0;
