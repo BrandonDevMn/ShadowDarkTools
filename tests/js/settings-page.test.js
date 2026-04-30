@@ -11,7 +11,7 @@ vi.mock('../../app/js/update-checker.js', () => ({
   },
 }));
 
-import { renderSettingsPage, handleUpdateCheck } from '../../app/js/settings-page.js';
+import { renderSettingsPage, handleUpdateCheck, handleShare } from '../../app/js/settings-page.js';
 import { checkForUpdate, UPDATE_STATUS } from '../../app/js/update-checker.js';
 
 // ── renderSettingsPage ───────────────────────────────────────────────────────
@@ -24,7 +24,7 @@ describe('renderSettingsPage', () => {
     vi.clearAllMocks();
   });
 
-  // ── Happy path ──────────────────────────────────────────────────────────
+  // ── Structure ───────────────────────────────────────────────────────────
 
   it('returns true when given a valid container', () => {
     expect(renderSettingsPage(container)).toBe(true);
@@ -50,6 +50,54 @@ describe('renderSettingsPage', () => {
     expect(container.querySelector('.settings')).not.toBeNull();
   });
 
+  // ── External link rows ──────────────────────────────────────────────────
+
+  it('renders two link rows', () => {
+    renderSettingsPage(container);
+    expect(container.querySelectorAll('.settings__link').length).toBe(2);
+  });
+
+  it('Code link has the correct href', () => {
+    renderSettingsPage(container);
+    const links = container.querySelectorAll('.settings__link');
+    expect(links[0].href).toContain('github.com/BrandonDevMn/ShadowDarkTools');
+  });
+
+  it('Code link label text is "Code"', () => {
+    renderSettingsPage(container);
+    const links = container.querySelectorAll('.settings__link');
+    expect(links[0].querySelector('.settings__link-label').textContent).toBe('Code');
+  });
+
+  it('Shadowdark Makers link has the correct href', () => {
+    renderSettingsPage(container);
+    const links = container.querySelectorAll('.settings__link');
+    expect(links[1].href).toContain('thearcanelibrary.com');
+  });
+
+  it('Shadowdark Makers link label text is "Shadowdark Makers"', () => {
+    renderSettingsPage(container);
+    const links = container.querySelectorAll('.settings__link');
+    expect(links[1].querySelector('.settings__link-label').textContent).toBe('Shadowdark Makers');
+  });
+
+  it('links open in a new tab', () => {
+    renderSettingsPage(container);
+    container.querySelectorAll('.settings__link').forEach((link) => {
+      expect(link.target).toBe('_blank');
+    });
+  });
+
+  it('links have rel="noopener noreferrer"', () => {
+    renderSettingsPage(container);
+    container.querySelectorAll('.settings__link').forEach((link) => {
+      expect(link.rel).toContain('noopener');
+      expect(link.rel).toContain('noreferrer');
+    });
+  });
+
+  // ── Version row ─────────────────────────────────────────────────────────
+
   it('renders a version value element', () => {
     renderSettingsPage(container);
     expect(container.querySelector('.settings__version')).not.toBeNull();
@@ -71,21 +119,30 @@ describe('renderSettingsPage', () => {
     expect(version.length).toBeGreaterThan(0);
   });
 
+  // ── Share button ────────────────────────────────────────────────────────
+
+  it('renders a Share App button', () => {
+    renderSettingsPage(container);
+    const buttons = Array.from(container.querySelectorAll('.settings__action-button'));
+    const shareBtn = buttons.find((b) => b.textContent === 'Share App');
+    expect(shareBtn).not.toBeUndefined();
+  });
+
+  // ── Check for Update button ─────────────────────────────────────────────
+
   it('renders a Check for Update button', () => {
     renderSettingsPage(container);
     expect(container.querySelector('.settings__update-button')).not.toBeNull();
   });
 
-  it('button initial text is "Check for Update"', () => {
+  it('update button initial text is "Check for Update"', () => {
     renderSettingsPage(container);
-    const btn = container.querySelector('.settings__update-button');
-    expect(btn.textContent).toBe('Check for Update');
+    expect(container.querySelector('.settings__update-button').textContent).toBe('Check for Update');
   });
 
-  it('button is not disabled on render', () => {
+  it('update button is not disabled on render', () => {
     renderSettingsPage(container);
-    const btn = container.querySelector('.settings__update-button');
-    expect(btn.disabled).toBe(false);
+    expect(container.querySelector('.settings__update-button').disabled).toBe(false);
   });
 
   // ── Invalid container ───────────────────────────────────────────────────
@@ -100,6 +157,43 @@ describe('renderSettingsPage', () => {
 
   it('returns false when container is not an Element', () => {
     expect(renderSettingsPage('div')).toBe(false);
+  });
+});
+
+// ── handleShare ──────────────────────────────────────────────────────────────
+
+describe('handleShare', () => {
+  it('returns "unavailable" when navigator.share is not present', async () => {
+    const result = await handleShare('https://example.com', {});
+    expect(result).toBe('unavailable');
+  });
+
+  it('calls navigator.share with the correct url and title', async () => {
+    const shareFn = vi.fn().mockResolvedValue(undefined);
+    await handleShare('https://example.com', { share: shareFn });
+    expect(shareFn).toHaveBeenCalledWith({
+      title: 'ShadowDark Tools',
+      url: 'https://example.com',
+    });
+  });
+
+  it('returns "shared" when navigator.share resolves', async () => {
+    const shareFn = vi.fn().mockResolvedValue(undefined);
+    const result = await handleShare('https://example.com', { share: shareFn });
+    expect(result).toBe('shared');
+  });
+
+  it('returns "dismissed" when navigator.share rejects with AbortError', async () => {
+    const abortError = Object.assign(new Error('dismissed'), { name: 'AbortError' });
+    const shareFn = vi.fn().mockRejectedValue(abortError);
+    const result = await handleShare('https://example.com', { share: shareFn });
+    expect(result).toBe('dismissed');
+  });
+
+  it('returns "error" when navigator.share rejects with an unexpected error', async () => {
+    const shareFn = vi.fn().mockRejectedValue(new Error('something broke'));
+    const result = await handleShare('https://example.com', { share: shareFn });
+    expect(result).toBe('error');
   });
 });
 

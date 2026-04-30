@@ -220,9 +220,31 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* ─── Settings update button ─────────────────────────────────────────────── */
+/* ─── Settings link rows ─────────────────────────────────────────────────── */
 
-.settings__update-button {
+/* Anchor elements that look like settings rows. Inherits .settings__row
+   layout via the extra class on the element; this rule only overrides the
+   browser's default anchor appearance so links blend with non-link rows. */
+.settings__link {
+  text-decoration: none;
+  color: var(--color-text);
+}
+
+.settings__link-label {
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+/* ↗ arrow to the right of each external link */
+.settings__link-indicator {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+/* ─── Settings action buttons ────────────────────────────────────────────── */
+
+/* Shared by the Share and Check for Update buttons */
+.settings__action-button {
   /* Stretch full row width so the tap target spans the whole settings row */
   width: 100%;
 
@@ -242,7 +264,7 @@ body {
   transition: opacity 0.15s ease;
 }
 
-.settings__update-button:disabled {
+.settings__action-button:disabled {
   /* Visually mute the button while a check is in flight */
   opacity: 0.5;
   cursor: default;
