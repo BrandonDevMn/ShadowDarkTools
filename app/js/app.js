@@ -1,6 +1,9 @@
-import { renderHomePage }     from './home-page.js';
-import { renderSettingsPage } from './settings-page.js';
-import { initializeTabBar }   from './tab-bar.js';
+import { renderHomePage }      from './home-page.js';
+import { renderDicePage }      from './dice-page.js';
+import { renderGeneratePage }  from './generate-page.js';
+import { renderInfoPage }      from './info-page.js';
+import { renderSettingsPage }  from './settings-page.js';
+import { initializeTabBar }    from './tab-bar.js';
 import { registerServiceWorker } from './service-worker-registration.js';
 
 /**
@@ -14,11 +17,21 @@ import { registerServiceWorker } from './service-worker-registration.js';
  */
 export function initializeApp() {
   const homePageEl     = document.getElementById('page-home');
+  const dicePageEl     = document.getElementById('page-dice');
+  const generatePageEl = document.getElementById('page-generate');
+  const infoPageEl     = document.getElementById('page-info');
   const settingsPageEl = document.getElementById('page-settings');
   const tabBarEl       = document.getElementById('tab-bar');
 
+  // All pages are defined up front so tab switching is instant with no
+  // render cost on first visit — each module just builds DOM nodes
+  const allPages = [homePageEl, dicePageEl, generatePageEl, infoPageEl, settingsPageEl];
+
   // Render content into each page upfront so switching tabs is instant
   renderHomePage(homePageEl);
+  renderDicePage(dicePageEl);
+  renderGeneratePage(generatePageEl);
+  renderInfoPage(infoPageEl);
   renderSettingsPage(settingsPageEl);
 
   const tabBar = initializeTabBar(tabBarEl, switchToTab);
@@ -37,7 +50,7 @@ export function initializeApp() {
    * @param {string} tabId - Must match an id="page-{tabId}" element in the DOM.
    */
   function switchToTab(tabId) {
-    [homePageEl, settingsPageEl].forEach((page) => {
+    allPages.forEach((page) => {
       if (page) page.hidden = true;
     });
 

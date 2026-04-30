@@ -8,6 +8,18 @@ vi.mock('../../app/js/home-page.js', () => ({
   renderHomePage: vi.fn().mockReturnValue(true),
 }));
 
+vi.mock('../../app/js/dice-page.js', () => ({
+  renderDicePage: vi.fn().mockReturnValue(true),
+}));
+
+vi.mock('../../app/js/generate-page.js', () => ({
+  renderGeneratePage: vi.fn().mockReturnValue(true),
+}));
+
+vi.mock('../../app/js/info-page.js', () => ({
+  renderInfoPage: vi.fn().mockReturnValue(true),
+}));
+
 vi.mock('../../app/js/settings-page.js', () => ({
   renderSettingsPage: vi.fn().mockReturnValue(true),
 }));
@@ -23,10 +35,13 @@ vi.mock('../../app/js/service-worker-registration.js', () => ({
   registerServiceWorker: vi.fn().mockResolvedValue(true),
 }));
 
-import { initializeApp }    from '../../app/js/app.js';
-import { renderHomePage }   from '../../app/js/home-page.js';
+import { initializeApp }      from '../../app/js/app.js';
+import { renderHomePage }     from '../../app/js/home-page.js';
+import { renderDicePage }     from '../../app/js/dice-page.js';
+import { renderGeneratePage } from '../../app/js/generate-page.js';
+import { renderInfoPage }     from '../../app/js/info-page.js';
 import { renderSettingsPage } from '../../app/js/settings-page.js';
-import { initializeTabBar } from '../../app/js/tab-bar.js';
+import { initializeTabBar }   from '../../app/js/tab-bar.js';
 import { registerServiceWorker } from '../../app/js/service-worker-registration.js';
 
 // Minimal DOM that mirrors index.html's structure
@@ -34,6 +49,9 @@ const FIXTURE = `
   <div class="app-shell">
     <main class="page-container">
       <div id="page-home"     hidden></div>
+      <div id="page-dice"     hidden></div>
+      <div id="page-generate" hidden></div>
+      <div id="page-info"     hidden></div>
       <div id="page-settings" hidden></div>
     </main>
     <nav id="tab-bar"></nav>
@@ -52,6 +70,21 @@ describe('initializeApp', () => {
   it('calls renderHomePage with the home page element', () => {
     initializeApp();
     expect(renderHomePage).toHaveBeenCalledWith(document.getElementById('page-home'));
+  });
+
+  it('calls renderDicePage with the dice page element', () => {
+    initializeApp();
+    expect(renderDicePage).toHaveBeenCalledWith(document.getElementById('page-dice'));
+  });
+
+  it('calls renderGeneratePage with the generate page element', () => {
+    initializeApp();
+    expect(renderGeneratePage).toHaveBeenCalledWith(document.getElementById('page-generate'));
+  });
+
+  it('calls renderInfoPage with the info page element', () => {
+    initializeApp();
+    expect(renderInfoPage).toHaveBeenCalledWith(document.getElementById('page-info'));
   });
 
   it('calls renderSettingsPage with the settings page element', () => {
@@ -76,12 +109,51 @@ describe('initializeApp', () => {
     expect(document.getElementById('page-home').hidden).toBe(false);
   });
 
+  it('hides the dice page on startup', () => {
+    initializeApp();
+    expect(document.getElementById('page-dice').hidden).toBe(true);
+  });
+
+  it('hides the generate page on startup', () => {
+    initializeApp();
+    expect(document.getElementById('page-generate').hidden).toBe(true);
+  });
+
+  it('hides the info page on startup', () => {
+    initializeApp();
+    expect(document.getElementById('page-info').hidden).toBe(true);
+  });
+
   it('hides the settings page on startup', () => {
     initializeApp();
     expect(document.getElementById('page-settings').hidden).toBe(true);
   });
 
   // ── Tab switching ───────────────────────────────────────────────────────
+
+  it('switching to dice shows dice and hides all others', () => {
+    initializeApp();
+    capturedSwitchToTab('dice');
+    expect(document.getElementById('page-dice').hidden).toBe(false);
+    expect(document.getElementById('page-home').hidden).toBe(true);
+    expect(document.getElementById('page-settings').hidden).toBe(true);
+  });
+
+  it('switching to generate shows generate and hides all others', () => {
+    initializeApp();
+    capturedSwitchToTab('generate');
+    expect(document.getElementById('page-generate').hidden).toBe(false);
+    expect(document.getElementById('page-home').hidden).toBe(true);
+    expect(document.getElementById('page-settings').hidden).toBe(true);
+  });
+
+  it('switching to info shows info and hides all others', () => {
+    initializeApp();
+    capturedSwitchToTab('info');
+    expect(document.getElementById('page-info').hidden).toBe(false);
+    expect(document.getElementById('page-home').hidden).toBe(true);
+    expect(document.getElementById('page-settings').hidden).toBe(true);
+  });
 
   it('switching to settings shows settings and hides home', () => {
     initializeApp();
