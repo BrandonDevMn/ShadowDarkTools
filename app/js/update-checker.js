@@ -53,19 +53,33 @@ export async function checkForUpdate(
     registration.addEventListener('updatefound', () => {
       clearTimeout(timeoutId);
 
-      const installingWorker = registration.installing;
+      // .installing should point to the new worker, but if it installed very
+      // quickly the browser may have already moved it to .waiting before this
+      // handler ran — fall back to .waiting so we don't lose track of the worker.
+      const newWorker = registration.installing ?? registration.waiting ?? null;
 
-      // Edge case: updatefound fired but .installing is already null
-      // (browser already advanced the state machine past installing)
-      if (!installingWorker) {
+      if (!newWorker) {
         resolve(UPDATE_STATUS.UP_TO_DATE);
         return;
       }
 
-      installingWorker.addEventListener('statechange', () => {
-        if (installingWorker.state === 'activated') {
+      // skipWaiting() in the SW's install event can push the worker through
+      // the entire state machine before we attach a statechange listener.
+      // Check the current state first so we never wait for an event that
+      // has already fired.
+      if (newWorker.state === 'activated') {
+        resolve(UPDATE_STATUS.UPDATED);
+        return;
+      }
+      if (newWorker.state === 'redundant') {
+        resolve(UPDATE_STATUS.ERROR);
+        return;
+      }
+
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state === 'activated') {
           resolve(UPDATE_STATUS.UPDATED);
-        } else if (installingWorker.state === 'redundant') {
+        } else if (newWorker.state === 'redundant') {
           // Another update superseded this one, or install failed
           resolve(UPDATE_STATUS.ERROR);
         }

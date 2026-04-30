@@ -16,6 +16,7 @@ function makeRegistration({ updateRejects = false } = {}) {
 
   const registration = {
     installing: null,
+    waiting: null,
 
     addEventListener(event, handler) {
       listeners[event] = listeners[event] || [];
@@ -26,7 +27,9 @@ function makeRegistration({ updateRejects = false } = {}) {
       updateRejects ? Promise.reject(new Error('network')) : Promise.resolve()
     ),
 
-    // Test helper — simulates the browser firing "updatefound" after update()
+    // Test helper — simulates the browser firing "updatefound" after update().
+    // Pass a worker to simulate the installing slot; leave null to simulate the
+    // race where the browser cleared .installing before the handler ran.
     fireUpdateFound(worker) {
       registration.installing = worker;
       (listeners['updatefound'] || []).forEach((h) => h());
@@ -168,21 +171,95 @@ describe('checkForUpdate — new worker goes redundant', () => {
 
 // ── updatefound fires, but registration.installing is already null ───────────
 
-describe('checkForUpdate — updatefound with null installing', () => {
+describe('checkForUpdate — updatefound with null installing, no waiting', () => {
   beforeEach(() => { vi.useFakeTimers(); });
   afterEach(() => { vi.useRealTimers(); });
 
-  it('returns UP_TO_DATE when installing is null at updatefound time', async () => {
+  it('returns UP_TO_DATE when both installing and waiting are null', async () => {
     const reg = makeRegistration();
 
     const promise = checkForUpdate(() => Promise.resolve(reg), 10_000);
 
     await flushMicrotasks();
 
-    // Fire updatefound without providing an installing worker
+    // Fire updatefound with no installing worker and no waiting worker
     reg.fireUpdateFound(null);
 
     const result = await promise;
     expect(result).toBe(UPDATE_STATUS.UP_TO_DATE);
+  });
+});
+
+// ── updatefound fires, installing is null but waiting worker exists ───────────
+// Race: worker moved from installing → waiting before handler ran
+
+describe('checkForUpdate — updatefound with null installing, waiting worker present', () => {
+  beforeEach(() => { vi.useFakeTimers(); });
+  afterEach(() => { vi.useRealTimers(); });
+
+  it('returns UPDATED when installing is null but waiting worker activates', async () => {
+    const reg = makeRegistration();
+    const worker = makeWorker('installed');
+
+    const promise = checkForUpdate(() => Promise.resolve(reg), 10_000);
+    await flushMicrotasks();
+
+    // Simulate the race: .installing is null, worker already moved to .waiting
+    reg.waiting = worker;
+    reg.fireUpdateFound(null);
+    await flushMicrotasks();
+
+    worker.setState('activated');
+
+    const result = await promise;
+    expect(result).toBe(UPDATE_STATUS.UPDATED);
+  });
+
+  it('returns UPDATED when installing is null and waiting worker is already activated', async () => {
+    const reg = makeRegistration();
+    const worker = makeWorker('activated');
+
+    const promise = checkForUpdate(() => Promise.resolve(reg), 10_000);
+    await flushMicrotasks();
+
+    reg.waiting = worker;
+    reg.fireUpdateFound(null);
+
+    const result = await promise;
+    expect(result).toBe(UPDATE_STATUS.UPDATED);
+  });
+});
+
+// ── updatefound fires with a worker already past "installing" ─────────────────
+// Race: skipWaiting activated the worker before statechange listener attached
+
+describe('checkForUpdate — worker already in terminal state at updatefound time', () => {
+  beforeEach(() => { vi.useFakeTimers(); });
+  afterEach(() => { vi.useRealTimers(); });
+
+  it('returns UPDATED immediately when installing worker is already activated', async () => {
+    const reg = makeRegistration();
+    const worker = makeWorker('activated');
+
+    const promise = checkForUpdate(() => Promise.resolve(reg), 10_000);
+    await flushMicrotasks();
+
+    reg.fireUpdateFound(worker);
+
+    const result = await promise;
+    expect(result).toBe(UPDATE_STATUS.UPDATED);
+  });
+
+  it('returns ERROR immediately when installing worker is already redundant', async () => {
+    const reg = makeRegistration();
+    const worker = makeWorker('redundant');
+
+    const promise = checkForUpdate(() => Promise.resolve(reg), 10_000);
+    await flushMicrotasks();
+
+    reg.fireUpdateFound(worker);
+
+    const result = await promise;
+    expect(result).toBe(UPDATE_STATUS.ERROR);
   });
 });
