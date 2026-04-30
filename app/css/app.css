@@ -92,9 +92,25 @@ body {
 
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+
+  /* Start content from the top so the page title sits at the top-left,
+     matching the iOS Large Title pattern (Podcasts, Music, etc.) */
+  align-items: stretch;
+  justify-content: flex-start;
+
   padding: 1.5rem;
+}
+
+/* ─── Page title (iOS Large Title style) ─────────────────────────────────── */
+
+/* Mirrors the large left-aligned section title Apple uses in Podcasts/Music.
+   34px matches the iOS Human Interface Guidelines Large Title size. */
+.page-title {
+  font-size: 2.125rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0.25rem 0 1.5rem;
+  line-height: 1.15;
 }
 
 /* ─── Hello world ────────────────────────────────────────────────────────── */
@@ -114,12 +130,6 @@ body {
   max-width: 480px;
 }
 
-.settings__heading {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin: 0 0 1.5rem;
-  color: var(--color-text);
-}
 
 .settings__row {
   display: flex;

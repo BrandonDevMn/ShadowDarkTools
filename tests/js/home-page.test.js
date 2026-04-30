@@ -22,14 +22,27 @@ describe('renderHomePage', () => {
     expect(renderHomePage(container)).toBe(true);
   });
 
+  it('renders a page title element', () => {
+    renderHomePage(container);
+    expect(container.querySelector('.page-title')).not.toBeNull();
+  });
+
+  it('page title text is "Home"', () => {
+    renderHomePage(container);
+    expect(container.querySelector('.page-title').textContent).toBe('Home');
+  });
+
   it('calls renderHelloWorld with the container', () => {
     renderHomePage(container);
     expect(renderHelloWorld).toHaveBeenCalledWith(container);
   });
 
-  it('returns whatever renderHelloWorld returns', () => {
-    renderHelloWorld.mockReturnValueOnce(false);
-    expect(renderHomePage(container)).toBe(false);
+  it('page title is rendered before hello-world content', () => {
+    renderHomePage(container);
+    const children = Array.from(container.children);
+    const titleIndex = children.findIndex((el) => el.classList.contains('page-title'));
+    // The title must be the first child so it appears at the top of the page
+    expect(titleIndex).toBe(0);
   });
 
   // ── Invalid container ───────────────────────────────────────────────────

@@ -3,9 +3,9 @@ import { renderHelloWorld } from './hello-world.js';
 /**
  * Renders the home tab content into the given container.
  *
- * Currently delegates to renderHelloWorld. As the app grows, this is the
- * place to add home-specific layout around the hello world placeholder
- * before it gets replaced with real content.
+ * Prepends the iOS-style large page title, then delegates to renderHelloWorld
+ * for the placeholder body content. As real home content is added, it goes
+ * below the title here.
  *
  * Returns true on success, false if container is not a valid Element.
  *
@@ -17,5 +17,11 @@ export function renderHomePage(container) {
     return false;
   }
 
-  return renderHelloWorld(container);
+  const title = document.createElement('h1');
+  title.className = 'page-title';
+  title.textContent = 'Home';
+  container.appendChild(title);
+
+  renderHelloWorld(container);
+  return true;
 }

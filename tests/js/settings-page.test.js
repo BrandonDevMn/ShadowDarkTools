@@ -30,14 +30,24 @@ describe('renderSettingsPage', () => {
     expect(renderSettingsPage(container)).toBe(true);
   });
 
+  it('renders a page title element', () => {
+    renderSettingsPage(container);
+    expect(container.querySelector('.page-title')).not.toBeNull();
+  });
+
+  it('page title text is "Settings"', () => {
+    renderSettingsPage(container);
+    expect(container.querySelector('.page-title').textContent).toBe('Settings');
+  });
+
+  it('page title is the first child of the container', () => {
+    renderSettingsPage(container);
+    expect(container.firstElementChild.classList.contains('page-title')).toBe(true);
+  });
+
   it('renders a settings section element', () => {
     renderSettingsPage(container);
     expect(container.querySelector('.settings')).not.toBeNull();
-  });
-
-  it('renders a heading', () => {
-    renderSettingsPage(container);
-    expect(container.querySelector('.settings__heading')).not.toBeNull();
   });
 
   it('renders a version value element', () => {
@@ -116,7 +126,6 @@ describe('handleUpdateCheck', () => {
   it('disables the button immediately', async () => {
     checkForUpdate.mockResolvedValue(UPDATE_STATUS.UP_TO_DATE);
     const promise = handleUpdateCheck(button, reloadFn);
-    // Before awaiting — button should already be disabled
     expect(button.disabled).toBe(true);
     await promise;
   });

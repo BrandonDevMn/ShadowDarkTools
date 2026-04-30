@@ -18,12 +18,14 @@ export function renderSettingsPage(container) {
     return false;
   }
 
+  // iOS-style large page title — same pattern as home-page.js
+  const title = document.createElement('h1');
+  title.className = 'page-title';
+  title.textContent = 'Settings';
+  container.appendChild(title);
+
   const section = document.createElement('div');
   section.className = 'settings';
-
-  const heading = document.createElement('h2');
-  heading.className = 'settings__heading';
-  heading.textContent = 'Settings';
 
   // Version row — shows the UTC datetime of the last deploy
   const versionRow = document.createElement('div');
@@ -39,7 +41,6 @@ export function renderSettingsPage(container) {
 
   versionRow.appendChild(versionLabel);
   versionRow.appendChild(versionValue);
-  section.appendChild(heading);
   section.appendChild(versionRow);
 
   // Update check row — button triggers a SW update poll
