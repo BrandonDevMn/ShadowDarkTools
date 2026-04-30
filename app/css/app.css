@@ -36,10 +36,12 @@
 
 /* Lock the document to exactly the viewport so iOS Safari cannot scroll the
    body — which would drag the tab bar up and down with the page content.
-   All scrolling must happen inside .page-container, not at the body level. */
+   All scrolling must happen inside .page-container, not at the body level.
+   height: 100dvh (not 100%) so body and .app-shell use the same ruler —
+   the dynamic viewport — eliminating any gap at the bottom of the screen. */
 html,
 body {
-  height: 100%;
+  height: 100dvh;
   overflow: hidden;
 }
 
