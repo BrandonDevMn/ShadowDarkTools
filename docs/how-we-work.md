@@ -102,8 +102,31 @@ Types: `feat`, `fix`, `test`, `refactor`, `docs`, `chore`.
 
 ---
 
+## Never Commit Secrets
+
+Before staging any file, check that it contains no secrets. Secrets include:
+
+- API keys, tokens, or passwords (e.g., `sk-...`, `ghp_...`, `AIza...`)
+- Private keys or certificates (`.pem`, `.key`, anything with `BEGIN ... KEY`)
+- `.env` files or any file whose name starts with `.env`
+- Hard-coded credentials, connection strings with usernames/passwords
+- Any value that looks like a random high-entropy string assigned to a named key
+
+**If a file contains a secret:**
+1. Do not stage or commit it — stop immediately.
+2. Tell the user what was found and in which file.
+3. Ask how they want to handle it (environment variable, secrets manager, etc.) before proceeding.
+
+**Preventive rules:**
+- Never write a secret directly into source code. Use `const apiKey = process.env.API_KEY` patterns instead.
+- Add `.env` and any secret-holding files to `.gitignore` before creating them.
+- If a secret was accidentally committed in a prior commit, warn the user — the secret must be rotated, not just deleted in a follow-up commit.
+
+---
+
 ## What Claude Will NOT Do Without Asking First
 
+- Commit or stage any file that contains a secret (see above).
 - Delete files or folders.
 - Force-push or reset branches.
 - Push to a remote repository.
@@ -124,3 +147,4 @@ Types: `feat`, `fix`, `test`, `refactor`, `docs`, `chore`.
 | Code | Follow mobile-web-app.md | Always |
 | Test | 80% branch coverage | Always |
 | Ship | Tests pass → commit → merge to main | Always |
+| Ship | Scan staged files for secrets before committing | Always |
