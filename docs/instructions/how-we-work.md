@@ -6,7 +6,7 @@ This document defines the process Claude follows for every feature request, bug 
 
 ## Other Docs to Follow
 
-Always read and apply all other files in `/docs/` before starting work. They define constraints (device targets, platform rules, etc.) that must be respected in every change.
+Always read and apply all other files in `/docs/instructions/` before starting work. They define constraints (device targets, platform rules, etc.) that must be respected in every change.
 
 ---
 
