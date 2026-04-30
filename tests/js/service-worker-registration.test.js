@@ -24,12 +24,13 @@ describe('registerServiceWorker', () => {
     expect(result).toBe(true);
   });
 
-  it('calls navigator.serviceWorker.register with the relative service worker path', async () => {
-    // Relative path keeps registration correct under any subdirectory
-    // (e.g. /ShadowDarkTools/ on GitHub Pages)
+  it('calls navigator.serviceWorker.register with the relative SW path and updateViaCache none', async () => {
+    // Relative path keeps registration correct under any subdirectory.
+    // updateViaCache:'none' ensures the browser never serves the SW script
+    // from its HTTP cache, so new deploys are detected on every page load.
     const mockRegister = vi.fn().mockResolvedValue({});
     await registerServiceWorker({ serviceWorker: { register: mockRegister } });
-    expect(mockRegister).toHaveBeenCalledWith('./service-worker.js');
+    expect(mockRegister).toHaveBeenCalledWith('./service-worker.js', { updateViaCache: 'none' });
   });
 
   // ── Supported but registration throws ──────────────────────────────────

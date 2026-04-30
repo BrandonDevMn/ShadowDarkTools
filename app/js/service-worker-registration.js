@@ -19,8 +19,11 @@ export function registerServiceWorker(navigatorRef = navigator) {
 
   return navigatorRef.serviceWorker
     // Relative path so the SW registers correctly under any subdirectory
-    // (e.g. /ShadowDarkTools/ on GitHub Pages)
-    .register('./service-worker.js')
+    // (e.g. /ShadowDarkTools/ on GitHub Pages).
+    // updateViaCache: 'none' tells the browser to always fetch the SW script
+    // fresh from the network instead of from its HTTP cache — without this,
+    // the browser can serve a stale SW script and miss new deploys entirely.
+    .register('./service-worker.js', { updateViaCache: 'none' })
     .then(() => true)
     .catch(() => false);
 }
