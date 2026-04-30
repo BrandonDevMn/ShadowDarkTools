@@ -24,10 +24,12 @@ describe('registerServiceWorker', () => {
     expect(result).toBe(true);
   });
 
-  it('calls navigator.serviceWorker.register with the service worker path', async () => {
+  it('calls navigator.serviceWorker.register with the relative service worker path', async () => {
+    // Relative path keeps registration correct under any subdirectory
+    // (e.g. /ShadowDarkTools/ on GitHub Pages)
     const mockRegister = vi.fn().mockResolvedValue({});
     await registerServiceWorker({ serviceWorker: { register: mockRegister } });
-    expect(mockRegister).toHaveBeenCalledWith('/service-worker.js');
+    expect(mockRegister).toHaveBeenCalledWith('./service-worker.js');
   });
 
   // ── Supported but registration throws ──────────────────────────────────

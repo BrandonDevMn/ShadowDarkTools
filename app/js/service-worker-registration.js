@@ -18,7 +18,9 @@ export function registerServiceWorker(navigatorRef = navigator) {
   }
 
   return navigatorRef.serviceWorker
-    .register('/service-worker.js')
+    // Relative path so the SW registers correctly under any subdirectory
+    // (e.g. /ShadowDarkTools/ on GitHub Pages)
+    .register('./service-worker.js')
     .then(() => true)
     .catch(() => false);
 }

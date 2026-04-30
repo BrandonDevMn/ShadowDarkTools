@@ -4,14 +4,16 @@ const CACHE_NAME = 'shadowdark-tools-v1';
 
 // Files that make up the app shell — everything needed to render the UI
 // with zero network access. Add new JS/CSS files here as the app grows.
+// Relative paths resolve from the SW's own location, so they work correctly
+// whether the site is served from / or a subdirectory like /ShadowDarkTools/.
 const APP_SHELL_FILES = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/css/app.css',
-  '/js/app.js',
-  '/js/hello-world.js',
-  '/js/service-worker-registration.js',
+  './',
+  './index.html',
+  './manifest.json',
+  './css/app.css',
+  './js/app.js',
+  './js/hello-world.js',
+  './js/service-worker-registration.js',
 ];
 
 // Pre-cache the app shell the moment the service worker installs.
