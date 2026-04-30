@@ -253,6 +253,118 @@ body {
   font-weight: 600;
 }
 
+/* ─── Library — section navigation list ─────────────────────────────────── */
+
+.library-nav {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Each section row is a full-width button styled to look like a settings row */
+.library-nav__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 0;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: 1px solid #2a1a08;
+  background: none;
+  color: var(--color-text);
+  font-size: 1rem;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.library-nav__row-label {
+  /* label stretches to fill available space */
+}
+
+.library-nav__row-indicator {
+  color: var(--color-text-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+/* Back button shown at the top of a section detail view */
+.library-back-btn {
+  display: inline-block;
+  margin-bottom: 0.25rem;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-accent);
+  font-size: 1rem;
+  font-family: inherit;
+
+  /* Minimum touch target */
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+/* ─── Library — reference cards (ancestries, classes, etc.) ──────────────── */
+
+.reference-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Section sub-header within a reference list (e.g. "Weapons", "Armor") */
+.reference-section-header {
+  margin: 0.75rem 0 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.reference-card {
+  background: var(--color-surface);
+  border-radius: 10px;
+  padding: 0.875rem 1rem;
+}
+
+.reference-card__name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.2rem;
+}
+
+.reference-card__meta {
+  font-size: 0.8125rem;
+  color: var(--color-accent);
+  margin-bottom: 0.375rem;
+}
+
+.reference-card__description {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  line-height: 1.55;
+}
+
+/* Ability sub-item inside a class card */
+.reference-card__ability {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  line-height: 1.55;
+}
+
+.reference-card__ability-name {
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
 /* ─── Library — spell list ───────────────────────────────────────────────── */
 
 .spells-list {
