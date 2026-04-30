@@ -1,5 +1,16 @@
 # ShadowDark Tools
 
+**Live app:** https://brandondevmn.github.io/ShadowDarkTools/
+
+### Install on iPhone
+
+1. Open the link above in **Safari**
+2. Tap the **Share** button (box with arrow pointing up) at the bottom of the screen
+3. Scroll down and tap **"Add to Home Screen"**
+4. Tap **"Add"** — the app appears on your home screen as **ShadowDark**
+
+---
+
 A Shadowdark RPG companion toolkit for players and game masters — optimized as a Progressive Web App for iPhone, deployed via GitHub Pages.
 
 ## What It Does
