@@ -1,7 +1,7 @@
-// The six standard Shadowdark dice in ascending order.
-// dice-page.js iterates this to build the button grid — adding a new die
-// only requires adding its face count here.
-export const DICE_TYPES = [4, 6, 8, 10, 12, 20];
+// All dice available on the dice page, in the order they appear in the grid.
+// 2 is the coin (Heads/Tails); dice-page.js handles its special display.
+// Adding a new die only requires adding its face count here.
+export const DICE_TYPES = [2, 4, 6, 8, 10, 12, 20, 100];
 
 /**
  * Returns a random integer in [1, sides] — simulates a single die roll.

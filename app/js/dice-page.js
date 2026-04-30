@@ -1,13 +1,23 @@
 import { rollDie, DICE_TYPES } from './dice-roller.js';
 
+// Dice whose button label or result text differs from the default d{sides}/number pattern.
+// All other dice follow the defaults automatically — no entry needed here.
+const DIE_OVERRIDES = {
+  // A d2 is displayed as a coin flip: button reads "Coin", result reads "Heads" or "Tails"
+  2: {
+    buttonLabel: 'Coin',
+    formatResult: (roll) => (roll === 1 ? 'Heads' : 'Tails'),
+  },
+};
+
 /**
  * Renders the Dice tab into the given container.
  *
  * Layout (top to bottom):
  *   • Large page title
- *   • Result display — shows the rolled number and which die was used,
+ *   • Result display — shows the rolled value and which die was used,
  *     or a prompt before the first roll
- *   • 3 × 2 grid of die buttons (d4 through d20)
+ *   • 4 × 2 grid of die buttons (Coin, d4–d20, d100)
  *
  * Returns true on success, false if container is not a valid Element.
  *
@@ -29,12 +39,12 @@ export function renderDicePage(container) {
   const resultArea = document.createElement('div');
   resultArea.className = 'dice-result';
 
-  // Large number — starts as an em-dash until the first roll
+  // Large value — em-dash until first roll, then the number or word
   const resultValue = document.createElement('span');
   resultValue.className = 'dice-result__value';
   resultValue.textContent = '—';
 
-  // Smaller label — names the die after rolling, or shows a prompt
+  // Smaller label — names the die after rolling, or shows an initial prompt
   const resultLabel = document.createElement('span');
   resultLabel.className = 'dice-result__label';
   resultLabel.textContent = 'tap a die to roll';
@@ -49,16 +59,20 @@ export function renderDicePage(container) {
   grid.className = 'dice-grid';
 
   DICE_TYPES.forEach((sides) => {
+    const override     = DIE_OVERRIDES[sides];
+    const buttonLabel  = override?.buttonLabel ?? `d${sides}`;
+
     const button = document.createElement('button');
     button.className = 'dice-button';
     button.type = 'button';
-    button.textContent = `d${sides}`;
+    button.textContent = buttonLabel;
     button.dataset.sides = String(sides);
 
     button.addEventListener('click', () => {
-      const roll = rollDie(sides);
-      resultValue.textContent = String(roll);
-      resultLabel.textContent = `d${sides}`;
+      const roll         = rollDie(sides);
+      const displayValue = override?.formatResult?.(roll) ?? String(roll);
+      resultValue.textContent = displayValue;
+      resultLabel.textContent = buttonLabel;
     });
 
     grid.appendChild(button);

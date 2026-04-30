@@ -2,8 +2,8 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { rollDie, DICE_TYPES } from '../../app/js/dice-roller.js';
 
 describe('DICE_TYPES', () => {
-  it('contains the six standard Shadowdark dice', () => {
-    expect(DICE_TYPES).toEqual([4, 6, 8, 10, 12, 20]);
+  it('contains all dice including coin (2) and d100', () => {
+    expect(DICE_TYPES).toEqual([2, 4, 6, 8, 10, 12, 20, 100]);
   });
 });
 
@@ -33,6 +33,11 @@ describe('rollDie', () => {
   it('returns 20 on a d20 when Math.random is just below 1', () => {
     vi.spyOn(Math, 'random').mockReturnValue(0.9999);
     expect(rollDie(20)).toBe(20);
+  });
+
+  it('returns 100 on a d100 when Math.random is just below 1', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0.9999);
+    expect(rollDie(100)).toBe(100);
   });
 
   it('returns the correct mid-range value', () => {

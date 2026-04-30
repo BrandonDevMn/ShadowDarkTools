@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // Mock dice-roller so clicks produce a known value and never touch Math.random
 vi.mock('../../app/js/dice-roller.js', () => ({
-  DICE_TYPES: [4, 6, 8, 10, 12, 20],
+  DICE_TYPES: [2, 4, 6, 8, 10, 12, 20, 100],
   rollDie: vi.fn().mockReturnValue(7),
 }));
 
@@ -15,6 +15,7 @@ describe('renderDicePage', () => {
   beforeEach(() => {
     container = document.createElement('div');
     vi.clearAllMocks();
+    rollDie.mockReturnValue(7);
   });
 
   // ── Page structure ──────────────────────────────────────────────────────
@@ -54,24 +55,24 @@ describe('renderDicePage', () => {
 
   it('renders a button for each die type', () => {
     renderDicePage(container);
-    expect(container.querySelectorAll('.dice-button').length).toBe(6);
+    expect(container.querySelectorAll('.dice-button').length).toBe(8);
   });
 
-  it('renders buttons with the correct labels', () => {
+  it('renders buttons with the correct labels in order', () => {
     renderDicePage(container);
     const labels = Array.from(container.querySelectorAll('.dice-button'))
       .map((btn) => btn.textContent);
-    expect(labels).toEqual(['d4', 'd6', 'd8', 'd10', 'd12', 'd20']);
+    expect(labels).toEqual(['Coin', 'd4', 'd6', 'd8', 'd10', 'd12', 'd20', 'd100']);
   });
 
   it('each button has a data-sides attribute matching its die', () => {
     renderDicePage(container);
     const sides = Array.from(container.querySelectorAll('.dice-button'))
       .map((btn) => btn.dataset.sides);
-    expect(sides).toEqual(['4', '6', '8', '10', '12', '20']);
+    expect(sides).toEqual(['2', '4', '6', '8', '10', '12', '20', '100']);
   });
 
-  // ── Click behaviour ─────────────────────────────────────────────────────
+  // ── Standard die click behaviour ────────────────────────────────────────
 
   it('clicking d6 calls rollDie with 6', () => {
     renderDicePage(container);
@@ -85,18 +86,54 @@ describe('renderDicePage', () => {
     expect(rollDie).toHaveBeenCalledWith(20);
   });
 
-  it('clicking a die updates the result value display', () => {
+  it('clicking d100 calls rollDie with 100', () => {
+    renderDicePage(container);
+    container.querySelector('[data-sides="100"]').click();
+    expect(rollDie).toHaveBeenCalledWith(100);
+  });
+
+  it('clicking a standard die updates the result value display', () => {
     renderDicePage(container);
     container.querySelector('[data-sides="12"]').click();
     // rollDie is mocked to return 7
     expect(container.querySelector('.dice-result__value').textContent).toBe('7');
   });
 
-  it('clicking a die updates the result label to the die name', () => {
+  it('clicking a standard die updates the result label to the die name', () => {
     renderDicePage(container);
     container.querySelector('[data-sides="12"]').click();
     expect(container.querySelector('.dice-result__label').textContent).toBe('d12');
   });
+
+  // ── Coin (d2) click behaviour ───────────────────────────────────────────
+
+  it('clicking Coin calls rollDie with 2', () => {
+    renderDicePage(container);
+    container.querySelector('[data-sides="2"]').click();
+    expect(rollDie).toHaveBeenCalledWith(2);
+  });
+
+  it('clicking Coin shows "Heads" when roll is 1', () => {
+    rollDie.mockReturnValueOnce(1);
+    renderDicePage(container);
+    container.querySelector('[data-sides="2"]').click();
+    expect(container.querySelector('.dice-result__value').textContent).toBe('Heads');
+  });
+
+  it('clicking Coin shows "Tails" when roll is 2', () => {
+    rollDie.mockReturnValueOnce(2);
+    renderDicePage(container);
+    container.querySelector('[data-sides="2"]').click();
+    expect(container.querySelector('.dice-result__value').textContent).toBe('Tails');
+  });
+
+  it('clicking Coin sets the result label to "Coin" not "d2"', () => {
+    renderDicePage(container);
+    container.querySelector('[data-sides="2"]').click();
+    expect(container.querySelector('.dice-result__label').textContent).toBe('Coin');
+  });
+
+  // ── Sequence ────────────────────────────────────────────────────────────
 
   it('rolling multiple dice in sequence keeps only the latest result', () => {
     rollDie.mockReturnValueOnce(3).mockReturnValueOnce(18);

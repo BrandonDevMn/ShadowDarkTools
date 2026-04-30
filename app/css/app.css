@@ -139,9 +139,9 @@ body {
 }
 
 .dice-grid {
-  /* Three columns fill the page width evenly */
+  /* Four columns give two clean rows for the eight dice (Coin + d4–d20 + d100) */
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 0.75rem;
   width: 100%;
 }
