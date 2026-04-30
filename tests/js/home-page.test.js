@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock hello-world before importing home-page so the dependency is stubbed
-vi.mock('../../app/js/hello-world.js', () => ({
-  renderHelloWorld: vi.fn().mockReturnValue(true),
+// Mock home-feed before importing home-page so the dependency is stubbed
+vi.mock('../../app/js/home-feed.js', () => ({
+  renderHomeFeed: vi.fn().mockReturnValue(true),
 }));
 
 import { renderHomePage } from '../../app/js/home-page.js';
-import { renderHelloWorld } from '../../app/js/hello-world.js';
+import { renderHomeFeed } from '../../app/js/home-feed.js';
 
 describe('renderHomePage', () => {
   let container;
@@ -32,9 +32,9 @@ describe('renderHomePage', () => {
     expect(container.querySelector('.page-title').textContent).toBe('Home');
   });
 
-  it('calls renderHelloWorld with the container', () => {
+  it('calls renderHomeFeed with the container', () => {
     renderHomePage(container);
-    expect(renderHelloWorld).toHaveBeenCalledWith(container);
+    expect(renderHomeFeed).toHaveBeenCalledWith(container);
   });
 
   it('page header is the first child of the container', () => {
@@ -42,7 +42,7 @@ describe('renderHomePage', () => {
     expect(container.firstElementChild.classList.contains('page-header')).toBe(true);
   });
 
-  it('page header is rendered before hello-world content', () => {
+  it('page header is rendered before feed content', () => {
     renderHomePage(container);
     const children = Array.from(container.children);
     const headerIndex = children.findIndex((el) => el.classList.contains('page-header'));
@@ -93,8 +93,8 @@ describe('renderHomePage', () => {
     expect(renderHomePage('#page-home')).toBe(false);
   });
 
-  it('does not call renderHelloWorld when container is invalid', () => {
+  it('does not call renderHomeFeed when container is invalid', () => {
     renderHomePage(null);
-    expect(renderHelloWorld).not.toHaveBeenCalled();
+    expect(renderHomeFeed).not.toHaveBeenCalled();
   });
 });

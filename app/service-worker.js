@@ -23,7 +23,7 @@ const APP_SHELL_FILES = [
   './js/info-page.js',
   './js/settings-page.js',
   './js/tab-bar.js',
-  './js/hello-world.js',
+  './js/home-feed.js',
   './js/service-worker-registration.js',
   './js/update-checker.js',
 ];

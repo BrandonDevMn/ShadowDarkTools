@@ -1,4 +1,4 @@
-import { renderHelloWorld } from './hello-world.js';
+import { renderHomeFeed } from './home-feed.js';
 
 // SVG gear icon — same path as the former tab-bar settings icon
 const SETTINGS_ICON = `<svg viewBox="0 0 24 24" aria-hidden="true">
@@ -42,6 +42,6 @@ export function renderHomePage(container, { onSettingsOpen = () => {} } = {}) {
   header.appendChild(gearButton);
   container.appendChild(header);
 
-  renderHelloWorld(container);
+  renderHomeFeed(container);
   return true;
 }
