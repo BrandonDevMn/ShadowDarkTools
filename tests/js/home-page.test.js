@@ -37,12 +37,46 @@ describe('renderHomePage', () => {
     expect(renderHelloWorld).toHaveBeenCalledWith(container);
   });
 
-  it('page title is rendered before hello-world content', () => {
+  it('page header is the first child of the container', () => {
+    renderHomePage(container);
+    expect(container.firstElementChild.classList.contains('page-header')).toBe(true);
+  });
+
+  it('page header is rendered before hello-world content', () => {
     renderHomePage(container);
     const children = Array.from(container.children);
-    const titleIndex = children.findIndex((el) => el.classList.contains('page-title'));
-    // The title must be the first child so it appears at the top of the page
-    expect(titleIndex).toBe(0);
+    const headerIndex = children.findIndex((el) => el.classList.contains('page-header'));
+    expect(headerIndex).toBe(0);
+  });
+
+  // ── Page header ─────────────────────────────────────────────────────────
+
+  it('renders a page-header element', () => {
+    renderHomePage(container);
+    expect(container.querySelector('.page-header')).not.toBeNull();
+  });
+
+  it('renders a settings gear button inside the header', () => {
+    renderHomePage(container);
+    expect(container.querySelector('.page-header__settings-button')).not.toBeNull();
+  });
+
+  it('gear button has aria-label "Settings"', () => {
+    renderHomePage(container);
+    expect(container.querySelector('.page-header__settings-button')
+      .getAttribute('aria-label')).toBe('Settings');
+  });
+
+  it('clicking the gear button calls onSettingsOpen', () => {
+    const onSettingsOpen = vi.fn();
+    renderHomePage(container, { onSettingsOpen });
+    container.querySelector('.page-header__settings-button').click();
+    expect(onSettingsOpen).toHaveBeenCalled();
+  });
+
+  it('does not throw when gear button is clicked with no callback provided', () => {
+    renderHomePage(container);
+    expect(() => container.querySelector('.page-header__settings-button').click()).not.toThrow();
   });
 
   // ── Invalid container ───────────────────────────────────────────────────

@@ -40,14 +40,43 @@ describe('renderSettingsPage', () => {
     expect(container.querySelector('.page-title').textContent).toBe('Settings');
   });
 
-  it('page title is the first child of the container', () => {
+  it('page header is the first child of the container', () => {
     renderSettingsPage(container);
-    expect(container.firstElementChild.classList.contains('page-title')).toBe(true);
+    expect(container.firstElementChild.classList.contains('page-header')).toBe(true);
   });
 
   it('renders a settings section element', () => {
     renderSettingsPage(container);
     expect(container.querySelector('.settings')).not.toBeNull();
+  });
+
+  // ── Page header / Done button ───────────────────────────────────────────
+
+  it('renders a page-header element', () => {
+    renderSettingsPage(container);
+    expect(container.querySelector('.page-header')).not.toBeNull();
+  });
+
+  it('renders a Done button inside the header', () => {
+    renderSettingsPage(container);
+    expect(container.querySelector('.page-header__done-button')).not.toBeNull();
+  });
+
+  it('Done button text is "Done"', () => {
+    renderSettingsPage(container);
+    expect(container.querySelector('.page-header__done-button').textContent).toBe('Done');
+  });
+
+  it('clicking Done button calls onDismiss', () => {
+    const onDismiss = vi.fn();
+    renderSettingsPage(container, { onDismiss });
+    container.querySelector('.page-header__done-button').click();
+    expect(onDismiss).toHaveBeenCalled();
+  });
+
+  it('does not throw when Done button is clicked with no callback provided', () => {
+    renderSettingsPage(container);
+    expect(() => container.querySelector('.page-header__done-button').click()).not.toThrow();
   });
 
   // ── External link rows ──────────────────────────────────────────────────

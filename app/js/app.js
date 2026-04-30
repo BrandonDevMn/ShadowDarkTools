@@ -10,8 +10,8 @@ import { registerServiceWorker } from './service-worker-registration.js';
  * Bootstraps the app — renders all pages, builds the tab bar, and
  * registers the service worker.
  *
- * Pages start hidden (via the HTML `hidden` attribute). switchToTab()
- * reveals one page at a time and syncs the tab bar highlight.
+ * Settings is not a tab. It is opened via the gear icon on the Home page
+ * and dismissed via the Done button, overlaying whichever tab was active.
  *
  * Exported so tests can call it directly without simulating DOM events.
  */
@@ -23,16 +23,17 @@ export function initializeApp() {
   const settingsPageEl = document.getElementById('page-settings');
   const tabBarEl       = document.getElementById('tab-bar');
 
-  // All pages are defined up front so tab switching is instant with no
-  // render cost on first visit — each module just builds DOM nodes
-  const allPages = [homePageEl, dicePageEl, generatePageEl, infoPageEl, settingsPageEl];
+  // Tab pages only — settings is managed separately
+  const tabPages = [homePageEl, dicePageEl, generatePageEl, infoPageEl];
 
-  // Render content into each page upfront so switching tabs is instant
-  renderHomePage(homePageEl);
+  // Tracks the last active tab so closing settings restores the right page
+  let activeTabId = 'home';
+
+  renderHomePage(homePageEl, { onSettingsOpen: openSettings });
   renderDicePage(dicePageEl);
   renderGeneratePage(generatePageEl);
   renderInfoPage(infoPageEl);
-  renderSettingsPage(settingsPageEl);
+  renderSettingsPage(settingsPageEl, { onDismiss: closeSettings });
 
   const tabBar = initializeTabBar(tabBarEl, switchToTab);
 
@@ -44,20 +45,33 @@ export function initializeApp() {
   registerServiceWorker();
 
   /**
-   * Shows the page matching tabId and hides all others.
+   * Shows the page matching tabId and hides all others (including settings).
    * Also updates the tab bar highlight to match.
    *
    * @param {string} tabId - Must match an id="page-{tabId}" element in the DOM.
    */
   function switchToTab(tabId) {
-    allPages.forEach((page) => {
-      if (page) page.hidden = true;
-    });
+    tabPages.forEach((page) => { if (page) page.hidden = true; });
+    if (settingsPageEl) settingsPageEl.hidden = true;
 
     const targetPage = document.getElementById(`page-${tabId}`);
     if (targetPage) targetPage.hidden = false;
 
+    activeTabId = tabId;
     if (tabBar) tabBar.setActiveTab(tabId);
+  }
+
+  /** Hides all tab pages and reveals the settings page. */
+  function openSettings() {
+    tabPages.forEach((page) => { if (page) page.hidden = true; });
+    if (settingsPageEl) settingsPageEl.hidden = false;
+  }
+
+  /** Hides settings and restores whichever tab was last active. */
+  function closeSettings() {
+    if (settingsPageEl) settingsPageEl.hidden = true;
+    const targetPage = document.getElementById(`page-${activeTabId}`);
+    if (targetPage) targetPage.hidden = false;
   }
 }
 

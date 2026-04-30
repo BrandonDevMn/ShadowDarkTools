@@ -113,6 +113,56 @@ body {
   line-height: 1.15;
 }
 
+/* ─── Page header (large title + action button on the right) ────────────── */
+
+/* Flex row that holds .page-title on the left and an action button on the right.
+   Replaces the standalone .page-title margin-bottom when used — the header
+   carries the spacing instead so the title and button stay vertically centred. */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+/* Suppress the standalone bottom margin when .page-title lives inside a header */
+.page-header .page-title {
+  margin-bottom: 0;
+}
+
+/* Gear icon button on the Home page — sized to the iOS 44px minimum touch target */
+.page-header__settings-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text);
+  line-height: 0;
+}
+
+.page-header__settings-button svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+/* iOS-style "Done" button on the Settings page */
+.page-header__done-button {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: var(--color-accent);
+  font-size: 1rem;
+  font-family: inherit;
+  font-weight: 600;
+}
+
 /* ─── Dice page ──────────────────────────────────────────────────────────── */
 
 .dice-result {

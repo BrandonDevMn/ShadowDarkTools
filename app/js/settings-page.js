@@ -22,26 +22,40 @@ const EXTERNAL_LINKS = [
 ];
 
 /**
- * Renders the settings tab content into the given container.
+ * Renders the settings page content into the given container.
  *
- * Row order follows iOS Settings conventions: navigation rows (links)
- * first, info rows (version) in the middle, action rows at the bottom.
+ * Accepts an optional onDismiss callback invoked when the Done button is
+ * tapped. Row order follows iOS Settings conventions: navigation rows
+ * (links) first, info rows (version) in the middle, action rows at the bottom.
  *
  * Returns true on success, false if container is not a valid Element.
  *
  * @param {Element|null|undefined} container
+ * @param {{ onDismiss?: function(): void }} [options]
  * @returns {boolean}
  */
-export function renderSettingsPage(container) {
+export function renderSettingsPage(container, { onDismiss = () => {} } = {}) {
   if (!container || !(container instanceof Element)) {
     return false;
   }
 
-  // iOS-style large page title
+  // Header row: large title on the left, Done button on the right
+  const header = document.createElement('div');
+  header.className = 'page-header';
+
   const title = document.createElement('h1');
   title.className = 'page-title';
   title.textContent = 'Settings';
-  container.appendChild(title);
+
+  const doneButton = document.createElement('button');
+  doneButton.type = 'button';
+  doneButton.className = 'page-header__done-button';
+  doneButton.textContent = 'Done';
+  doneButton.addEventListener('click', onDismiss);
+
+  header.appendChild(title);
+  header.appendChild(doneButton);
+  container.appendChild(header);
 
   const section = document.createElement('div');
   section.className = 'settings';

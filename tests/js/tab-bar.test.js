@@ -28,7 +28,7 @@ describe('initializeTabBar', () => {
 
   it('renders a button for each defined tab', () => {
     initializeTabBar(container, onTabSelect);
-    expect(container.querySelectorAll('.tab-bar__tab').length).toBe(5);
+    expect(container.querySelectorAll('.tab-bar__tab').length).toBe(4);
   });
 
   it('renders a home tab', () => {
@@ -51,9 +51,9 @@ describe('initializeTabBar', () => {
     expect(container.querySelector('[data-tab-id="info"]')).not.toBeNull();
   });
 
-  it('renders a settings tab', () => {
+  it('does not render a settings tab', () => {
     initializeTabBar(container, onTabSelect);
-    expect(container.querySelector('[data-tab-id="settings"]')).not.toBeNull();
+    expect(container.querySelector('[data-tab-id="settings"]')).toBeNull();
   });
 
   it('each tab has an aria-label', () => {
@@ -89,12 +89,6 @@ describe('initializeTabBar', () => {
     expect(onTabSelect).toHaveBeenCalledWith('info');
   });
 
-  it('calls onTabSelect with "settings" when the settings tab is clicked', () => {
-    initializeTabBar(container, onTabSelect);
-    container.querySelector('[data-tab-id="settings"]').click();
-    expect(onTabSelect).toHaveBeenCalledWith('settings');
-  });
-
   // ── setActiveTab ────────────────────────────────────────────────────────
 
   it('returns an object with a setActiveTab method', () => {
@@ -112,7 +106,7 @@ describe('initializeTabBar', () => {
   it('setActiveTab removes the active class from all other tabs', () => {
     const tabBar = initializeTabBar(container, onTabSelect);
     tabBar.setActiveTab('dice');
-    ['home', 'generate', 'info', 'settings'].forEach((id) => {
+    ['home', 'generate', 'info'].forEach((id) => {
       expect(container.querySelector(`[data-tab-id="${id}"]`)
         .classList.contains('tab-bar__tab--active')).toBe(false);
     });
@@ -123,14 +117,14 @@ describe('initializeTabBar', () => {
     tabBar.setActiveTab('home');
     expect(container.querySelector('[data-tab-id="home"]')
       .getAttribute('aria-selected')).toBe('true');
-    expect(container.querySelector('[data-tab-id="settings"]')
+    expect(container.querySelector('[data-tab-id="info"]')
       .getAttribute('aria-selected')).toBe('false');
   });
 
   it('switching active tab removes active class from the previously active tab', () => {
     const tabBar = initializeTabBar(container, onTabSelect);
     tabBar.setActiveTab('home');
-    tabBar.setActiveTab('settings');
+    tabBar.setActiveTab('dice');
     expect(container.querySelector('[data-tab-id="home"]')
       .classList.contains('tab-bar__tab--active')).toBe(false);
   });

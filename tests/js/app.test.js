@@ -4,8 +4,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // can simulate tab presses without clicking real DOM buttons
 let capturedSwitchToTab;
 
+// Capture the settings open/dismiss callbacks passed by initializeApp
+let capturedOnSettingsOpen;
+let capturedOnDismiss;
+
 vi.mock('../../app/js/home-page.js', () => ({
-  renderHomePage: vi.fn().mockReturnValue(true),
+  renderHomePage: vi.fn().mockImplementation((_container, { onSettingsOpen } = {}) => {
+    capturedOnSettingsOpen = onSettingsOpen;
+    return true;
+  }),
 }));
 
 vi.mock('../../app/js/dice-page.js', () => ({
@@ -21,7 +28,10 @@ vi.mock('../../app/js/info-page.js', () => ({
 }));
 
 vi.mock('../../app/js/settings-page.js', () => ({
-  renderSettingsPage: vi.fn().mockReturnValue(true),
+  renderSettingsPage: vi.fn().mockImplementation((_container, { onDismiss } = {}) => {
+    capturedOnDismiss = onDismiss;
+    return true;
+  }),
 }));
 
 vi.mock('../../app/js/tab-bar.js', () => ({
@@ -63,13 +73,18 @@ describe('initializeApp', () => {
     document.body.innerHTML = FIXTURE;
     vi.clearAllMocks();
     capturedSwitchToTab = null;
+    capturedOnSettingsOpen = null;
+    capturedOnDismiss = null;
   });
 
   // ── Page rendering ──────────────────────────────────────────────────────
 
-  it('calls renderHomePage with the home page element', () => {
+  it('calls renderHomePage with the home page element and onSettingsOpen callback', () => {
     initializeApp();
-    expect(renderHomePage).toHaveBeenCalledWith(document.getElementById('page-home'));
+    expect(renderHomePage).toHaveBeenCalledWith(
+      document.getElementById('page-home'),
+      expect.objectContaining({ onSettingsOpen: expect.any(Function) })
+    );
   });
 
   it('calls renderDicePage with the dice page element', () => {
@@ -87,9 +102,12 @@ describe('initializeApp', () => {
     expect(renderInfoPage).toHaveBeenCalledWith(document.getElementById('page-info'));
   });
 
-  it('calls renderSettingsPage with the settings page element', () => {
+  it('calls renderSettingsPage with the settings page element and onDismiss callback', () => {
     initializeApp();
-    expect(renderSettingsPage).toHaveBeenCalledWith(document.getElementById('page-settings'));
+    expect(renderSettingsPage).toHaveBeenCalledWith(
+      document.getElementById('page-settings'),
+      expect.objectContaining({ onDismiss: expect.any(Function) })
+    );
   });
 
   // ── Tab bar ─────────────────────────────────────────────────────────────
@@ -155,19 +173,31 @@ describe('initializeApp', () => {
     expect(document.getElementById('page-settings').hidden).toBe(true);
   });
 
-  it('switching to settings shows settings and hides home', () => {
+  // ── Settings open / close ───────────────────────────────────────────────
+
+  it('opening settings hides home and shows settings', () => {
     initializeApp();
-    capturedSwitchToTab('settings');
+    capturedOnSettingsOpen();
     expect(document.getElementById('page-settings').hidden).toBe(false);
     expect(document.getElementById('page-home').hidden).toBe(true);
   });
 
-  it('switching back to home shows home and hides settings', () => {
+  it('closing settings hides settings and restores home (default active tab)', () => {
     initializeApp();
-    capturedSwitchToTab('settings');
-    capturedSwitchToTab('home');
-    expect(document.getElementById('page-home').hidden).toBe(false);
+    capturedOnSettingsOpen();
+    capturedOnDismiss();
     expect(document.getElementById('page-settings').hidden).toBe(true);
+    expect(document.getElementById('page-home').hidden).toBe(false);
+  });
+
+  it('closing settings restores the last active tab, not always home', () => {
+    initializeApp();
+    capturedSwitchToTab('dice');
+    capturedOnSettingsOpen();
+    capturedOnDismiss();
+    expect(document.getElementById('page-settings').hidden).toBe(true);
+    expect(document.getElementById('page-dice').hidden).toBe(false);
+    expect(document.getElementById('page-home').hidden).toBe(true);
   });
 
   // ── Service worker ──────────────────────────────────────────────────────
