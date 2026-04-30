@@ -18,6 +18,7 @@ const APP_SHELL_FILES = [
   './js/app.js',
   './js/home-page.js',
   './js/dice-page.js',
+  './js/dice-roller.js',
   './js/generate-page.js',
   './js/info-page.js',
   './js/settings-page.js',

@@ -1,14 +1,23 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+// Mock dice-roller so clicks produce a known value and never touch Math.random
+vi.mock('../../app/js/dice-roller.js', () => ({
+  DICE_TYPES: [4, 6, 8, 10, 12, 20],
+  rollDie: vi.fn().mockReturnValue(7),
+}));
+
 import { renderDicePage } from '../../app/js/dice-page.js';
+import { rollDie } from '../../app/js/dice-roller.js';
 
 describe('renderDicePage', () => {
   let container;
 
   beforeEach(() => {
     container = document.createElement('div');
+    vi.clearAllMocks();
   });
 
-  // ── Happy path ──────────────────────────────────────────────────────────
+  // ── Page structure ──────────────────────────────────────────────────────
 
   it('returns true when given a valid container', () => {
     expect(renderDicePage(container)).toBe(true);
@@ -24,14 +33,78 @@ describe('renderDicePage', () => {
     expect(container.querySelector('.page-title').textContent).toBe('Dice');
   });
 
-  it('renders a placeholder element', () => {
+  // ── Result display ──────────────────────────────────────────────────────
+
+  it('renders a result area', () => {
     renderDicePage(container);
-    expect(container.querySelector('.page-placeholder')).not.toBeNull();
+    expect(container.querySelector('.dice-result')).not.toBeNull();
   });
 
-  it('placeholder text is "todo"', () => {
+  it('result value starts as an em dash before any roll', () => {
     renderDicePage(container);
-    expect(container.querySelector('.page-placeholder').textContent).toBe('todo');
+    expect(container.querySelector('.dice-result__value').textContent).toBe('—');
+  });
+
+  it('result label starts with a prompt before any roll', () => {
+    renderDicePage(container);
+    expect(container.querySelector('.dice-result__label').textContent).toBe('tap a die to roll');
+  });
+
+  // ── Dice button grid ────────────────────────────────────────────────────
+
+  it('renders a button for each die type', () => {
+    renderDicePage(container);
+    expect(container.querySelectorAll('.dice-button').length).toBe(6);
+  });
+
+  it('renders buttons with the correct labels', () => {
+    renderDicePage(container);
+    const labels = Array.from(container.querySelectorAll('.dice-button'))
+      .map((btn) => btn.textContent);
+    expect(labels).toEqual(['d4', 'd6', 'd8', 'd10', 'd12', 'd20']);
+  });
+
+  it('each button has a data-sides attribute matching its die', () => {
+    renderDicePage(container);
+    const sides = Array.from(container.querySelectorAll('.dice-button'))
+      .map((btn) => btn.dataset.sides);
+    expect(sides).toEqual(['4', '6', '8', '10', '12', '20']);
+  });
+
+  // ── Click behaviour ─────────────────────────────────────────────────────
+
+  it('clicking d6 calls rollDie with 6', () => {
+    renderDicePage(container);
+    container.querySelector('[data-sides="6"]').click();
+    expect(rollDie).toHaveBeenCalledWith(6);
+  });
+
+  it('clicking d20 calls rollDie with 20', () => {
+    renderDicePage(container);
+    container.querySelector('[data-sides="20"]').click();
+    expect(rollDie).toHaveBeenCalledWith(20);
+  });
+
+  it('clicking a die updates the result value display', () => {
+    renderDicePage(container);
+    container.querySelector('[data-sides="12"]').click();
+    // rollDie is mocked to return 7
+    expect(container.querySelector('.dice-result__value').textContent).toBe('7');
+  });
+
+  it('clicking a die updates the result label to the die name', () => {
+    renderDicePage(container);
+    container.querySelector('[data-sides="12"]').click();
+    expect(container.querySelector('.dice-result__label').textContent).toBe('d12');
+  });
+
+  it('rolling multiple dice in sequence keeps only the latest result', () => {
+    rollDie.mockReturnValueOnce(3).mockReturnValueOnce(18);
+    renderDicePage(container);
+    container.querySelector('[data-sides="4"]').click();
+    container.querySelector('[data-sides="20"]').click();
+    expect(container.querySelector('.dice-result__value').textContent).toBe('18');
+    expect(container.querySelector('.dice-result__label').textContent).toBe('d20');
   });
 
   // ── Invalid container ───────────────────────────────────────────────────
