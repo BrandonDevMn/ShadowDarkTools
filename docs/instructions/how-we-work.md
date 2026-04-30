@@ -85,7 +85,8 @@ When everything above is verified:
 
 1. Stage only the files relevant to the change (never `git add -A` blindly).
 2. Write a commit message that explains **why** the change was made, not just what changed.
-3. Merge to `main`.
+3. Commit to `main`.
+4. Push to `origin/main` with `git push origin main`.
 
 Commit message format:
 ```
@@ -144,5 +145,5 @@ Before staging any file, check that it contains no secrets. Secrets include:
 | Code | Comment the why | Always |
 | Code | Follow mobile-web-app.md | Always |
 | Test | 80% branch coverage | Always |
-| Ship | Tests pass → commit → merge to main | Always |
+| Ship | Tests pass → commit → push to origin/main | Always |
 | Ship | Scan staged files for secrets before committing | Always |
