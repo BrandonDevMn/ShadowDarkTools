@@ -34,6 +34,15 @@
   display: none !important;
 }
 
+/* Lock the document to exactly the viewport so iOS Safari cannot scroll the
+   body — which would drag the tab bar up and down with the page content.
+   All scrolling must happen inside .page-container, not at the body level. */
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -41,7 +50,8 @@ body {
   color: var(--color-text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  /* Prevent rubber-band bounce scrolling on the body */
+  /* Belt-and-suspenders: also disable rubber-band bounce in case overflow
+     restrictions are loosened by a future rule */
   overscroll-behavior: none;
 }
 

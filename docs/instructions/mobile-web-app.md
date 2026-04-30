@@ -26,7 +26,8 @@ Every page must include this exact head setup:
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <!-- user-scalable=no disables pinch-to-zoom in standalone Add-to-Home-Screen mode -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 
   <!-- Safari Add to Home Screen -->
   <meta name="apple-mobile-web-app-capable" content="yes" />

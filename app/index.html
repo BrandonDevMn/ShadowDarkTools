@@ -7,7 +7,13 @@
     viewport-fit=cover extends content under the iPhone notch and home indicator.
     Without this, safe-area-inset-* values are always 0 and the notch area is wasted.
   -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <!--
+    user-scalable=no disables pinch-to-zoom so the app feels native.
+    iOS Safari ignores this in regular browser mode (accessibility), but
+    respects it in standalone Add-to-Home-Screen mode — which is our target.
+    maximum-scale=1 is a belt-and-suspenders fallback for other browsers.
+  -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
 
   <!-- Enables full-screen mode when launched from the iOS home screen -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
