@@ -1,7 +1,7 @@
 import { renderHomePage }      from './home-page.js';
 import { renderDicePage }      from './dice-page.js';
 import { renderGeneratePage }  from './generate-page.js';
-import { renderInfoPage }      from './info-page.js';
+import { renderLibraryPage }   from './library-page.js';
 import { renderSettingsPage }  from './settings-page.js';
 import { initializeTabBar }    from './tab-bar.js';
 import { registerServiceWorker } from './service-worker-registration.js';
@@ -19,12 +19,12 @@ export function initializeApp() {
   const homePageEl     = document.getElementById('page-home');
   const dicePageEl     = document.getElementById('page-dice');
   const generatePageEl = document.getElementById('page-generate');
-  const infoPageEl     = document.getElementById('page-info');
+  const libraryPageEl  = document.getElementById('page-library');
   const settingsPageEl = document.getElementById('page-settings');
   const tabBarEl       = document.getElementById('tab-bar');
 
   // Tab pages only — settings is managed separately
-  const tabPages = [homePageEl, dicePageEl, generatePageEl, infoPageEl];
+  const tabPages = [homePageEl, dicePageEl, generatePageEl, libraryPageEl];
 
   // Tracks the last active tab so closing settings restores the right page
   let activeTabId = 'home';
@@ -32,7 +32,7 @@ export function initializeApp() {
   renderHomePage(homePageEl, { onSettingsOpen: openSettings });
   renderDicePage(dicePageEl);
   renderGeneratePage(generatePageEl);
-  renderInfoPage(infoPageEl);
+  renderLibraryPage(libraryPageEl);
   renderSettingsPage(settingsPageEl, { onDismiss: closeSettings });
 
   const tabBar = initializeTabBar(tabBarEl, switchToTab);

@@ -46,9 +46,9 @@ describe('initializeTabBar', () => {
     expect(container.querySelector('[data-tab-id="generate"]')).not.toBeNull();
   });
 
-  it('renders an info tab', () => {
+  it('renders a library tab', () => {
     initializeTabBar(container, onTabSelect);
-    expect(container.querySelector('[data-tab-id="info"]')).not.toBeNull();
+    expect(container.querySelector('[data-tab-id="library"]')).not.toBeNull();
   });
 
   it('does not render a settings tab', () => {
@@ -83,10 +83,10 @@ describe('initializeTabBar', () => {
     expect(onTabSelect).toHaveBeenCalledWith('generate');
   });
 
-  it('calls onTabSelect with "info" when the info tab is clicked', () => {
+  it('calls onTabSelect with "library" when the library tab is clicked', () => {
     initializeTabBar(container, onTabSelect);
-    container.querySelector('[data-tab-id="info"]').click();
-    expect(onTabSelect).toHaveBeenCalledWith('info');
+    container.querySelector('[data-tab-id="library"]').click();
+    expect(onTabSelect).toHaveBeenCalledWith('library');
   });
 
   // ── setActiveTab ────────────────────────────────────────────────────────
@@ -106,7 +106,7 @@ describe('initializeTabBar', () => {
   it('setActiveTab removes the active class from all other tabs', () => {
     const tabBar = initializeTabBar(container, onTabSelect);
     tabBar.setActiveTab('dice');
-    ['home', 'generate', 'info'].forEach((id) => {
+    ['home', 'generate', 'library'].forEach((id) => {
       expect(container.querySelector(`[data-tab-id="${id}"]`)
         .classList.contains('tab-bar__tab--active')).toBe(false);
     });
@@ -117,7 +117,7 @@ describe('initializeTabBar', () => {
     tabBar.setActiveTab('home');
     expect(container.querySelector('[data-tab-id="home"]')
       .getAttribute('aria-selected')).toBe('true');
-    expect(container.querySelector('[data-tab-id="info"]')
+    expect(container.querySelector('[data-tab-id="library"]')
       .getAttribute('aria-selected')).toBe('false');
   });
 

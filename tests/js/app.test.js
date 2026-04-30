@@ -23,8 +23,8 @@ vi.mock('../../app/js/generate-page.js', () => ({
   renderGeneratePage: vi.fn().mockReturnValue(true),
 }));
 
-vi.mock('../../app/js/info-page.js', () => ({
-  renderInfoPage: vi.fn().mockReturnValue(true),
+vi.mock('../../app/js/library-page.js', () => ({
+  renderLibraryPage: vi.fn().mockReturnValue(true),
 }));
 
 vi.mock('../../app/js/settings-page.js', () => ({
@@ -49,7 +49,7 @@ import { initializeApp }      from '../../app/js/app.js';
 import { renderHomePage }     from '../../app/js/home-page.js';
 import { renderDicePage }     from '../../app/js/dice-page.js';
 import { renderGeneratePage } from '../../app/js/generate-page.js';
-import { renderInfoPage }     from '../../app/js/info-page.js';
+import { renderLibraryPage }  from '../../app/js/library-page.js';
 import { renderSettingsPage } from '../../app/js/settings-page.js';
 import { initializeTabBar }   from '../../app/js/tab-bar.js';
 import { registerServiceWorker } from '../../app/js/service-worker-registration.js';
@@ -61,7 +61,7 @@ const FIXTURE = `
       <div id="page-home"     hidden></div>
       <div id="page-dice"     hidden></div>
       <div id="page-generate" hidden></div>
-      <div id="page-info"     hidden></div>
+      <div id="page-library"  hidden></div>
       <div id="page-settings" hidden></div>
     </main>
     <nav id="tab-bar"></nav>
@@ -97,9 +97,9 @@ describe('initializeApp', () => {
     expect(renderGeneratePage).toHaveBeenCalledWith(document.getElementById('page-generate'));
   });
 
-  it('calls renderInfoPage with the info page element', () => {
+  it('calls renderLibraryPage with the library page element', () => {
     initializeApp();
-    expect(renderInfoPage).toHaveBeenCalledWith(document.getElementById('page-info'));
+    expect(renderLibraryPage).toHaveBeenCalledWith(document.getElementById('page-library'));
   });
 
   it('calls renderSettingsPage with the settings page element and onDismiss callback', () => {
@@ -137,9 +137,9 @@ describe('initializeApp', () => {
     expect(document.getElementById('page-generate').hidden).toBe(true);
   });
 
-  it('hides the info page on startup', () => {
+  it('hides the library page on startup', () => {
     initializeApp();
-    expect(document.getElementById('page-info').hidden).toBe(true);
+    expect(document.getElementById('page-library').hidden).toBe(true);
   });
 
   it('hides the settings page on startup', () => {
@@ -165,10 +165,10 @@ describe('initializeApp', () => {
     expect(document.getElementById('page-settings').hidden).toBe(true);
   });
 
-  it('switching to info shows info and hides all others', () => {
+  it('switching to library shows library and hides all others', () => {
     initializeApp();
-    capturedSwitchToTab('info');
-    expect(document.getElementById('page-info').hidden).toBe(false);
+    capturedSwitchToTab('library');
+    expect(document.getElementById('page-library').hidden).toBe(false);
     expect(document.getElementById('page-home').hidden).toBe(true);
     expect(document.getElementById('page-settings').hidden).toBe(true);
   });
