@@ -21,6 +21,7 @@ const APP_SHELL_FILES = [
   './js/tab-bar.js',
   './js/hello-world.js',
   './js/service-worker-registration.js',
+  './js/update-checker.js',
 ];
 
 // Pre-cache the app shell the moment the service worker installs.

@@ -128,6 +128,34 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* ─── Settings update button ─────────────────────────────────────────────── */
+
+.settings__update-button {
+  /* Stretch full row width so the tap target spans the whole settings row */
+  width: 100%;
+
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 6px;
+  background: transparent;
+
+  color: var(--color-accent);
+  font-size: 1rem;
+  font-family: inherit;
+
+  cursor: pointer;
+  text-align: center;
+
+  /* Smooth colour transition when text changes between states */
+  transition: opacity 0.15s ease;
+}
+
+.settings__update-button:disabled {
+  /* Visually mute the button while a check is in flight */
+  opacity: 0.5;
+  cursor: default;
+}
+
 /* ─── Global input rule ──────────────────────────────────────────────────── */
 
 /* Safari auto-zooms into any input with font-size below 16px.
