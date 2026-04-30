@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <!--
+    viewport-fit=cover extends content under the iPhone notch and home indicator.
+    Without this, safe-area-inset-* values are always 0 and the notch area is wasted.
+  -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+  <!-- Enables full-screen mode when launched from the iOS home screen -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+
+  <!--
+    black-translucent lets app content render behind the notch area.
+    The alternative "black" leaves a solid black bar — wastes screen real estate.
+  -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <!-- Label shown under the icon on the iOS home screen -->
+  <meta name="apple-mobile-web-app-title" content="SD Tools" />
+
+  <!-- 180×180px icon shown on the iOS home screen after "Add to Home Screen" -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+
+  <!-- PWA manifest — tells browsers this is an installable app -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <link rel="stylesheet" href="/css/app.css" />
+
+  <title>ShadowDark Tools</title>
+</head>
+<body>
+  <!--
+    .app-shell handles safe area insets and full-height layout.
+    All page content mounts inside #app so JS can find it with getElementById.
+  -->
+  <div class="app-shell">
+    <main id="app"></main>
+  </div>
+
+  <!--
+    type="module" defers execution until after the DOM is parsed and also
+    enables ES module imports. No need for an explicit defer attribute.
+  -->
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

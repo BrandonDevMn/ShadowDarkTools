@@ -1,0 +1,80 @@
+/* ─── Design tokens ──────────────────────────────────────────────────────── */
+
+:root {
+  /* Dark dungeon background with parchment/torchlight text — on-theme for Shadowdark */
+  --color-background: #0d0d0d;
+  --color-surface:    #1a1a1a;
+  --color-text:       #e8d5a3; /* warm amber, like torchlight on parchment */
+  --color-text-muted: #a08060;
+
+  /* Safe area insets — populate automatically on iPhone when viewport-fit=cover is set */
+  --safe-top:    env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+  --safe-left:   env(safe-area-inset-left);
+  --safe-right:  env(safe-area-inset-right);
+}
+
+/* ─── Reset ──────────────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+
+  /* Remove the default gray flash Safari shows on tap */
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* 100dvh adjusts as the Safari toolbar appears/disappears.
+     Never use 100vh — it includes the browser chrome and causes overflow. */
+  min-height: 100dvh;
+
+  /* Prevent rubber-band bounce scrolling on the body */
+  overscroll-behavior: none;
+}
+
+/* ─── App shell ──────────────────────────────────────────────────────────── */
+
+.app-shell {
+  /* Stretch to the full dynamic viewport height */
+  min-height: 100dvh;
+
+  /* Push content away from the notch and home indicator */
+  padding-top:    var(--safe-top);
+  padding-bottom: var(--safe-bottom);
+  padding-left:   var(--safe-left);
+  padding-right:  var(--safe-right);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── Hello world ────────────────────────────────────────────────────────── */
+
+.hello-world-heading {
+  font-size: 2rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 0;
+  padding: 0 1.5rem;
+  line-height: 1.3;
+}
+
+/* ─── Global input rule ──────────────────────────────────────────────────── */
+
+/* Safari auto-zooms into any input with font-size below 16px.
+   Declaring it globally ensures no new input ever accidentally triggers zoom. */
+input,
+textarea,
+select {
+  font-size: 16px;
+}
