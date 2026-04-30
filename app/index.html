@@ -28,16 +28,28 @@
   <link rel="manifest" href="./manifest.json" />
 
   <link rel="stylesheet" href="./css/app.css" />
+  <link rel="stylesheet" href="./css/tab-bar.css" />
 
   <title>ShadowDark Tools</title>
 </head>
 <body>
   <!--
-    .app-shell handles safe area insets and full-height layout.
-    All page content mounts inside #app so JS can find it with getElementById.
+    .app-shell is a full-height flex column.
+    .page-container fills the space between the status bar and the tab bar.
+    #tab-bar is pinned at the bottom and handles its own safe-area padding.
   -->
   <div class="app-shell">
-    <main id="app"></main>
+    <main class="page-container">
+      <!-- All pages start hidden — app.js reveals the active one on load -->
+      <div id="page-home"     class="page" hidden></div>
+      <div id="page-settings" class="page" hidden></div>
+    </main>
+
+    <!--
+      role="tablist" and aria-label make the tab bar readable to screen readers.
+      Individual buttons get role="tab" and aria-selected from tab-bar.js.
+    -->
+    <nav id="tab-bar" class="tab-bar" role="tablist" aria-label="Main navigation"></nav>
   </div>
 
   <!--

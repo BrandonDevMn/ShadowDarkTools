@@ -38,6 +38,13 @@ jobs:
           SHORT_SHA=$(git rev-parse --short HEAD)
           sed -i "s/DEPLOY_COMMIT_SHA/$SHORT_SHA/" app/service-worker.js
 
+      # Inject the deploy datetime as the app version shown on the Settings tab.
+      # Uses | as the sed delimiter so spaces and colons in the date don't need escaping.
+      - name: Stamp app version with deploy datetime
+        run: |
+          DEPLOY_DATE=$(date -u '+%Y-%m-%d %H:%M UTC')
+          sed -i "s|DEPLOY_DATETIME_PLACEHOLDER|$DEPLOY_DATE|" app/js/settings-page.js
+
       # Upload only the app/ folder — keeps docs/, tests/, and node_modules
       # out of the public site entirely
       - name: Upload app/ as Pages artifact

@@ -1,37 +1,101 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock dependencies before importing app.js so Vitest hoists these stubs
-// above the static imports — same behaviour as Jest's jest.mock() hoisting.
-vi.mock('../../app/js/hello-world.js', () => ({
-  renderHelloWorld: vi.fn().mockReturnValue(true),
+// Capture the switchToTab callback passed to initializeTabBar so tests
+// can simulate tab presses without clicking real DOM buttons
+let capturedSwitchToTab;
+
+vi.mock('../../app/js/home-page.js', () => ({
+  renderHomePage: vi.fn().mockReturnValue(true),
+}));
+
+vi.mock('../../app/js/settings-page.js', () => ({
+  renderSettingsPage: vi.fn().mockReturnValue(true),
+}));
+
+vi.mock('../../app/js/tab-bar.js', () => ({
+  initializeTabBar: vi.fn().mockImplementation((_container, onTabSelect) => {
+    capturedSwitchToTab = onTabSelect;
+    return { setActiveTab: vi.fn() };
+  }),
 }));
 
 vi.mock('../../app/js/service-worker-registration.js', () => ({
   registerServiceWorker: vi.fn().mockResolvedValue(true),
 }));
 
-import { initializeApp } from '../../app/js/app.js';
-import { renderHelloWorld } from '../../app/js/hello-world.js';
+import { initializeApp }    from '../../app/js/app.js';
+import { renderHomePage }   from '../../app/js/home-page.js';
+import { renderSettingsPage } from '../../app/js/settings-page.js';
+import { initializeTabBar } from '../../app/js/tab-bar.js';
 import { registerServiceWorker } from '../../app/js/service-worker-registration.js';
+
+// Minimal DOM that mirrors index.html's structure
+const FIXTURE = `
+  <div class="app-shell">
+    <main class="page-container">
+      <div id="page-home"     hidden></div>
+      <div id="page-settings" hidden></div>
+    </main>
+    <nav id="tab-bar"></nav>
+  </div>
+`;
 
 describe('initializeApp', () => {
   beforeEach(() => {
-    // Provide a fresh DOM with the expected #app element before each test
-    document.body.innerHTML = '<div id="app"></div>';
+    document.body.innerHTML = FIXTURE;
     vi.clearAllMocks();
+    capturedSwitchToTab = null;
   });
 
-  // ── Rendering ───────────────────────────────────────────────────────────
+  // ── Page rendering ──────────────────────────────────────────────────────
 
-  it('calls renderHelloWorld with the #app element', () => {
+  it('calls renderHomePage with the home page element', () => {
     initializeApp();
-    const appContainer = document.getElementById('app');
-    expect(renderHelloWorld).toHaveBeenCalledWith(appContainer);
+    expect(renderHomePage).toHaveBeenCalledWith(document.getElementById('page-home'));
   });
 
-  it('calls renderHelloWorld exactly once', () => {
+  it('calls renderSettingsPage with the settings page element', () => {
     initializeApp();
-    expect(renderHelloWorld).toHaveBeenCalledTimes(1);
+    expect(renderSettingsPage).toHaveBeenCalledWith(document.getElementById('page-settings'));
+  });
+
+  // ── Tab bar ─────────────────────────────────────────────────────────────
+
+  it('calls initializeTabBar with the tab bar element and a function', () => {
+    initializeApp();
+    expect(initializeTabBar).toHaveBeenCalledWith(
+      document.getElementById('tab-bar'),
+      expect.any(Function)
+    );
+  });
+
+  // ── Initial tab state ───────────────────────────────────────────────────
+
+  it('shows the home page on startup', () => {
+    initializeApp();
+    expect(document.getElementById('page-home').hidden).toBe(false);
+  });
+
+  it('hides the settings page on startup', () => {
+    initializeApp();
+    expect(document.getElementById('page-settings').hidden).toBe(true);
+  });
+
+  // ── Tab switching ───────────────────────────────────────────────────────
+
+  it('switching to settings shows settings and hides home', () => {
+    initializeApp();
+    capturedSwitchToTab('settings');
+    expect(document.getElementById('page-settings').hidden).toBe(false);
+    expect(document.getElementById('page-home').hidden).toBe(true);
+  });
+
+  it('switching back to home shows home and hides settings', () => {
+    initializeApp();
+    capturedSwitchToTab('settings');
+    capturedSwitchToTab('home');
+    expect(document.getElementById('page-home').hidden).toBe(false);
+    expect(document.getElementById('page-settings').hidden).toBe(true);
   });
 
   // ── Service worker ──────────────────────────────────────────────────────
@@ -39,15 +103,5 @@ describe('initializeApp', () => {
   it('calls registerServiceWorker', () => {
     initializeApp();
     expect(registerServiceWorker).toHaveBeenCalled();
-  });
-
-  // ── Missing #app element ────────────────────────────────────────────────
-
-  it('still calls renderHelloWorld with null when #app is absent', () => {
-    // If the element is missing, getElementById returns null.
-    // renderHelloWorld handles null gracefully — initializeApp should not crash.
-    document.body.innerHTML = '';
-    initializeApp();
-    expect(renderHelloWorld).toHaveBeenCalledWith(null);
   });
 });

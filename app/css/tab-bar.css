@@ -1,0 +1,75 @@
+/* ─── Tab bar ────────────────────────────────────────────────────────────── */
+
+.tab-bar {
+  display: flex;
+  flex-shrink: 0; /* never let the tab bar compress — it must always be full height */
+  background-color: rgba(13, 8, 2, 0.92);
+  border-top: 1px solid #2a1a08;
+
+  /* Frosted glass effect — the -webkit- prefix is required on Safari */
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter:         blur(20px) saturate(180%);
+
+  /* Push tab content above the home indicator — this is the key safe area rule
+     for anything pinned to the bottom of the screen */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ─── Individual tab button ──────────────────────────────────────────────── */
+
+.tab-bar__tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+
+  /* 49px is the iOS standard tab bar button height.
+     Combined with the safe-area padding above it meets the 44px touch target. */
+  min-height: 49px;
+  padding: 6px 4px 2px;
+
+  /* Strip default button chrome */
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+
+  /* Smooth color transition when switching tabs */
+  transition: color 0.15s ease;
+}
+
+.tab-bar__tab--active {
+  /* Torchlight amber signals the active tab — same accent used across the app */
+  color: var(--color-accent);
+}
+
+/* ─── Icon ───────────────────────────────────────────────────────────────── */
+
+.tab-bar__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.tab-bar__icon svg {
+  width: 24px;
+  height: 24px;
+
+  /* Inherit the tab button's color so active/inactive state drives the color */
+  fill: currentColor;
+}
+
+/* ─── Label ──────────────────────────────────────────────────────────────── */
+
+.tab-bar__label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+
+  /* Prevent label wrapping on very narrow screens */
+  white-space: nowrap;
+}

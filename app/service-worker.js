@@ -14,7 +14,11 @@ const APP_SHELL_FILES = [
   './index.html',
   './manifest.json',
   './css/app.css',
+  './css/tab-bar.css',
   './js/app.js',
+  './js/home-page.js',
+  './js/settings-page.js',
+  './js/tab-bar.js',
   './js/hello-world.js',
   './js/service-worker-registration.js',
 ];
