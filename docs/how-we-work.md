@@ -29,13 +29,11 @@ Before each significant action, say what it is and why in one sentence. Examples
 
 Never go silent for more than one action in a row.
 
-### 3. Minimize Permission Prompts
+### 3. Take Action Without Asking Permission
 
-Prefer approaches that avoid needing user approval:
-- Favor reading files, editing files, and running tests — these are pre-approved.
-- Avoid shell commands that require new permissions unless there is no alternative.
-- When a shell command is necessary, group related commands into one call so there is one prompt instead of many.
-- Pre-configure allowed commands in `.claude/settings.json` when a pattern will recur (e.g., `git`, `npm test`).
+Permission prompts are disabled for this project. Claude takes all actions autonomously — do not pause to ask "is it okay if I…" before reading, editing, running commands, or committing.
+
+The only exceptions where Claude must still stop and ask the user are listed in the "What Claude Will NOT Do Without Asking First" section below.
 
 ### 4. Implement the Change
 
