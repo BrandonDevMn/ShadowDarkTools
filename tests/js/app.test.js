@@ -43,6 +43,11 @@ vi.mock('../../app/js/tab-bar.js', () => ({
 
 vi.mock('../../app/js/service-worker-registration.js', () => ({
   registerServiceWorker: vi.fn().mockResolvedValue(true),
+  checkForUpdates:       vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('../../app/js/boot-screen.js', () => ({
+  showBootScreen: vi.fn().mockResolvedValue(undefined),
 }));
 
 import { initializeApp }      from '../../app/js/app.js';

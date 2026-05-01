@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { registerServiceWorker } from '../../app/js/service-worker-registration.js';
+import { registerServiceWorker, checkForUpdates } from '../../app/js/service-worker-registration.js';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -134,5 +134,33 @@ describe('registerServiceWorker — controllerchange', () => {
     handler();
     handler();
     expect(loc.reload).toHaveBeenCalledOnce();
+  });
+});
+
+// ── checkForUpdates ───────────────────────────────────────────────────────────
+
+describe('checkForUpdates', () => {
+  it('does nothing when serviceWorker is not in navigator', async () => {
+    await expect(checkForUpdates({})).resolves.toBeUndefined();
+  });
+
+  it('calls getRegistration with no arguments', async () => {
+    const getReg = vi.fn().mockResolvedValue(null);
+    await checkForUpdates({ serviceWorker: { getRegistration: getReg } });
+    expect(getReg).toHaveBeenCalledWith();
+  });
+
+  it('calls reg.update() when a registration exists', async () => {
+    const updateFn = vi.fn().mockResolvedValue(undefined);
+    const getReg = vi.fn().mockResolvedValue({ update: updateFn });
+    await checkForUpdates({ serviceWorker: { getRegistration: getReg } });
+    expect(updateFn).toHaveBeenCalledOnce();
+  });
+
+  it('does not throw when getRegistration returns undefined (first install)', async () => {
+    const getReg = vi.fn().mockResolvedValue(undefined);
+    await expect(
+      checkForUpdates({ serviceWorker: { getRegistration: getReg } }),
+    ).resolves.toBeUndefined();
   });
 });

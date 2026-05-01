@@ -163,6 +163,72 @@ body {
   font-weight: 600;
 }
 
+/* ─── Boot screen ────────────────────────────────────────────────────────── */
+
+.boot-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--color-background);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.35s ease;
+}
+
+.boot-screen--exit {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.boot-screen__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* Spinner ring rendered as a ::after pseudo-element rotating around the icon */
+.boot-screen__icon-wrap {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.boot-screen__icon-wrap::after {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: var(--color-accent);
+  animation: boot-spin 1s linear infinite;
+}
+
+.boot-screen__icon {
+  display: block;
+  width: 80px;
+  height: 80px;
+  border-radius: 18px; /* iOS home screen icon radius */
+}
+
+.boot-screen__tagline {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  letter-spacing: 0.03em;
+}
+
+@keyframes boot-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-screen__icon-wrap::after {
+    animation: none;
+  }
+}
+
 /* ─── Dice page ──────────────────────────────────────────────────────────── */
 
 .dice-result {

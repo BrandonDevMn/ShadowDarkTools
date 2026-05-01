@@ -37,6 +37,8 @@ const APP_SHELL_FILES = [
   './js/tab-bar.js',
   './js/home-feed.js',
   './js/service-worker-registration.js',
+  './js/boot-screen.js',
+  './icons/apple-touch-icon.png',
 ];
 
 // Pre-cache the app shell the moment the service worker installs.

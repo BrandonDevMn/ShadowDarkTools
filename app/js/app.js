@@ -4,7 +4,8 @@ import { renderGeneratePage }  from './generate-page.js';
 import { renderLibraryPage }   from './library-page.js';
 import { renderSettingsPage }  from './settings-page.js';
 import { initializeTabBar }    from './tab-bar.js';
-import { registerServiceWorker } from './service-worker-registration.js';
+import { registerServiceWorker, checkForUpdates } from './service-worker-registration.js';
+import { showBootScreen } from './boot-screen.js';
 
 /**
  * Bootstraps the app — renders all pages, builds the tab bar, and
@@ -16,6 +17,11 @@ import { registerServiceWorker } from './service-worker-registration.js';
  * Exported so tests can call it directly without simulating DOM events.
  */
 export function initializeApp() {
+  // Boot screen covers the app while the SW update check runs.
+  // If a new SW is found it activates and reloads the page behind the screen.
+  // If not, the screen fades out after 2 s and the app is revealed.
+  showBootScreen({ updateCheck: checkForUpdates() });
+
   const homePageEl     = document.getElementById('page-home');
   const dicePageEl     = document.getElementById('page-dice');
   const generatePageEl = document.getElementById('page-generate');

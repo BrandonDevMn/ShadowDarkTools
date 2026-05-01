@@ -1,4 +1,23 @@
 /**
+ * Fetches the latest service worker from the network and, if it differs from
+ * what is installed, starts the install+activate sequence. Because the SW
+ * calls skipWaiting() on install the new worker takes control immediately
+ * and triggers a controllerchange reload.
+ *
+ * Called during the boot screen so any update happens behind the splash
+ * rather than mid-session. On first install there is no existing registration
+ * so this is a no-op.
+ *
+ * @param {object} [navigatorRef=navigator]
+ * @returns {Promise<void>}
+ */
+export async function checkForUpdates(navigatorRef = navigator) {
+  if (!('serviceWorker' in navigatorRef)) return;
+  const reg = await navigatorRef.serviceWorker.getRegistration();
+  if (reg) await reg.update();
+}
+
+/**
  * Registers the app's service worker for offline caching and auto-updates.
  *
  * Auto-update strategy (Option 1 + 2):
