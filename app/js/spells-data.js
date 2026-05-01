@@ -10,376 +10,381 @@ export const SPELLS = [
   // ── Wizard — Tier 1 ────────────────────────────────────────────────────
 
   { class: 'wizard', tier: 1, name: 'Alarm',
-    range: 'Touch', duration: '8 hours',
-    description: 'You ward an area up to 20 ft across. A silent mental alert wakes you if any creature enters.' },
+    range: 'Close', duration: '1 day',
+    description: 'Touch an object to set a magical alarm. A mental bell sounds in your head if any creature you didn\'t designate touches or crosses it.' },
 
   { class: 'wizard', tier: 1, name: 'Burning Hands',
-    range: 'Near', duration: 'Instant',
-    description: 'A sheet of flame erupts from your fingers. All creatures in range take 1d6 fire damage per spell tier.' },
+    range: 'Close', duration: 'Instant',
+    description: 'Unleash a circle of flame out to close range. Creatures take 1d6 damage and flammable objects catch fire.' },
 
   { class: 'wizard', tier: 1, name: 'Charm Person',
-    range: 'Near', duration: '1 hour',
-    description: 'A humanoid you can see treats you as a trusted friend for the duration.' },
-
-  { class: 'wizard', tier: 1, name: 'Color Spray',
-    range: 'Near', duration: '1 round',
-    description: 'Brilliant colors blind creatures of 5 HD or fewer for 1 round.' },
-
-  { class: 'wizard', tier: 1, name: 'Comprehend Languages',
-    range: 'Self', duration: '1 hour',
-    description: 'You understand all spoken and written languages.' },
-
-  { class: 'wizard', tier: 1, name: 'Dancing Lights',
-    range: 'Far', duration: 'Focus',
-    description: 'Up to 4 floating lights each shed dim light in a near radius. You can move them freely.' },
+    range: 'Near', duration: '1d8 days',
+    description: 'One humanoid of level 2 or less regards you as a friend for the duration. It knows you enchanted it after the spell ends.' },
 
   { class: 'wizard', tier: 1, name: 'Detect Magic',
     range: 'Near', duration: 'Focus',
-    description: 'You sense the presence and school of magic auras within range.' },
+    description: 'Sense the presence of magic within near range. After 2 rounds of focus, discern its general properties. Full barriers block this spell.' },
 
   { class: 'wizard', tier: 1, name: 'Feather Fall',
-    range: 'Near', duration: '1 minute',
-    description: 'Up to 5 creatures fall slowly and take no damage from falls.' },
+    range: 'Self', duration: 'Instant',
+    description: 'Cast when you fall. Your rate of descent slows so you land safely on your feet.' },
 
   { class: 'wizard', tier: 1, name: 'Floating Disk',
-    range: 'Near', duration: '8 hours',
-    description: 'A circular disk of force carries up to 500 lb and hovers 3 ft off the ground, following you.' },
+    range: 'Near', duration: '10 rounds',
+    description: 'Create a floating force disk carrying up to 20 gear slots. It hovers at waist level and automatically stays within near range of you.' },
 
   { class: 'wizard', tier: 1, name: 'Hold Portal',
-    range: 'Near', duration: '10 minutes',
-    description: 'A door, gate, or window is held magically shut and counts as locked.' },
+    range: 'Near', duration: '10 rounds',
+    description: 'Magically hold a portal closed. A creature must succeed on a STR check vs. your spellcasting check to open it.' },
 
   { class: 'wizard', tier: 1, name: 'Light',
-    range: 'Near', duration: '1 hour',
-    description: 'An object you touch sheds bright light in a near radius.' },
+    range: 'Close', duration: '1 hour',
+    description: 'One touched object glows with bright heatless light, illuminating out to a near distance.' },
 
   { class: 'wizard', tier: 1, name: 'Mage Armor',
-    range: 'Self', duration: '8 hours',
-    description: 'A sheath of magical force grants you +2 AC.' },
+    range: 'Self', duration: '10 rounds',
+    description: 'An invisible magical force protects you. Your AC becomes 14 (18 on a critical spellcasting check) for the duration.' },
 
   { class: 'wizard', tier: 1, name: 'Magic Missile',
     range: 'Far', duration: 'Instant',
-    description: 'Unerring bolts of force deal 1d4 damage each. You fire one bolt per spell tier.' },
+    description: 'You have advantage on the spellcasting check. A bolt of force deals 1d4 damage to one target.' },
 
-  { class: 'wizard', tier: 1, name: 'Protection from Evil',
-    range: 'Touch', duration: '1 hour',
-    description: 'Evil creatures attack the warded target with disadvantage.' },
-
-  { class: 'wizard', tier: 1, name: 'Shield',
-    range: 'Self', duration: '1 round',
-    description: 'A magical barrier grants +5 AC until the start of your next turn.' },
+  { class: 'wizard', tier: 1, name: 'Protection From Evil',
+    range: 'Close', duration: 'Focus',
+    description: 'Chaotic beings have disadvantage on attacks and hostile spellcasting against the target; they can\'t possess, compel, or beguile it.' },
 
   { class: 'wizard', tier: 1, name: 'Sleep',
-    range: 'Near', duration: '1 minute',
-    description: 'Creatures totaling 4 HD or fewer in range fall into a magical slumber.' },
+    range: 'Near', duration: 'Instant',
+    description: 'Creatures of level 2 or less in a near-sized cube fall into a deep sleep. Vigorous shaking or injury wakes them.' },
 
   // ── Wizard — Tier 2 ────────────────────────────────────────────────────
 
-  { class: 'wizard', tier: 2, name: 'Darkness',
-    range: 'Near', duration: 'Focus',
-    description: 'Magical darkness fills a 20 ft radius, blocking all light including darkvision.' },
+  { class: 'wizard', tier: 2, name: 'Acid Arrow',
+    range: 'Far', duration: 'Focus',
+    description: 'A corrosive bolt hits one foe, dealing 1d6 damage per round for as long as you focus.' },
 
-  { class: 'wizard', tier: 2, name: 'ESP',
+  { class: 'wizard', tier: 2, name: 'Alter Self',
+    range: 'Self', duration: '5 rounds',
+    description: 'Magically change your physical form to gain one feature modifying your anatomy (gills, claws, etc.). Cannot grow wings or extra limbs.' },
+
+  { class: 'wizard', tier: 2, name: 'Detect Thoughts',
     range: 'Near', duration: 'Focus',
-    description: 'You detect the surface thoughts of one creature you can see.' },
+    description: 'Peer into one creature\'s mind and learn its immediate thoughts each round. The target may make a WIS check vs. your check to notice and end the spell.' },
+
+  { class: 'wizard', tier: 2, name: 'Fixed Object',
+    range: 'Close', duration: '5 rounds',
+    description: 'An object of 5 lbs or less you touch becomes fixed in place, supporting up to 5,000 lbs for the duration.' },
+
+  { class: 'wizard', tier: 2, name: 'Hold Person',
+    range: 'Near', duration: 'Focus',
+    description: 'Magically paralyze one humanoid of level 4 or less you can see within range.' },
 
   { class: 'wizard', tier: 2, name: 'Invisibility',
-    range: 'Touch', duration: '1 hour',
-    description: 'A creature becomes invisible. The effect ends if it attacks or casts a spell.' },
+    range: 'Close', duration: '10 rounds',
+    description: 'A touched creature becomes invisible. The effect ends if the target attacks or casts a spell.' },
 
   { class: 'wizard', tier: 2, name: 'Knock',
     range: 'Near', duration: 'Instant',
-    description: 'A locked object opens. Magical locks are suppressed for 10 minutes.' },
+    description: 'Any door, window, gate, chest, or portal you can see instantly opens. Creates a loud knock audible to all nearby.' },
 
   { class: 'wizard', tier: 2, name: 'Levitate',
-    range: 'Near', duration: 'Focus',
-    description: 'A creature or object rises up to 20 ft and hovers in place.' },
+    range: 'Self', duration: 'Focus',
+    description: 'Float a near distance vertically per round on your turn. Push against solid objects to move horizontally.' },
 
   { class: 'wizard', tier: 2, name: 'Mirror Image',
-    range: 'Self', duration: '1 minute',
-    description: '1d4+1 illusory duplicates surround you, causing attackers to potentially strike a copy instead.' },
+    range: 'Self', duration: '5 rounds',
+    description: 'Create illusory duplicates equal to half your level (minimum 1). Each duplicate absorbs one attack before vanishing.' },
 
-  { class: 'wizard', tier: 2, name: 'Phantasmal Force',
+  { class: 'wizard', tier: 2, name: 'Misty Step',
+    range: 'Self', duration: 'Instant',
+    description: 'In a puff of smoke, teleport a near distance to any spot you can see.' },
+
+  { class: 'wizard', tier: 2, name: 'Silence',
     range: 'Far', duration: 'Focus',
-    description: 'You create a convincing illusion up to 10 ft across that one creature believes is real.' },
-
-  { class: 'wizard', tier: 2, name: 'Ray of Enfeeblement',
-    range: 'Near', duration: '1 minute',
-    description: 'A black ray halves the damage of all Strength-based attacks a creature makes.' },
-
-  { class: 'wizard', tier: 2, name: 'Spider Climb',
-    range: 'Touch', duration: '1 hour',
-    description: 'A willing creature can move across vertical surfaces and ceilings at full speed.' },
+    description: 'Silence a near-sized cube. Creatures inside are deafened and cannot cast spells with verbal components.' },
 
   { class: 'wizard', tier: 2, name: 'Web',
-    range: 'Near', duration: '1 hour',
-    description: 'Thick webs fill a 20 ft area. Creatures caught inside must break free or remain restrained.' },
+    range: 'Far', duration: '5 rounds',
+    description: 'Fill a near-sized cube with sticky webs. Trapped creatures can\'t move without a STR check vs. your spellcasting check.' },
 
   // ── Wizard — Tier 3 ────────────────────────────────────────────────────
 
-  { class: 'wizard', tier: 3, name: 'Clairvoyance',
-    range: '1 mile', duration: 'Focus',
-    description: 'You create an invisible sensor at a location you know and can see and hear through it.' },
+  { class: 'wizard', tier: 3, name: 'Animate Dead',
+    range: 'Close', duration: '1 day',
+    description: 'Touch humanoid remains with at least three limbs and head intact; it rises as a zombie or skeleton under your control. After 1 day, it collapses into grave dust.' },
 
   { class: 'wizard', tier: 3, name: 'Dispel Magic',
     range: 'Near', duration: 'Instant',
-    description: 'One magical effect of tier 5 or lower on a creature, object, or area ends.' },
+    description: 'End one spell that affects one target you can see within range.' },
+
+  { class: 'wizard', tier: 3, name: 'Fabricate',
+    range: 'Near', duration: '10 rounds',
+    description: 'Convert a tree-sized collection of raw materials into a finished work (e.g., bricks into a bridge). Reverts to raw materials when the spell ends.' },
 
   { class: 'wizard', tier: 3, name: 'Fireball',
     range: 'Far', duration: 'Instant',
-    description: 'A blazing explosion deals 1d6 fire damage per spell tier to all creatures in a 20 ft radius.' },
+    description: 'A flame erupts into a fiery blast. All creatures in a near-sized cube around the impact take 4d6 damage.' },
 
   { class: 'wizard', tier: 3, name: 'Fly',
-    range: 'Touch', duration: 'Focus',
-    description: 'A willing creature gains a flying speed equal to its walking speed.' },
+    range: 'Self', duration: '5 rounds',
+    description: 'Your feet lift from the ground. You can fly a near distance per round and hover in place.' },
+
+  { class: 'wizard', tier: 3, name: 'Gaseous Form',
+    range: 'Self', duration: '10 rounds',
+    description: 'You and your gear become a cloud of smoke. Fly and pass through any gap smoke could. You can\'t cast spells in this form.' },
+
+  { class: 'wizard', tier: 3, name: 'Illusion',
+    range: 'Far', duration: 'Focus',
+    description: 'Create a convincing visible and audible illusion up to a near-sized cube. Creatures must pass a WIS check vs. your check to see through it. Touching the illusion reveals its false nature.' },
 
   { class: 'wizard', tier: 3, name: 'Lightning Bolt',
-    range: 'Near', duration: 'Instant',
-    description: 'A bolt of electricity deals 1d6 lightning damage per tier to all creatures in a line.' },
+    range: 'Far', duration: 'Instant',
+    description: 'A blue-white ray of lightning hits all creatures in a straight line out to far range, dealing 3d6 damage.' },
 
-  { class: 'wizard', tier: 3, name: 'Phantasmal Killer',
-    range: 'Far', duration: 'Focus',
-    description: 'An invisible illusory predator terrorizes one creature. It takes 1d10 psychic damage each round.' },
+  { class: 'wizard', tier: 3, name: 'Magic Circle',
+    range: 'Near', duration: 'Focus',
+    description: 'Conjure a near-sized circle of runes and name a creature type. Those creatures can\'t attack or cast hostile spells on anyone inside the circle.' },
 
-  { class: 'wizard', tier: 3, name: 'Slow',
-    range: 'Far', duration: 'Focus',
-    description: 'Up to 6 creatures in a 40 ft area move at half speed and cannot use reactions or extra attacks.' },
+  { class: 'wizard', tier: 3, name: 'Protection From Energy',
+    range: 'Close', duration: 'Focus',
+    description: 'One touched creature becomes immune to fire, cold, or electricity (your choice) for the duration.' },
 
-  { class: 'wizard', tier: 3, name: 'Speak with Dead',
-    range: 'Near', duration: '10 minutes',
-    description: 'A corpse answers up to 5 questions truthfully, based on what it knew in life.' },
+  { class: 'wizard', tier: 3, name: 'Sending',
+    range: 'Unlimited', duration: 'Instant',
+    description: 'Send a brief mental message to any creature you know on the same plane.' },
 
-  { class: 'wizard', tier: 3, name: 'Tongues',
-    range: 'Touch', duration: '1 hour',
-    description: 'A creature can speak and understand any spoken language.' },
-
-  { class: 'wizard', tier: 3, name: 'Water Breathing',
-    range: 'Near', duration: '8 hours',
-    description: 'Up to 10 creatures can breathe water as easily as air.' },
+  { class: 'wizard', tier: 3, name: 'Speak With Dead',
+    range: 'Close', duration: 'Instant',
+    description: 'A dead body you touch answers up to three yes/no questions. Casting more than once in 24 hours escalates failed checks to critical failures.' },
 
   // ── Wizard — Tier 4 ────────────────────────────────────────────────────
 
+  { class: 'wizard', tier: 4, name: 'Arcane Eye',
+    range: 'Near', duration: 'Focus',
+    description: 'Conjure an invisible flying eye. It sees in the dark to near range, can fly near on your turn, and fits through openings as narrow as a keyhole.' },
+
+  { class: 'wizard', tier: 4, name: 'Cloudkill',
+    range: 'Far', duration: '5 rounds',
+    description: 'A cloud of yellow poison fills a near-sized cube. Creatures inside are blinded and take 2d6 damage per turn. Creatures of level 9 or less die if they end their turn fully inside.' },
+
   { class: 'wizard', tier: 4, name: 'Confusion',
+    range: 'Near', duration: 'Focus',
+    description: 'Mesmerize one creature; it can\'t take actions and moves randomly. Creatures of level 9+ may make a WIS check vs. your check each turn to end it.' },
+
+  { class: 'wizard', tier: 4, name: 'Control Water',
     range: 'Far', duration: 'Focus',
-    description: 'Creatures in a 10 ft area act randomly: attacking randomly, moving erratically, or doing nothing.' },
+    description: 'Move and shape a section of water up to 100 feet wide and deep, changing its shape, defying gravity, or redirecting its flow.' },
 
   { class: 'wizard', tier: 4, name: 'Dimension Door',
-    range: 'Far', duration: 'Instant',
-    description: 'You and up to one willing creature teleport to any point within 500 ft that you can visualize.' },
+    range: 'Self', duration: 'Instant',
+    description: 'Teleport yourself and up to one willing creature within close range to any point you can see.' },
 
-  { class: 'wizard', tier: 4, name: 'Hallucinatory Terrain',
-    range: 'Far', duration: '24 hours',
-    description: 'Natural terrain in a 150 ft area looks, sounds, and smells like a different type of natural terrain.' },
+  { class: 'wizard', tier: 4, name: 'Divination',
+    range: 'Self', duration: 'Instant',
+    description: 'Ask the GM one yes/no question; the GM answers truthfully. Casting more than once in 24 hours escalates failed checks to critical failures.' },
 
-  { class: 'wizard', tier: 4, name: 'Ice Storm',
-    range: 'Far', duration: 'Instant',
-    description: 'Hail and ice deal 2d8 bludgeoning and 4d6 cold damage to all creatures in a 20 ft cylinder.' },
+  { class: 'wizard', tier: 4, name: 'Passwall',
+    range: 'Close', duration: '5 rounds',
+    description: 'Open a tunnel of your height through a barrier you touch. The passage can be up to near distance long in a straight line.' },
 
   { class: 'wizard', tier: 4, name: 'Polymorph',
-    range: 'Near', duration: 'Focus',
-    description: 'A creature transforms into a beast of your choice and uses that beast\'s stats.' },
+    range: 'Close', duration: '10 rounds',
+    description: 'Transform a touched creature into another natural creature of equal or smaller size. It gains the creature\'s physical stats. At 0 HP, it reverts at half its prior HP.' },
 
-  { class: 'wizard', tier: 4, name: 'Remove Curse',
-    range: 'Touch', duration: 'Instant',
-    description: 'All curses afflicting one creature or object end.' },
+  { class: 'wizard', tier: 4, name: 'Resilient Sphere',
+    range: 'Close', duration: '5 rounds',
+    description: 'Conjure a weightless glassy sphere around you extending to close range. Nothing can pass through or crush it. You can roll it a near distance on your turn.' },
 
-  { class: 'wizard', tier: 4, name: 'Wall of Fire',
-    range: 'Near', duration: 'Focus',
-    description: 'A wall of flames deals 5d8 fire damage to creatures that enter or start their turn in it.' },
+  { class: 'wizard', tier: 4, name: 'Stoneskin',
+    range: 'Self', duration: '10 rounds',
+    description: 'Your skin becomes like granite. Your AC becomes 17 (20 on a critical spellcasting check) for the duration.' },
+
+  { class: 'wizard', tier: 4, name: 'Telekinesis',
+    range: 'Far', duration: 'Focus',
+    description: 'Lift a creature or object of 1,000 lbs or less with your mind. Move it a near distance in any direction and hold it in place.' },
+
+  { class: 'wizard', tier: 4, name: 'Wall of Force',
+    range: 'Near', duration: '5 rounds',
+    description: 'Conjure a transparent wall of force covering a near-sized area. You choose its shape. Nothing on the same plane can physically pass through the wall.' },
 
   // ── Wizard — Tier 5 ────────────────────────────────────────────────────
 
-  { class: 'wizard', tier: 5, name: 'Cloudkill',
-    range: 'Near', duration: 'Focus',
-    description: 'A roiling cloud of poison deals 5d8 poison damage per round to all creatures inside.' },
+  { class: 'wizard', tier: 5, name: 'Antimagic Shell',
+    range: 'Self', duration: 'Focus',
+    description: 'A near-sized cube of null-magic moves with you. No spells can be cast inside; magic items and spells have no effect within the zone.' },
 
-  { class: 'wizard', tier: 5, name: 'Cone of Cold',
-    range: 'Near', duration: 'Instant',
-    description: 'A blast of freezing air deals 8d8 cold damage to all creatures in a cone.' },
+  { class: 'wizard', tier: 5, name: 'Create Undead',
+    range: 'Close', duration: '1 day',
+    description: 'Summon either a wight or wraith under your control. It acts on your turn and melts away into smoke after 1 day.' },
 
-  { class: 'wizard', tier: 5, name: 'Contact Other Plane',
-    range: 'Self', duration: '10 minutes',
-    description: 'You contact a deity or extraplanar entity and may ask up to 5 yes/no questions.' },
-
-  { class: 'wizard', tier: 5, name: 'Feeblemind',
-    range: 'Near', duration: 'Permanent',
-    description: 'A creature\'s INT and CHA drop to 1. It cannot cast spells or use INT- or CHA-based abilities.' },
+  { class: 'wizard', tier: 5, name: 'Disintegrate',
+    range: 'Far', duration: 'Instant',
+    description: 'A green ray turns a target to ash. Creatures of level 5 or less instantly die; level 6+ take 3d8 damage. Destroys non-magical objects up to the size of a large tree.' },
 
   { class: 'wizard', tier: 5, name: 'Hold Monster',
-    range: 'Far', duration: 'Focus',
-    description: 'Any creature you can see is paralyzed for the duration.' },
-
-  { class: 'wizard', tier: 5, name: 'Magic Jar',
     range: 'Near', duration: 'Focus',
-    description: 'Your soul leaves your body and possesses a nearby creature, controlling it completely.' },
+    description: 'Paralyze one creature you can see. Creatures of level 9+ may make a STR check vs. your check at the start of their turn to end it.' },
 
-  { class: 'wizard', tier: 5, name: 'Passwall',
-    range: 'Near', duration: '1 hour',
-    description: 'You create a 5 ft wide passage through a solid wall up to 10 ft thick.' },
+  { class: 'wizard', tier: 5, name: 'Plane Shift',
+    range: 'Close', duration: 'Instant',
+    description: 'Transport yourself and all willing creatures within close range to another plane. Without a prior visit, you arrive at a random location on the destination plane.' },
 
-  { class: 'wizard', tier: 5, name: 'Telekinesis',
-    range: 'Far', duration: 'Focus',
-    description: 'You move a creature or object weighing up to 1,000 lb using only your mind.' },
+  { class: 'wizard', tier: 5, name: 'Power Word Kill',
+    range: 'Near', duration: 'Instant',
+    description: 'Utter the Word of Doom. A targeted creature of level 9 or less dies if it hears you. Failed spellcasting checks are treated as critical failures.' },
+
+  { class: 'wizard', tier: 5, name: 'Prismatic Orb',
+    range: 'Far', duration: 'Instant',
+    description: 'A strobing orb of fire, cold, or electricity (your choice) deals 3d8 damage. Deals double damage if the chosen energy is anathema to the target.' },
+
+  { class: 'wizard', tier: 5, name: 'Scrying',
+    range: 'Self', duration: 'Focus',
+    description: 'Look into a crystal ball or pool to see and hear a distant creature or location. DC 18 for unfamiliar targets. Targets may make a WIS check each round to notice your observation.' },
+
+  { class: 'wizard', tier: 5, name: 'Shapechange',
+    range: 'Self', duration: 'Focus',
+    description: 'Transform into any natural creature of level 10 or less you\'ve seen. Gain its physical stats while retaining your own non-physical stats. Revert to 1 HP if you reach 0 HP.' },
+
+  { class: 'wizard', tier: 5, name: 'Summon Extraplanar',
+    range: 'Near', duration: 'Focus',
+    description: 'Summon an elemental or outsider of level 7 or less under your control. Losing focus causes you to lose control and the creature becomes hostile.' },
 
   { class: 'wizard', tier: 5, name: 'Teleport',
-    range: 'Self', duration: 'Instant',
-    description: 'You and up to 8 willing creatures instantly travel to a destination you have visited before.' },
+    range: 'Close', duration: 'Instant',
+    description: 'You and willing creatures within close range teleport to a known sigil or previously visited location. Otherwise, 50% chance of arriving off-target.' },
 
-  { class: 'wizard', tier: 5, name: 'Wall of Stone',
-    range: 'Near', duration: 'Focus',
-    description: 'A barrier of solid stone up to 10 panels (10×10×3 ft each) erupts from a solid surface.' },
+  { class: 'wizard', tier: 5, name: 'Wish',
+    range: 'Self', duration: 'Instant',
+    description: 'State a single wish as exactly as possible; it occurs as interpreted by the GM. Failed spellcasting checks are treated as critical failures.' },
 
   // ── Priest — Tier 1 ────────────────────────────────────────────────────
 
-  { class: 'priest', tier: 1, name: 'Bless',
-    range: 'Near', duration: 'Focus',
-    description: 'Up to 3 creatures add 1d4 to all attack rolls and saving throws.' },
-
-  { class: 'priest', tier: 1, name: 'Command',
-    range: 'Near', duration: '1 round',
-    description: 'A creature obeys a one-word divine command on its next turn — flee, drop, halt, grovel, etc.' },
-
   { class: 'priest', tier: 1, name: 'Cure Wounds',
-    range: 'Touch', duration: 'Instant',
-    description: 'A creature you touch regains 1d8+1 HP per spell tier.' },
+    range: 'Close', duration: 'Instant',
+    description: 'Your touch restores ebbing life. Roll 1 + half your level (rounded down) d6s; one target you touch regains that many HP.' },
 
-  { class: 'priest', tier: 1, name: 'Detect Evil',
-    range: 'Near', duration: 'Focus',
-    description: 'You sense the presence and location of evil creatures and unholy objects within range.' },
-
-  { class: 'priest', tier: 1, name: 'Guiding Bolt',
-    range: 'Far', duration: '1 round',
-    description: 'A bolt of radiance deals 4d6 radiant damage. The next attack against the target has advantage.' },
-
-  { class: 'priest', tier: 1, name: 'Healing Word',
-    range: 'Near', duration: 'Instant',
-    description: 'A creature you can see regains 1d4+1 HP per spell tier.' },
-
-  { class: 'priest', tier: 1, name: 'Inflict Wounds',
-    range: 'Touch', duration: 'Instant',
-    description: 'A melee touch attack channels necrotic energy, dealing 3d10 necrotic damage.' },
+  { class: 'priest', tier: 1, name: 'Holy Weapon',
+    range: 'Close', duration: '5 rounds',
+    description: 'One weapon you touch becomes magical with +1 to attack and damage rolls for the duration.' },
 
   { class: 'priest', tier: 1, name: 'Light',
-    range: 'Near', duration: '1 hour',
-    description: 'An object you touch sheds bright light in a near radius.' },
+    range: 'Close', duration: '1 hour',
+    description: 'One touched object glows with bright heatless light, illuminating out to a near distance.' },
 
-  { class: 'priest', tier: 1, name: 'Protection from Evil',
-    range: 'Touch', duration: '1 hour',
-    description: 'Evil creatures attack the warded target with disadvantage.' },
-
-  { class: 'priest', tier: 1, name: 'Purify Food & Drink',
-    range: 'Near', duration: 'Instant',
-    description: 'All food and drink within range is cleansed of poison, disease, and contamination.' },
-
-  { class: 'priest', tier: 1, name: 'Sanctuary',
-    range: 'Near', duration: 'Focus',
-    description: 'Creatures must succeed on a WIS check to attack the warded target. Effect ends if target attacks.' },
+  { class: 'priest', tier: 1, name: 'Protection From Evil',
+    range: 'Close', duration: 'Focus',
+    description: 'Chaotic beings have disadvantage on attacks and hostile spellcasting against the target; they can\'t possess, compel, or beguile it.' },
 
   { class: 'priest', tier: 1, name: 'Shield of Faith',
-    range: 'Near', duration: 'Focus',
-    description: 'A shimmering field of divine force grants a creature +2 AC.' },
+    range: 'Self', duration: '5 rounds',
+    description: 'A protective force of holy conviction surrounds you. You gain +2 AC for the duration.' },
+
+  { class: 'priest', tier: 1, name: 'Turn Undead',
+    range: 'Near', duration: 'Instant',
+    description: 'Present a holy symbol. Undead within near must CHA check vs. your spellcasting check. Fail by 10+ and level ≤ yours: destroyed. Otherwise on a fail: flees for 5 rounds.' },
 
   // ── Priest — Tier 2 ────────────────────────────────────────────────────
 
-  { class: 'priest', tier: 2, name: 'Aid',
-    range: 'Near', duration: '8 hours',
-    description: 'Up to 3 creatures each gain 5 temporary HP.' },
-
   { class: 'priest', tier: 2, name: 'Augury',
     range: 'Self', duration: 'Instant',
-    description: 'You receive a divine omen about an action: weal, woe, weal and woe, or nothing.' },
+    description: 'Ask the GM one question about a course of action. The GM replies "weal" or "woe."' },
 
-  { class: 'priest', tier: 2, name: 'Blindness/Deafness',
-    range: 'Near', duration: '1 minute',
-    description: 'A creature is blinded or deafened. It may attempt a saving throw each round to end the effect.' },
+  { class: 'priest', tier: 2, name: 'Bless',
+    range: 'Close', duration: 'Instant',
+    description: 'One creature you touch gains a luck token.' },
 
-  { class: 'priest', tier: 2, name: 'Find Traps',
-    range: 'Near', duration: 'Instant',
-    description: 'You sense the presence of traps within range, though not their exact nature or location.' },
-
-  { class: 'priest', tier: 2, name: 'Hold Person',
+  { class: 'priest', tier: 2, name: 'Blind/Deafen',
     range: 'Near', duration: 'Focus',
-    description: 'A humanoid you can see is paralyzed for the duration.' },
+    description: 'Blind or deafen one creature you can see. It has disadvantage on tasks requiring the lost sense.' },
 
-  { class: 'priest', tier: 2, name: 'Lesser Restoration',
-    range: 'Touch', duration: 'Instant',
-    description: 'You end one condition — blinded, deafened, paralyzed, or poisoned — affecting a creature.' },
+  { class: 'priest', tier: 2, name: 'Cleansing Weapon',
+    range: 'Close', duration: '5 rounds',
+    description: 'One touched weapon is wreathed in purifying flames, dealing +1d4 damage (+1d6 vs. undead) for the duration.' },
 
-  { class: 'priest', tier: 2, name: 'Silence',
-    range: 'Far', duration: 'Focus',
-    description: 'No sound passes in or out of a 20 ft radius sphere. Spells with verbal components can\'t be cast inside.' },
+  { class: 'priest', tier: 2, name: 'Smite',
+    range: 'Near', duration: 'Instant',
+    description: 'Call down punishing flames on a creature you can see within range; it takes 1d6 damage.' },
 
-  { class: 'priest', tier: 2, name: 'Spiritual Weapon',
-    range: 'Far', duration: '1 minute',
-    description: 'A floating magical weapon attacks as a bonus action each turn, dealing 1d8 + spellcasting modifier.' },
+  { class: 'priest', tier: 2, name: 'Zone of Truth',
+    range: 'Near', duration: 'Focus',
+    description: 'A creature you can see can\'t utter a deliberate lie while within range.' },
 
   // ── Priest — Tier 3 ────────────────────────────────────────────────────
 
-  { class: 'priest', tier: 3, name: 'Create Food & Water',
+  { class: 'priest', tier: 3, name: 'Command',
+    range: 'Far', duration: 'Focus',
+    description: 'Issue a one-word verbal command to a creature that can understand you; it obeys while you focus. If the command is directly harmful, the target may CHA check to end it.' },
+
+  { class: 'priest', tier: 3, name: 'Lay To Rest',
+    range: 'Close', duration: 'Instant',
+    description: 'Instantly destroy an undead creature of level 9 or less that you touch, sending it to its final afterlife.' },
+
+  { class: 'priest', tier: 3, name: 'Mass Cure',
     range: 'Near', duration: 'Instant',
-    description: 'You conjure enough food and water to sustain up to 15 people for 24 hours.' },
+    description: 'All allies within near range regain 2d6 hit points.' },
 
-  { class: 'priest', tier: 3, name: 'Cure Disease',
-    range: 'Touch', duration: 'Instant',
-    description: 'You cure any one disease afflicting a creature you touch.' },
-
-  { class: 'priest', tier: 3, name: 'Dispel Magic',
+  { class: 'priest', tier: 3, name: 'Rebuke Unholy',
     range: 'Near', duration: 'Instant',
-    description: 'One magical effect of tier 5 or lower on a creature, object, or area ends.' },
+    description: 'Present a holy symbol. Affected creatures within near must CHA check vs. your check. Fail by 10+ and level ≤ yours: destroyed. Otherwise: flees 5 rounds. Lawful/neutral: affects demons and outsiders. Chaotic: affects angels.' },
 
-  { class: 'priest', tier: 3, name: 'Mass Healing Word',
-    range: 'Near', duration: 'Instant',
-    description: 'Up to 6 creatures you can see each regain 1d4+1 HP per spell tier.' },
+  { class: 'priest', tier: 3, name: 'Restoration',
+    range: 'Close', duration: 'Instant',
+    description: 'End one curse, illness, or affliction of your choice affecting a creature you touch.' },
 
-  { class: 'priest', tier: 3, name: 'Remove Curse',
-    range: 'Touch', duration: 'Instant',
-    description: 'All curses afflicting one creature or object end.' },
-
-  { class: 'priest', tier: 3, name: 'Speak with Dead',
-    range: 'Near', duration: '10 minutes',
-    description: 'A corpse answers up to 5 questions truthfully, based on what it knew in life.' },
+  { class: 'priest', tier: 3, name: 'Speak With Dead',
+    range: 'Close', duration: 'Instant',
+    description: 'A dead body you touch answers up to three yes/no questions. Casting more than once in 24 hours escalates failed checks to critical failures.' },
 
   // ── Priest — Tier 4 ────────────────────────────────────────────────────
 
-  { class: 'priest', tier: 4, name: 'Banishment',
-    range: 'Near', duration: 'Focus',
-    description: 'A creature is sent to a harmless demiplane. If extraplanar, it stays there when focus ends.' },
-
-  { class: 'priest', tier: 4, name: 'Death Ward',
-    range: 'Touch', duration: '8 hours',
-    description: 'The first time the target would drop to 0 HP, they drop to 1 HP instead.' },
-
-  { class: 'priest', tier: 4, name: 'Divination',
+  { class: 'priest', tier: 4, name: 'Commune',
     range: 'Self', duration: 'Instant',
-    description: 'You receive a truthful reply from your deity about events expected within the next 7 days.' },
+    description: 'Ask your god up to three yes/no questions; the GM answers truthfully. Casting more than once in 24 hours escalates failed checks to critical failures.' },
 
-  { class: 'priest', tier: 4, name: 'Freedom of Movement',
-    range: 'Touch', duration: '1 hour',
-    description: 'A creature ignores magical effects that reduce speed, restrain, or paralyze it.' },
+  { class: 'priest', tier: 4, name: 'Control Water',
+    range: 'Far', duration: 'Focus',
+    description: 'Move and shape a section of water up to 100 feet wide and deep, changing its shape, defying gravity, or redirecting its flow.' },
 
-  { class: 'priest', tier: 4, name: 'Guardian of Faith',
-    range: 'Near', duration: '8 hours',
-    description: 'A spectral guardian appears and deals 20 radiant damage to hostile creatures that move within near range.' },
+  { class: 'priest', tier: 4, name: 'Flame Strike',
+    range: 'Far', duration: 'Instant',
+    description: 'Call down a holy pillar of fire on one creature you can see within range; it takes 2d6 damage.' },
+
+  { class: 'priest', tier: 4, name: 'Pillar of Salt',
+    range: 'Near', duration: 'Focus',
+    description: 'Turn a creature of level 5 or less you can see into a salt statue. Focusing for 3 consecutive rounds makes the transformation permanent.' },
+
+  { class: 'priest', tier: 4, name: 'Regenerate',
+    range: 'Close', duration: 'Focus',
+    description: 'A touched creature regains 1d4 HP on your turn each round. This spell also regrows lost body parts.' },
+
+  { class: 'priest', tier: 4, name: 'Wrath',
+    range: 'Self', duration: '10 rounds',
+    description: 'Your weapons become magical +2 and deal an additional d8 damage for the duration.' },
 
   // ── Priest — Tier 5 ────────────────────────────────────────────────────
 
-  { class: 'priest', tier: 5, name: 'Flame Strike',
-    range: 'Far', duration: 'Instant',
-    description: 'Pillars of divine fire deal 4d6 fire and 4d6 radiant damage in a 10 ft cylinder.' },
+  { class: 'priest', tier: 5, name: 'Divine Vengeance',
+    range: 'Self', duration: '10 rounds',
+    description: 'Become a divine avatar wreathed in holy flames or dark aura. You can fly a near distance, your weapons are magical, and you have +4 to weapon attacks and damage.' },
 
-  { class: 'priest', tier: 5, name: 'Greater Restoration',
-    range: 'Touch', duration: 'Instant',
-    description: 'You end one effect reducing ability scores, remove exhaustion, or cure a curse, petrification, or poison.' },
+  { class: 'priest', tier: 5, name: 'Dominion',
+    range: 'Near', duration: '10 rounds',
+    description: 'Summon beings with combined levels ≤ 16. Lawful/neutral: angels. Chaotic: demons or devils. They act freely to aid you. Cannot cast again until penance.' },
 
-  { class: 'priest', tier: 5, name: 'Mass Cure Wounds',
-    range: 'Near', duration: 'Instant',
-    description: 'Up to 6 creatures you can see each regain 3d8+5 HP.' },
+  { class: 'priest', tier: 5, name: 'Heal',
+    range: 'Close', duration: 'Instant',
+    description: 'One touched creature is healed to full hit points. Cannot be cast again until after a rest.' },
 
-  { class: 'priest', tier: 5, name: 'Raise Dead',
-    range: 'Touch', duration: 'Instant',
-    description: 'You restore life to a creature dead no more than 10 days. It returns with 1 HP.' },
+  { class: 'priest', tier: 5, name: 'Judgment',
+    range: 'Close', duration: '5 rounds',
+    description: 'Banish a creature of level 10 or less to face your god\'s judgment. Returns in 5 rounds: full HP if deeds pleased; 1 HP if angered; unchanged if unjudged.' },
 
-  { class: 'priest', tier: 5, name: 'True Seeing',
-    range: 'Touch', duration: '1 hour',
-    description: 'A creature sees through illusions, perceives invisible creatures, and can see into the Ethereal Plane.' },
+  { class: 'priest', tier: 5, name: 'Plane Shift',
+    range: 'Close', duration: 'Instant',
+    description: 'Transport yourself and all willing creatures within close range to another plane. Without a prior visit, you arrive at a random location on the destination plane.' },
+
+  { class: 'priest', tier: 5, name: 'Prophecy',
+    range: 'Self', duration: 'Instant',
+    description: 'Ask your god one open question; the GM answers truthfully using the knowledge your god possesses. Cannot cast again until penance.' },
+
 ];

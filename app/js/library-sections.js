@@ -26,23 +26,33 @@ const ABILITY_SCORES = [
 // ── Alignments — three in Shadowdark ──────────────────────────────────────
 
 const ALIGNMENTS = [
-  { name: 'Lawful',  description: 'You believe in order, duty, and the rule of law. You keep your word even when it costs you.' },
-  { name: 'Neutral', description: 'You walk between order and chaos, guided by pragmatism, nature, or personal loyalty over ideology.' },
-  { name: 'Chaotic', description: 'You embrace freedom, change, and personal power. Rules are tools, not masters.' },
+  { name: 'Lawful',  description: 'Lawful characters align themselves with fairness, order, and virtue. They operate from a "good of the whole" mentality.' },
+  { name: 'Neutral', description: 'Neutral characters find balance between Law and Chaos. They align with the cycle of growth and decline, adopting a "nature must take its course" mentality.' },
+  { name: 'Chaotic', description: 'Chaotic characters align themselves with destruction, ambition, and wickedness. They adopt a "survival of the fittest" mentality.' },
 ];
 
-// ── Languages spoken in the Shadowdark world ──────────────────────────────
+// ── Common languages spoken in the Shadowdark world ───────────────────────
 
-const LANGUAGES = [
-  { name: 'Common',    description: 'Spoken by most humans and civilized folk across the known world.' },
-  { name: 'Elvish',    description: 'A musical, flowing tongue used by elves and some ancient arcane texts.' },
-  { name: 'Dwarvish',  description: 'A guttural, percussive language spoken by dwarves and carved into stone.' },
-  { name: 'Halfling',  description: 'A quiet, whispered dialect used among small folk.' },
-  { name: 'Goblin',    description: 'A hissing, clipped tongue shared by goblins, kobolds, and their kin.' },
-  { name: 'Orcish',    description: 'A harsh battle-language used among orcs and some half-orcs.' },
-  { name: 'Draconic',  description: 'The ancient tongue of dragons, found in spells and arcane formulae.' },
-  { name: 'Celestial', description: 'The language of angels and divine beings; used in holy rites.' },
-  { name: 'Sylvan',    description: 'The tongue of fey creatures and nature spirits.' },
+const COMMON_LANGUAGES = [
+  { name: 'Common',    description: 'Spoken by most humanoids.' },
+  { name: 'Dwarvish',  description: 'Spoken by dwarves.' },
+  { name: 'Elvish',    description: 'Spoken by elves.' },
+  { name: 'Giant',     description: 'Spoken by giants, ogres, and trolls.' },
+  { name: 'Goblin',    description: 'Spoken by bugbears, goblins, and hobgoblins.' },
+  { name: 'Merran',    description: 'Spoken by merfolk, sahuagin, and sirens.' },
+  { name: 'Orcish',    description: 'Spoken by orcs.' },
+  { name: 'Reptilian', description: 'Spoken by lizardfolk and viperians.' },
+  { name: 'Sylvan',    description: 'Spoken by centaurs, dryads, and faeries.' },
+  { name: 'Thanian',   description: 'Spoken by minotaurs, beastmen, and manticores.' },
+];
+
+// ── Rare languages spoken in the Shadowdark world ─────────────────────────
+
+const RARE_LANGUAGES = [
+  { name: 'Celestial',  description: 'Spoken by angels.' },
+  { name: 'Diabolic',   description: 'Spoken by demons and devils.' },
+  { name: 'Draconic',   description: 'Spoken by dragons.' },
+  { name: 'Primordial', description: 'Spoken by elder things and elementals.' },
 ];
 
 // ── Shared helpers ─────────────────────────────────────────────────────────
@@ -213,17 +223,24 @@ export function renderAlignmentsSection(container) {
 }
 
 /**
- * Renders the languages available in the Shadowdark world.
+ * Renders languages grouped as Common and Rare, matching the rules split.
  */
 export function renderLanguagesSection(container) {
-  const list = document.createElement('div');
-  list.className = 'reference-list';
-
-  LANGUAGES.forEach((lang) => {
-    list.appendChild(makeReferenceCard(lang.name, null, lang.description));
+  container.appendChild(makeSectionHeader('Common Languages'));
+  const commonList = document.createElement('div');
+  commonList.className = 'reference-list';
+  COMMON_LANGUAGES.forEach((lang) => {
+    commonList.appendChild(makeReferenceCard(lang.name, null, lang.description));
   });
+  container.appendChild(commonList);
 
-  container.appendChild(list);
+  container.appendChild(makeSectionHeader('Rare Languages'));
+  const rareList = document.createElement('div');
+  rareList.className = 'reference-list';
+  RARE_LANGUAGES.forEach((lang) => {
+    rareList.appendChild(makeReferenceCard(lang.name, null, lang.description));
+  });
+  container.appendChild(rareList);
 }
 
 /**

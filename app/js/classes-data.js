@@ -15,15 +15,15 @@ export const CLASSES = [
     abilities: [
       {
         name: 'Hauler',
-        description: 'Add your Constitution modifier (minimum 1) to your gear slot total.',
+        description: 'Add your Constitution modifier, if positive, to your gear slot total.',
       },
       {
         name: 'Weapon Mastery',
-        description: 'Choose one weapon type. You gain +1 to attack and damage rolls with that weapon type.',
+        description: 'Choose one weapon type. You gain +1 to attack and damage rolls with that weapon type. In addition, add half your level to these rolls (round down).',
       },
       {
         name: 'Grit',
-        description: 'Once per day, you can choose to succeed on one Strength or Constitution check.',
+        description: 'Choose Strength or Dexterity. You have advantage on checks of that type to overcome an opposing force, such as kicking open a stuck door or slipping free of chains.',
       },
     ],
   },
@@ -32,20 +32,16 @@ export const CLASSES = [
     name: 'Thief',
     description: 'Thieves live by their wits, quick hands, and the shadows. They excel at trickery and dealing deadly blows from the dark.',
     hitDie: 'd4',
-    armor: 'Leather armor',
-    weapons: 'Simple weapons, plus the shortsword',
+    armor: 'Leather armor, mithral chainmail',
+    weapons: 'Club, crossbow, dagger, shortbow, shortsword',
     abilities: [
       {
         name: 'Backstab',
-        description: 'If you attack a creature that is unaware of you or that is engaged with an ally, you deal an extra die of damage.',
+        description: 'If you hit a creature that is unaware of your attack, you deal an extra weapon die of damage. Add additional weapon dice equal to half your level (round down).',
       },
       {
         name: 'Thievery',
-        description: 'You are trained in climbing, hiding, sneaking, picking locks, and picking pockets. Make a check when attempting any of these.',
-      },
-      {
-        name: 'Luck Token',
-        description: 'Once per day, you can reroll any one d20 roll you make.',
+        description: 'You have advantage on checks to climb, sneak, hide, apply disguises, find and disable traps, pick pockets, and open locks. Tools take up no gear slots.',
       },
     ],
   },
@@ -58,16 +54,16 @@ export const CLASSES = [
     weapons: 'Daggers and staves only',
     abilities: [
       {
-        name: 'Spellcasting',
-        description: 'You can cast wizard spells. Roll a d20 + your INT modifier. On a 10+, the spell succeeds. On a failure, the spell is lost until you rest.',
+        name: 'Languages',
+        description: 'You know two additional common languages and two rare languages.',
       },
       {
         name: 'Learning Spells',
-        description: 'You start with a spellbook containing 3 random 1st-tier wizard spells. You can copy new spells found as treasure into your book.',
+        description: 'You know three tier 1 spells of your choice. You can permanently learn a wizard spell from a scroll by studying it for a day and succeeding on a DC 15 Intelligence check; whether you succeed or fail, the scroll is expended.',
       },
       {
-        name: 'Iron Sensitivity',
-        description: 'You cannot wear armor or use shields. Carrying iron or steel reduces your spellcasting rolls by 1.',
+        name: 'Spellcasting',
+        description: 'You can cast wizard spells you know. Each time you gain a level, you choose new spells according to the Wizard Spells Known table.',
       },
     ],
   },
@@ -76,20 +72,24 @@ export const CLASSES = [
     name: 'Priest',
     description: 'Priests channel divine power granted by their deity, bolstering allies and smiting the unholy with sacred authority.',
     hitDie: 'd6',
-    armor: 'Light and medium armor',
-    weapons: 'Clubs, maces, and war hammers',
+    armor: 'All armor and shields',
+    weapons: 'Club, crossbow, dagger, mace, longsword, staff, warhammer',
     abilities: [
       {
-        name: 'Spellcasting',
-        description: 'You can cast priest spells. Roll a d20 + your WIS modifier. On a 10+, the spell succeeds. On a failure, the spell is lost until you rest.',
+        name: 'Languages',
+        description: 'You know Celestial, Diabolic, or Primordial (choose one).',
       },
       {
         name: 'Turn Undead',
-        description: 'Once per rest, hold up your holy symbol and roll a spellcasting check. On success, undead of equal or lower tier flee or are destroyed.',
+        description: 'You know the Turn Undead spell. It does not count toward your number of known spells.',
       },
       {
         name: 'Deity',
-        description: 'You worship a specific deity who grants you access to a set of spells aligned to their domain.',
+        description: 'Choose a god to serve who matches your alignment. You have a holy symbol for your god (it takes up no gear slots).',
+      },
+      {
+        name: 'Spellcasting',
+        description: 'You know two tier 1 priest spells of your choice. Each time you gain a level, you choose new spells according to the Priest Spells Known table.',
       },
     ],
   },

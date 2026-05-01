@@ -10,7 +10,7 @@ export const ANCESTRIES = [
     name: 'Human',
     description: 'Humans are the most numerous folk in the known world. Their ambition and adaptability let them rise in any profession.',
     traitName: 'Ambitious',
-    traitDescription: 'You gain one additional background roll at character creation.',
+    traitDescription: 'You gain one additional talent roll at 1st level.',
   },
 
   {
@@ -24,14 +24,14 @@ export const ANCESTRIES = [
     name: 'Dwarf',
     description: 'Dwarves are stout and stubborn, shaped by centuries underground. They endure hardships that would fell lesser folk.',
     traitName: 'Stout',
-    traitDescription: 'Roll your hit points with advantage at every level (roll twice, take the higher result).',
+    traitDescription: 'Start with +2 HP. Roll hit points with advantage at every level (roll twice, take the higher result).',
   },
 
   {
     name: 'Halfling',
     description: 'Halflings are small, nimble, and eerily lucky. Their cheerful resilience masks surprising survival instincts.',
-    traitName: 'Lucky',
-    traitDescription: 'Once per day, you may reroll any one die roll and keep the preferred result.',
+    traitName: 'Stealthy',
+    traitDescription: 'Once per day, you can become invisible for 3 rounds.',
   },
 
   {
@@ -44,8 +44,8 @@ export const ANCESTRIES = [
   {
     name: 'Goblin',
     description: 'Goblins are small, quick, and overlooked by those who mistake their size for weakness.',
-    traitName: 'Nimble',
-    traitDescription: 'You can fit through gaps a human could not. You get a +2 bonus to initiative rolls.',
+    traitName: 'Keen Senses',
+    traitDescription: 'You can\'t be surprised.',
   },
 
 ];
