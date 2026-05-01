@@ -357,6 +357,13 @@ function formatCharacterText(char) {
   sect(`Background: ${char.background.name}`);
   add(char.background.description);
 
+  // ── Inventory (items granted by background) ───────────────────────────────
+  const startingItems = parseStartingItems(char.background.description);
+  if (startingItems.length > 0) {
+    sect('Inventory');
+    startingItems.forEach((item) => add(formatInventoryItem(item)));
+  }
+
   // ── Talents ──────────────────────────────────────────────────────────────
   char.talents.forEach((talent, i) => {
     sect(char.talents.length > 1 ? `Talent ${i + 1}` : 'Talent');
@@ -396,6 +403,23 @@ function formatCharacterText(char) {
   }
 
   return out.join('\n');
+}
+
+// ── Inventory helpers ──────────────────────────────────────────────────────
+
+function parseStartingItems(description) {
+  const match = description.match(/[Ss]tart with (.+?)\.?\s*$/);
+  if (!match) return [];
+  return match[1]
+    .split(/,\s*(?:and\s+)?|\s+and\s+/)
+    .map((item) => item.replace(/^(a |an |the )/i, '').trim())
+    .filter(Boolean);
+}
+
+function formatInventoryItem(item) {
+  const numMatch = item.match(/^(\d+)\s+(.+)$/);
+  if (numMatch) return `${numMatch[2]} x${numMatch[1]}`;
+  return `${item} x1`;
 }
 
 function makeBackButton(label, onClick) {

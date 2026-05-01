@@ -26,7 +26,7 @@ const MOCK_CHAR = {
     wis: { score: 12, mod: 1 },
     cha: { score: 7,  mod: -1 },
   },
-  background: { roll: 11, name: 'Mercenary', description: 'You sold your sword to whoever paid.' },
+  background: { roll: 11, name: 'Mercenary', description: 'You sold your sword to whoever paid. Start with a mercenary contract and a brand mark.' },
   talents: ['+1 to melee and ranged attacks'],
   deity: null,
   spells: [
@@ -369,6 +369,28 @@ describe('renderGeneratePage', () => {
     await vi.runAllTimersAsync();
     const [{ text }] = navigator.share.mock.calls[0];
     expect(text).toContain('Aldric · Human Fighter');
+  });
+
+  // ── Inventory in export ─────────────────────────────────────────────────
+
+  it('exported text includes an Inventory section', async () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    container.querySelector('.character-export-btn').click();
+    await vi.runAllTimersAsync();
+    const [{ text }] = navigator.share.mock.calls[0];
+    expect(text).toContain('Inventory');
+  });
+
+  it('exported inventory contains items with x1 quantity', async () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    container.querySelector('.character-export-btn').click();
+    await vi.runAllTimersAsync();
+    const [{ text }] = navigator.share.mock.calls[0];
+    expect(text).toMatch(/x1/);
   });
 
   it('back on character sheet returns to the menu', () => {
