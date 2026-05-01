@@ -1,18 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock update-checker before importing settings-page so we control what
-// checkForUpdate returns without spinning up a real service worker.
-vi.mock('../../app/js/update-checker.js', () => ({
-  checkForUpdate: vi.fn(),
-  UPDATE_STATUS: {
-    UPDATED:      'updated',
-    UP_TO_DATE:   'up-to-date',
-    ERROR:        'error',
-  },
-}));
-
-import { renderSettingsPage, handleUpdateCheck, handleShare } from '../../app/js/settings-page.js';
-import { checkForUpdate, UPDATE_STATUS } from '../../app/js/update-checker.js';
+import { renderSettingsPage, handleShare } from '../../app/js/settings-page.js';
 
 // ── renderSettingsPage ───────────────────────────────────────────────────────
 
@@ -157,23 +145,6 @@ describe('renderSettingsPage', () => {
     expect(shareBtn).not.toBeUndefined();
   });
 
-  // ── Check for Update button ─────────────────────────────────────────────
-
-  it('renders a Check for Update button', () => {
-    renderSettingsPage(container);
-    expect(container.querySelector('.settings__update-button')).not.toBeNull();
-  });
-
-  it('update button initial text is "Check for Update"', () => {
-    renderSettingsPage(container);
-    expect(container.querySelector('.settings__update-button').textContent).toBe('Check for Update');
-  });
-
-  it('update button is not disabled on render', () => {
-    renderSettingsPage(container);
-    expect(container.querySelector('.settings__update-button').disabled).toBe(false);
-  });
-
   // ── Invalid container ───────────────────────────────────────────────────
 
   it('returns false when container is null', () => {
@@ -223,105 +194,5 @@ describe('handleShare', () => {
     const shareFn = vi.fn().mockRejectedValue(new Error('something broke'));
     const result = await handleShare('https://example.com', { share: shareFn });
     expect(result).toBe('error');
-  });
-});
-
-// ── handleUpdateCheck ────────────────────────────────────────────────────────
-
-describe('handleUpdateCheck', () => {
-  let button;
-  let reloadFn;
-
-  beforeEach(() => {
-    button = document.createElement('button');
-    button.textContent = 'Check for Update';
-    reloadFn = vi.fn();
-    vi.clearAllMocks();
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  // ── Checking state ──────────────────────────────────────────────────────
-
-  it('disables the button immediately', async () => {
-    checkForUpdate.mockResolvedValue(UPDATE_STATUS.UP_TO_DATE);
-    const promise = handleUpdateCheck(button, reloadFn);
-    expect(button.disabled).toBe(true);
-    await promise;
-  });
-
-  it('sets button text to "Checking…" immediately', async () => {
-    checkForUpdate.mockResolvedValue(UPDATE_STATUS.UP_TO_DATE);
-    const promise = handleUpdateCheck(button, reloadFn);
-    expect(button.textContent).toBe('Checking…');
-    await promise;
-  });
-
-  // ── UPDATED path ────────────────────────────────────────────────────────
-
-  it('shows "Updated! Reloading…" when status is UPDATED', async () => {
-    checkForUpdate.mockResolvedValue(UPDATE_STATUS.UPDATED);
-    await handleUpdateCheck(button, reloadFn);
-    expect(button.textContent).toBe('Updated! Reloading…');
-  });
-
-  it('does not call reloadFn immediately — waits 1 s', async () => {
-    checkForUpdate.mockResolvedValue(UPDATE_STATUS.UPDATED);
-    await handleUpdateCheck(button, reloadFn);
-    expect(reloadFn).not.toHaveBeenCalled();
-    vi.advanceTimersByTime(1_000);
-    expect(reloadFn).toHaveBeenCalledOnce();
-  });
-
-  it('button stays disabled after UPDATED', async () => {
-    checkForUpdate.mockResolvedValue(UPDATE_STATUS.UPDATED);
-    await handleUpdateCheck(button, reloadFn);
-    expect(button.disabled).toBe(true);
-  });
-
-  // ── UP_TO_DATE path ─────────────────────────────────────────────────────
-
-  it('shows "Already up to date" when status is UP_TO_DATE', async () => {
-    checkForUpdate.mockResolvedValue(UPDATE_STATUS.UP_TO_DATE);
-    await handleUpdateCheck(button, reloadFn);
-    expect(button.textContent).toBe('Already up to date');
-  });
-
-  it('resets button text after 2 s when UP_TO_DATE', async () => {
-    checkForUpdate.mockResolvedValue(UPDATE_STATUS.UP_TO_DATE);
-    await handleUpdateCheck(button, reloadFn);
-    vi.advanceTimersByTime(2_000);
-    expect(button.textContent).toBe('Check for Update');
-    expect(button.disabled).toBe(false);
-  });
-
-  it('does not call reloadFn when UP_TO_DATE', async () => {
-    checkForUpdate.mockResolvedValue(UPDATE_STATUS.UP_TO_DATE);
-    await handleUpdateCheck(button, reloadFn);
-    vi.advanceTimersByTime(2_000);
-    expect(reloadFn).not.toHaveBeenCalled();
-  });
-
-  // ── ERROR path ──────────────────────────────────────────────────────────
-
-  it('shows retry message when status is ERROR', async () => {
-    checkForUpdate.mockResolvedValue(UPDATE_STATUS.ERROR);
-    await handleUpdateCheck(button, reloadFn);
-    expect(button.textContent).toBe('No connection — tap to retry');
-  });
-
-  it('re-enables the button after ERROR so user can retry', async () => {
-    checkForUpdate.mockResolvedValue(UPDATE_STATUS.ERROR);
-    await handleUpdateCheck(button, reloadFn);
-    expect(button.disabled).toBe(false);
-  });
-
-  it('does not call reloadFn when ERROR', async () => {
-    checkForUpdate.mockResolvedValue(UPDATE_STATUS.ERROR);
-    await handleUpdateCheck(button, reloadFn);
-    expect(reloadFn).not.toHaveBeenCalled();
   });
 });
