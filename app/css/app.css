@@ -350,6 +350,21 @@ body {
   /* label stretches to fill available space */
 }
 
+/* Used when an item has both a primary label and a secondary sublabel */
+.library-nav__row-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.library-nav__row-sublabel {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  line-height: 1.2;
+}
+
 .library-nav__row-indicator {
   color: var(--color-text-muted);
   font-size: 1.25rem;

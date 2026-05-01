@@ -1,47 +1,43 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('../../app/js/library-sections.js', () => ({
-  renderSpellsSection:                   vi.fn().mockReturnValue(true),
-  renderAncestriesSection:               vi.fn().mockReturnValue(true),
-  renderClassesSection:                  vi.fn().mockReturnValue(true),
-  renderAbilityScoresSection:            vi.fn().mockReturnValue(true),
-  renderBackgroundsSection:              vi.fn().mockReturnValue(true),
-  renderAlignmentsSection:               vi.fn().mockReturnValue(true),
-  renderLanguagesSection:                vi.fn().mockReturnValue(true),
-  renderEquipmentSection:                vi.fn().mockReturnValue(true),
-  renderCoreMechanicSection:             vi.fn().mockReturnValue(true),
-  renderCombatSection:                   vi.fn().mockReturnValue(true),
-  renderAdvancementSection:              vi.fn().mockReturnValue(true),
-  renderSpellcastingSection:             vi.fn().mockReturnValue(true),
-  renderLightAndDarknessSection:         vi.fn().mockReturnValue(true),
-  renderRestingSection:                  vi.fn().mockReturnValue(true),
-  renderDeathAndDyingSection:            vi.fn().mockReturnValue(true),
-  renderStealthAndSurpriseSection:       vi.fn().mockReturnValue(true),
-  renderLuckTokensSection:               vi.fn().mockReturnValue(true),
-  renderTitlesSection:                   vi.fn().mockReturnValue(true),
-  renderDeitiesSection:                  vi.fn().mockReturnValue(true),
-  renderRandomCharacterGenerationSection:vi.fn().mockReturnValue(true),
-  renderRunningTheGameSection:           vi.fn().mockReturnValue(true),
-  renderMonstersSection:                 vi.fn().mockReturnValue(true),
-  renderMagicItemsSection:               vi.fn().mockReturnValue(true),
-  renderTreasureSection:                 vi.fn().mockReturnValue(true),
-  renderNpcsAndReactionsSection:         vi.fn().mockReturnValue(true),
-  renderAdventureGeneratorSection:       vi.fn().mockReturnValue(true),
-  renderOverlandTravelSection:           vi.fn().mockReturnValue(true),
-  renderEncounterTablesSection:          vi.fn().mockReturnValue(true),
-  renderRandomEventsSection:             vi.fn().mockReturnValue(true),
-  renderRumorsSection:                   vi.fn().mockReturnValue(true),
-  renderSettlementsSection:              vi.fn().mockReturnValue(true),
-}));
+vi.mock('../../app/js/library-sections.js', () => {
+  // Inline — vi.mock factories are hoisted and cannot reference outer variables
+  const ids = [
+    'ability-scores', 'advancement', 'adventure-generator', 'alignments',
+    'ancestries', 'backgrounds', 'classes', 'combat', 'core-mechanic',
+    'death-and-dying', 'deities', 'encounter-tables', 'equipment',
+    'languages', 'light-and-darkness', 'luck-tokens', 'magic-items',
+    'monsters', 'npcs-and-reactions', 'overland-travel',
+    'random-character-generation', 'random-events', 'resting', 'rumors',
+    'running-the-game', 'settlements', 'spellcasting', 'spells',
+    'stealth-and-surprise', 'titles', 'treasure',
+  ];
+  const sections = ids.map((id) => ({
+    id,
+    label: id.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+    items: [
+      { id: 'item-a', label: 'Alpha Item' },
+      { id: 'item-b', label: 'Beta Item', sublabel: 'Sub B' },
+    ],
+    renderDetail: vi.fn(),
+  }));
+  return { SECTIONS: sections };
+});
+
+// 31 section IDs — must match what library-sections.js exports
+const ALL_IDS = [
+  'ability-scores', 'advancement', 'adventure-generator', 'alignments',
+  'ancestries', 'backgrounds', 'classes', 'combat', 'core-mechanic',
+  'death-and-dying', 'deities', 'encounter-tables', 'equipment',
+  'languages', 'light-and-darkness', 'luck-tokens', 'magic-items',
+  'monsters', 'npcs-and-reactions', 'overland-travel',
+  'random-character-generation', 'random-events', 'resting', 'rumors',
+  'running-the-game', 'settlements', 'spellcasting', 'spells',
+  'stealth-and-surprise', 'titles', 'treasure',
+];
 
 import { renderLibraryPage } from '../../app/js/library-page.js';
-import {
-  renderSpellsSection,
-  renderAncestriesSection,
-  renderEquipmentSection,
-  renderRunningTheGameSection,
-  renderMonstersSection,
-} from '../../app/js/library-sections.js';
+import { SECTIONS }          from '../../app/js/library-sections.js';
 
 describe('renderLibraryPage', () => {
   let container;
@@ -65,7 +61,7 @@ describe('renderLibraryPage', () => {
     expect(renderLibraryPage('#page-library')).toBe(false);
   });
 
-  // ── Section list (initial view) ─────────────────────────────────────────
+  // ── Level 1: section list ───────────────────────────────────────────────
 
   it('returns true when given a valid container', () => {
     expect(renderLibraryPage(container)).toBe(true);
@@ -83,36 +79,20 @@ describe('renderLibraryPage', () => {
 
   it('renders a nav row for each section', () => {
     renderLibraryPage(container);
-    expect(container.querySelectorAll('.library-nav__row').length).toBe(31);
+    expect(container.querySelectorAll('[data-section]').length).toBe(31);
   });
 
-  it('renders a Spells nav row', () => {
+  it('renders a Spells section row', () => {
+    renderLibraryPage(container);
+    expect(container.querySelector('[data-section="spells"]')).not.toBeNull();
+  });
+
+  it('renders section rows with label text', () => {
     renderLibraryPage(container);
     const labels = Array.from(container.querySelectorAll('.library-nav__row-label')).map((el) => el.textContent);
     expect(labels).toContain('Spells');
-  });
-
-  it('renders an Ancestries nav row', () => {
-    renderLibraryPage(container);
-    const labels = Array.from(container.querySelectorAll('.library-nav__row-label')).map((el) => el.textContent);
     expect(labels).toContain('Ancestries');
-  });
-
-  it('renders an Equipment nav row', () => {
-    renderLibraryPage(container);
-    const labels = Array.from(container.querySelectorAll('.library-nav__row-label')).map((el) => el.textContent);
-    expect(labels).toContain('Equipment');
-  });
-
-  it('renders new player and GM section rows', () => {
-    renderLibraryPage(container);
-    const labels = Array.from(container.querySelectorAll('.library-nav__row-label')).map((el) => el.textContent);
-    expect(labels).toContain('Core Mechanic');
-    expect(labels).toContain('Combat');
-    expect(labels).toContain('Deities');
     expect(labels).toContain('Monsters');
-    expect(labels).toContain('Running the Game');
-    expect(labels).toContain('Encounter Tables');
   });
 
   it('does not render a back button on the section list', () => {
@@ -120,13 +100,24 @@ describe('renderLibraryPage', () => {
     expect(container.querySelector('.library-back-btn')).toBeNull();
   });
 
-  it('does not call any section render function on initial load', () => {
+  it('does not call any renderDetail on initial load', () => {
     renderLibraryPage(container);
-    expect(renderSpellsSection).not.toHaveBeenCalled();
-    expect(renderAncestriesSection).not.toHaveBeenCalled();
+    SECTIONS.forEach((s) => expect(s.renderDetail).not.toHaveBeenCalled());
   });
 
-  // ── Section drill-in ────────────────────────────────────────────────────
+  // ── Level 2: item list ──────────────────────────────────────────────────
+
+  it('clicking a section row shows item rows', () => {
+    renderLibraryPage(container);
+    container.querySelector('[data-section="spells"]').click();
+    expect(container.querySelectorAll('[data-item]').length).toBeGreaterThan(0);
+  });
+
+  it('clicking a section row removes the section list', () => {
+    renderLibraryPage(container);
+    container.querySelector('[data-section="spells"]').click();
+    expect(container.querySelector('[data-section]')).toBeNull();
+  });
 
   it('clicking a section row shows a back button', () => {
     renderLibraryPage(container);
@@ -134,62 +125,116 @@ describe('renderLibraryPage', () => {
     expect(container.querySelector('.library-back-btn')).not.toBeNull();
   });
 
-  it('clicking the Spells row calls renderSpellsSection', () => {
+  it('back button at level 2 reads "‹ Library"', () => {
     renderLibraryPage(container);
     container.querySelector('[data-section="spells"]').click();
-    expect(renderSpellsSection).toHaveBeenCalledWith(container);
+    expect(container.querySelector('.library-back-btn').textContent).toBe('‹ Library');
   });
 
-  it('clicking a section row updates the page title to the section name', () => {
-    renderLibraryPage(container);
-    container.querySelector('[data-section="ancestries"]').click();
-    expect(container.querySelector('.page-title').textContent).toBe('Ancestries');
-  });
-
-  it('clicking the Equipment row calls renderEquipmentSection', () => {
-    renderLibraryPage(container);
-    container.querySelector('[data-section="equipment"]').click();
-    expect(renderEquipmentSection).toHaveBeenCalledWith(container);
-  });
-
-  it('section view hides the nav list', () => {
+  it('clicking a section row updates the page title to the section label', () => {
     renderLibraryPage(container);
     container.querySelector('[data-section="spells"]').click();
-    expect(container.querySelector('.library-nav')).toBeNull();
+    expect(container.querySelector('.page-title').textContent).toBe('Spells');
+  });
+
+  it('item rows render their labels', () => {
+    renderLibraryPage(container);
+    container.querySelector('[data-section="spells"]').click();
+    const labels = Array.from(container.querySelectorAll('.library-nav__row-label')).map((el) => el.textContent);
+    expect(labels).toContain('Alpha Item');
+  });
+
+  it('item rows with sublabel render the sublabel', () => {
+    renderLibraryPage(container);
+    container.querySelector('[data-section="spells"]').click();
+    const sublabels = Array.from(container.querySelectorAll('.library-nav__row-sublabel')).map((el) => el.textContent);
+    expect(sublabels).toContain('Sub B');
+  });
+
+  it('does not call renderDetail at level 2', () => {
+    renderLibraryPage(container);
+    const section = SECTIONS.find((s) => s.id === 'spells');
+    container.querySelector('[data-section="spells"]').click();
+    expect(section.renderDetail).not.toHaveBeenCalled();
+  });
+
+  // ── Level 3: detail view ────────────────────────────────────────────────
+
+  it('clicking an item at level 2 calls renderDetail with itemId', () => {
+    renderLibraryPage(container);
+    const section = SECTIONS.find((s) => s.id === 'spells');
+    container.querySelector('[data-section="spells"]').click();
+    container.querySelector('[data-item="item-a"]').click();
+    expect(section.renderDetail).toHaveBeenCalledWith(container, 'item-a');
+  });
+
+  it('clicking an item removes the item list', () => {
+    renderLibraryPage(container);
+    container.querySelector('[data-section="spells"]').click();
+    container.querySelector('[data-item="item-a"]').click();
+    expect(container.querySelector('[data-item]')).toBeNull();
+  });
+
+  it('clicking an item updates the page title to the item label', () => {
+    renderLibraryPage(container);
+    container.querySelector('[data-section="spells"]').click();
+    container.querySelector('[data-item="item-a"]').click();
+    expect(container.querySelector('.page-title').textContent).toBe('Alpha Item');
+  });
+
+  it('back button at level 3 reads "‹ <section label>"', () => {
+    renderLibraryPage(container);
+    container.querySelector('[data-section="spells"]').click();
+    container.querySelector('[data-item="item-a"]').click();
+    expect(container.querySelector('.library-back-btn').textContent).toBe('‹ Spells');
   });
 
   // ── Back navigation ─────────────────────────────────────────────────────
 
-  it('clicking back restores the section list', () => {
+  it('clicking back at level 2 restores the section list', () => {
     renderLibraryPage(container);
     container.querySelector('[data-section="spells"]').click();
     container.querySelector('.library-back-btn').click();
-    expect(container.querySelector('.library-nav')).not.toBeNull();
+    expect(container.querySelectorAll('[data-section]').length).toBe(31);
   });
 
-  it('clicking back removes the back button', () => {
+  it('clicking back at level 2 removes the back button', () => {
     renderLibraryPage(container);
     container.querySelector('[data-section="spells"]').click();
     container.querySelector('.library-back-btn').click();
     expect(container.querySelector('.library-back-btn')).toBeNull();
   });
 
-  it('clicking back restores the "Library" page title', () => {
+  it('clicking back at level 2 restores the "Library" title', () => {
     renderLibraryPage(container);
     container.querySelector('[data-section="spells"]').click();
     container.querySelector('.library-back-btn').click();
     expect(container.querySelector('.page-title').textContent).toBe('Library');
   });
 
-  it('clicking a GM section row calls its render function', () => {
+  it('clicking back at level 3 restores the item list', () => {
     renderLibraryPage(container);
-    container.querySelector('[data-section="monsters"]').click();
-    expect(renderMonstersSection).toHaveBeenCalledWith(container);
+    container.querySelector('[data-section="spells"]').click();
+    container.querySelector('[data-item="item-a"]').click();
+    container.querySelector('.library-back-btn').click();
+    expect(container.querySelectorAll('[data-item]').length).toBeGreaterThan(0);
   });
 
-  it('clicking a GM section row updates the page title', () => {
+  it('clicking back at level 3 shows "‹ Library" back button', () => {
     renderLibraryPage(container);
-    container.querySelector('[data-section="running-the-game"]').click();
-    expect(container.querySelector('.page-title').textContent).toBe('Running the Game');
+    container.querySelector('[data-section="spells"]').click();
+    container.querySelector('[data-item="item-a"]').click();
+    container.querySelector('.library-back-btn').click();
+    expect(container.querySelector('.library-back-btn').textContent).toBe('‹ Library');
+  });
+
+  it('double back (level 3 → 2 → 1) restores section list', () => {
+    renderLibraryPage(container);
+    container.querySelector('[data-section="ancestries"]').click();
+    container.querySelector('[data-item="item-a"]').click();
+    container.querySelector('.library-back-btn').click(); // → level 2
+    container.querySelector('.library-back-btn').click(); // → level 1
+    expect(container.querySelectorAll('[data-section]').length).toBe(31);
+    expect(container.querySelector('.library-back-btn')).toBeNull();
   });
 });

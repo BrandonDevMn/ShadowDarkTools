@@ -1,290 +1,447 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
-vi.mock('../../app/js/spells-list.js', () => ({
-  renderSpellsList: vi.fn().mockReturnValue(true),
+vi.mock('../../app/js/spells-data.js', () => ({
+  SPELLS: [
+    { class: 'wizard', tier: 1, name: 'Alarm',          range: 'Close', duration: '1 day',     description: 'Touch object to set alarm.' },
+    { class: 'wizard', tier: 1, name: 'Magic Missile',  range: 'Far',   duration: 'Instant',   description: '1d4+1 force damage.' },
+    { class: 'priest', tier: 1, name: 'Cure Wounds',    range: 'Touch', duration: 'Instant',   description: 'Restore 1d6 HP.' },
+    { class: 'priest', tier: 1, name: 'Light',          range: 'Near',  duration: '1 hour',    description: 'Object glows.' },
+    { class: 'wizard', tier: 1, name: 'Light',          range: 'Near',  duration: '1 hour',    description: 'Object glows (wizard).' },
+  ],
 }));
 
 vi.mock('../../app/js/ancestries-data.js', () => ({
   ANCESTRIES: [
-    { name: 'Human',   description: 'Ambitious folk.',   traitName: 'Ambitious', traitDescription: 'Extra background roll.' },
-    { name: 'Elf',     description: 'Long-lived seers.', traitName: 'Farsight',  traitDescription: '+1 to ranged or spellcasting.' },
+    { name: 'Human', description: 'Ambitious folk.', traitName: 'Ambitious', traitDescription: 'Extra background roll.' },
+    { name: 'Elf',   description: 'Long-lived seers.', traitName: 'Farsight',  traitDescription: '+1 to ranged or spellcasting.' },
   ],
 }));
 
 vi.mock('../../app/js/classes-data.js', () => ({
   CLASSES: [
-    {
-      name: 'Fighter', description: 'Martial master.', hitDie: 'd8',
-      armor: 'All armor', weapons: 'All weapons',
-      abilities: [{ name: 'Grit', description: 'Succeed on one check per day.' }],
-    },
+    { name: 'Fighter', description: 'Martial master.', hitDie: 'd8', armor: 'All armor', weapons: 'All weapons',
+      abilities: [{ name: 'Grit', description: 'Succeed on one check per day.' }] },
+    { name: 'Wizard', description: 'Arcane scholar.', hitDie: 'd4', armor: 'None', weapons: 'Staves, daggers',
+      abilities: [{ name: 'Magic Items', description: 'Can use all magic items.' }] },
   ],
 }));
 
 vi.mock('../../app/js/backgrounds-data.js', () => ({
   BACKGROUNDS: [
-    { roll: 1, name: 'Urchin', description: 'City streets background.' },
-    { roll: 2, name: 'Wanted', description: 'Bounty on your head.'   },
+    { roll: 1,  name: 'Urchin',  description: 'City streets background.' },
+    { roll: 2,  name: 'Wanted',  description: 'Bounty on your head.'     },
+    { roll: 11, name: 'Scholar', description: 'Scholarly pursuits.'       },
   ],
 }));
 
 vi.mock('../../app/js/equipment-data.js', () => ({
   EQUIPMENT: [
-    { category: 'weapon', name: 'Dagger', cost: '1 gp', damage: '1d4', range: 'Close', notes: 'Finesse' },
-    { category: 'armor',  name: 'Leather', cost: '10 gp', armorClass: '11+DEX', notes: 'Light' },
-    { category: 'gear',   name: 'Torch', cost: '1 cp', notes: '1 hour light' },
+    { category: 'weapon', name: 'Dagger',  cost: '1 gp',  damage: '1d4', range: 'Close', notes: 'Finesse'        },
+    { category: 'armor',  name: 'Leather', cost: '10 gp', armorClass: '11+DEX',          notes: 'Light'          },
+    { category: 'gear',   name: 'Torch',   cost: '1 cp',                                  notes: '1 hour of light' },
   ],
 }));
 
 import {
-  renderSpellsSection,
-  renderAncestriesSection,
-  renderClassesSection,
-  renderAbilityScoresSection,
-  renderBackgroundsSection,
-  renderAlignmentsSection,
-  renderLanguagesSection,
-  renderEquipmentSection,
+  spellsSection,
+  ancestriesSection,
+  classesSection,
+  abilityScoresSection,
+  backgroundsSection,
+  alignmentsSection,
+  languagesSection,
+  equipmentSection,
+  SECTIONS,
 } from '../../app/js/library-sections.js';
-import { renderSpellsList } from '../../app/js/spells-list.js';
 
-describe('renderSpellsSection', () => {
-  let container;
+function makeContainer() {
+  return document.createElement('div');
+}
 
-  beforeEach(() => {
-    container = document.createElement('div');
-    vi.clearAllMocks();
-  });
+// ── Shared descriptor shape tests ──────────────────────────────────────────
 
-  it('calls renderSpellsList with the container', () => {
-    renderSpellsSection(container);
-    expect(renderSpellsList).toHaveBeenCalledWith(container);
-  });
+const PLAYER_SECTIONS = [
+  spellsSection, ancestriesSection, classesSection, abilityScoresSection,
+  backgroundsSection, alignmentsSection, languagesSection, equipmentSection,
+];
 
-  it('returns the result of renderSpellsList', () => {
-    expect(renderSpellsSection(container)).toBe(true);
-  });
-});
-
-describe('renderAncestriesSection', () => {
-  let container;
-
-  beforeEach(() => {
-    container = document.createElement('div');
-  });
-
-  it('renders a reference list', () => {
-    renderAncestriesSection(container);
-    expect(container.querySelector('.reference-list')).not.toBeNull();
-  });
-
-  it('renders a card for each ancestry', () => {
-    renderAncestriesSection(container);
-    expect(container.querySelectorAll('.reference-card').length).toBe(2);
-  });
-
-  it('shows ancestry names', () => {
-    renderAncestriesSection(container);
-    const names = Array.from(container.querySelectorAll('.reference-card__name')).map((n) => n.textContent);
-    expect(names).toContain('Human');
-    expect(names).toContain('Elf');
-  });
-
-  it('shows trait names as meta', () => {
-    renderAncestriesSection(container);
-    const metas = Array.from(container.querySelectorAll('.reference-card__meta')).map((m) => m.textContent);
-    expect(metas).toContain('Ambitious');
-  });
-
-  it('shows trait descriptions', () => {
-    renderAncestriesSection(container);
-    const descs = Array.from(container.querySelectorAll('.reference-card__description')).map((d) => d.textContent);
-    expect(descs).toContain('Extra background roll.');
+PLAYER_SECTIONS.forEach((section) => {
+  describe(`${section.label} descriptor shape`, () => {
+    it('has an id string', () => { expect(typeof section.id).toBe('string'); });
+    it('has a label string', () => { expect(typeof section.label).toBe('string'); });
+    it('has a non-empty items array', () => {
+      expect(Array.isArray(section.items)).toBe(true);
+      expect(section.items.length).toBeGreaterThan(0);
+    });
+    it('items are sorted alphabetically', () => {
+      const labels = section.items.map((i) => i.label);
+      expect(labels).toEqual([...labels].sort((a, b) => a.localeCompare(b)));
+    });
+    it('each item has id and label strings', () => {
+      section.items.forEach((item) => {
+        expect(typeof item.id).toBe('string');
+        expect(typeof item.label).toBe('string');
+      });
+    });
+    it('renderDetail is a function', () => { expect(typeof section.renderDetail).toBe('function'); });
+    it('renderDetail does nothing for unknown id', () => {
+      const c = makeContainer();
+      expect(() => section.renderDetail(c, '__unknown__')).not.toThrow();
+    });
   });
 });
 
-describe('renderClassesSection', () => {
-  let container;
+// ── SECTIONS export ────────────────────────────────────────────────────────
 
-  beforeEach(() => {
-    container = document.createElement('div');
+describe('SECTIONS', () => {
+  it('is an array', () => { expect(Array.isArray(SECTIONS)).toBe(true); });
+
+  it('has 31 entries', () => { expect(SECTIONS.length).toBe(31); });
+
+  it('is sorted alphabetically by label', () => {
+    const labels = SECTIONS.map((s) => s.label);
+    expect(labels).toEqual([...labels].sort((a, b) => a.localeCompare(b)));
   });
 
-  it('renders a reference list', () => {
-    renderClassesSection(container);
-    expect(container.querySelector('.reference-list')).not.toBeNull();
+  it('contains spellsSection', () => {
+    expect(SECTIONS.some((s) => s.id === 'spells')).toBe(true);
   });
 
-  it('renders a card for each class', () => {
-    renderClassesSection(container);
-    expect(container.querySelectorAll('.reference-card').length).toBe(1);
-  });
-
-  it('shows class name', () => {
-    renderClassesSection(container);
-    expect(container.querySelector('.reference-card__name').textContent).toBe('Fighter');
-  });
-
-  it('shows hit die in meta', () => {
-    renderClassesSection(container);
-    expect(container.querySelector('.reference-card__meta').textContent).toContain('d8');
-  });
-
-  it('renders class abilities', () => {
-    renderClassesSection(container);
-    expect(container.querySelector('.reference-card__ability')).not.toBeNull();
-  });
-
-  it('shows ability name', () => {
-    renderClassesSection(container);
-    expect(container.querySelector('.reference-card__ability-name').textContent).toContain('Grit');
+  it('contains all 8 player sections', () => {
+    const ids = SECTIONS.map((s) => s.id);
+    ['spells', 'ancestries', 'classes', 'ability-scores', 'backgrounds',
+     'alignments', 'languages', 'equipment'].forEach((id) => {
+      expect(ids).toContain(id);
+    });
   });
 });
 
-describe('renderAbilityScoresSection', () => {
-  let container;
+// ── spellsSection ──────────────────────────────────────────────────────────
 
-  beforeEach(() => {
-    container = document.createElement('div');
+describe('spellsSection', () => {
+  it('has id "spells"', () => { expect(spellsSection.id).toBe('spells'); });
+
+  it('has 5 items (one per mocked spell)', () => {
+    expect(spellsSection.items.length).toBe(5);
   });
 
-  it('renders a reference list', () => {
-    renderAbilityScoresSection(container);
-    expect(container.querySelector('.reference-list')).not.toBeNull();
+  it('items have sublabels with class and tier', () => {
+    const alarm = spellsSection.items.find((i) => i.label === 'Alarm');
+    expect(alarm.sublabel).toBe('Wizard T1');
   });
 
-  it('renders all 6 ability score cards', () => {
-    renderAbilityScoresSection(container);
-    expect(container.querySelectorAll('.reference-card').length).toBe(6);
+  it('duplicate spell name (Light) gets class-prefixed id', () => {
+    const ids = spellsSection.items.map((i) => i.id);
+    expect(ids).toContain('wizard-light');
+    expect(ids).toContain('priest-light');
   });
 
-  it('includes Strength', () => {
-    renderAbilityScoresSection(container);
-    const names = Array.from(container.querySelectorAll('.reference-card__name')).map((n) => n.textContent);
-    expect(names.some((n) => n.includes('Strength'))).toBe(true);
+  it('items sorted: Alarm before Light before Magic Missile', () => {
+    const labels = spellsSection.items.map((i) => i.label);
+    expect(labels.indexOf('Alarm')).toBeLessThan(labels.indexOf('Light'));
+    expect(labels.indexOf('Light')).toBeLessThan(labels.indexOf('Magic Missile'));
   });
 
-  it('includes Charisma', () => {
-    renderAbilityScoresSection(container);
-    const names = Array.from(container.querySelectorAll('.reference-card__name')).map((n) => n.textContent);
-    expect(names.some((n) => n.includes('Charisma'))).toBe(true);
+  it('both Light spells present and sorted by sublabel (Priest T1 before Wizard T1)', () => {
+    const lights = spellsSection.items.filter((i) => i.label === 'Light');
+    expect(lights.length).toBe(2);
+    expect(lights[0].sublabel).toBe('Priest T1');
+    expect(lights[1].sublabel).toBe('Wizard T1');
+  });
+
+  describe('renderDetail', () => {
+    it('renders a reference card for wizard-alarm', () => {
+      const c = makeContainer();
+      spellsSection.renderDetail(c, 'wizard-alarm');
+      expect(c.querySelector('.reference-card')).not.toBeNull();
+      expect(c.querySelector('.reference-card__name').textContent).toBe('Alarm');
+    });
+
+    it('meta includes class, tier, range, duration', () => {
+      const c = makeContainer();
+      spellsSection.renderDetail(c, 'wizard-alarm');
+      const meta = c.querySelector('.reference-card__meta').textContent;
+      expect(meta).toContain('Wizard');
+      expect(meta).toContain('T1');
+      expect(meta).toContain('Close');
+      expect(meta).toContain('1 day');
+    });
+
+    it('renders spell description', () => {
+      const c = makeContainer();
+      spellsSection.renderDetail(c, 'priest-cure-wounds');
+      expect(c.textContent).toContain('Restore 1d6 HP');
+    });
+
+    it('renders nothing for unknown spell id', () => {
+      const c = makeContainer();
+      spellsSection.renderDetail(c, 'wizard-fireball');
+      expect(c.querySelector('.reference-card')).toBeNull();
+    });
   });
 });
 
-describe('renderBackgroundsSection', () => {
-  let container;
+// ── ancestriesSection ──────────────────────────────────────────────────────
 
-  beforeEach(() => {
-    container = document.createElement('div');
+describe('ancestriesSection', () => {
+  it('has id "ancestries"', () => { expect(ancestriesSection.id).toBe('ancestries'); });
+
+  it('has 2 items (one per mocked ancestry)', () => {
+    expect(ancestriesSection.items.length).toBe(2);
   });
 
-  it('renders a reference list', () => {
-    renderBackgroundsSection(container);
-    expect(container.querySelector('.reference-list')).not.toBeNull();
+  it('items have sublabels with trait names', () => {
+    const human = ancestriesSection.items.find((i) => i.label === 'Human');
+    expect(human.sublabel).toBe('Ambitious');
   });
 
-  it('renders a card for each background', () => {
-    renderBackgroundsSection(container);
-    expect(container.querySelectorAll('.reference-card').length).toBe(2);
-  });
+  describe('renderDetail', () => {
+    it('renders a reference card for human', () => {
+      const c = makeContainer();
+      ancestriesSection.renderDetail(c, 'human');
+      expect(c.querySelector('.reference-card')).not.toBeNull();
+      expect(c.querySelector('.reference-card__name').textContent).toBe('Human');
+    });
 
-  it('shows roll number in the card name', () => {
-    renderBackgroundsSection(container);
-    const names = Array.from(container.querySelectorAll('.reference-card__name')).map((n) => n.textContent);
-    expect(names).toContain('1. Urchin');
-  });
+    it('renders trait description', () => {
+      const c = makeContainer();
+      ancestriesSection.renderDetail(c, 'human');
+      expect(c.textContent).toContain('Extra background roll.');
+    });
 
-  it('renders an intro paragraph', () => {
-    renderBackgroundsSection(container);
-    expect(container.querySelector('.reference-card__description')).not.toBeNull();
+    it('elf renders elf card', () => {
+      const c = makeContainer();
+      ancestriesSection.renderDetail(c, 'elf');
+      expect(c.textContent).toContain('Farsight');
+    });
   });
 });
 
-describe('renderAlignmentsSection', () => {
-  let container;
+// ── classesSection ─────────────────────────────────────────────────────────
 
-  beforeEach(() => {
-    container = document.createElement('div');
+describe('classesSection', () => {
+  it('has id "classes"', () => { expect(classesSection.id).toBe('classes'); });
+
+  it('has 2 items (one per mocked class)', () => {
+    expect(classesSection.items.length).toBe(2);
   });
 
-  it('renders a reference list', () => {
-    renderAlignmentsSection(container);
-    expect(container.querySelector('.reference-list')).not.toBeNull();
+  it('items have sublabels with hit die', () => {
+    const fighter = classesSection.items.find((i) => i.label === 'Fighter');
+    expect(fighter.sublabel).toBe('HD d8');
   });
 
-  it('renders exactly 3 alignment cards', () => {
-    renderAlignmentsSection(container);
-    expect(container.querySelectorAll('.reference-card').length).toBe(3);
+  describe('renderDetail', () => {
+    it('renders Fighter card with name', () => {
+      const c = makeContainer();
+      classesSection.renderDetail(c, 'fighter');
+      expect(c.querySelector('.reference-card__name').textContent).toBe('Fighter');
+    });
+
+    it('meta includes hit die and armor', () => {
+      const c = makeContainer();
+      classesSection.renderDetail(c, 'fighter');
+      const meta = c.querySelector('.reference-card__meta').textContent;
+      expect(meta).toContain('d8');
+      expect(meta).toContain('All armor');
+    });
+
+    it('renders class abilities', () => {
+      const c = makeContainer();
+      classesSection.renderDetail(c, 'fighter');
+      expect(c.querySelector('.reference-card__ability-name').textContent).toContain('Grit');
+    });
   });
+});
+
+// ── abilityScoresSection ───────────────────────────────────────────────────
+
+describe('abilityScoresSection', () => {
+  it('has id "ability-scores"', () => { expect(abilityScoresSection.id).toBe('ability-scores'); });
+
+  it('has 6 items', () => { expect(abilityScoresSection.items.length).toBe(6); });
+
+  it('includes all 6 ability score ids', () => {
+    const ids = abilityScoresSection.items.map((i) => i.id);
+    ['str', 'dex', 'con', 'int', 'wis', 'cha'].forEach((id) => {
+      expect(ids).toContain(id);
+    });
+  });
+
+  it('items do not have sublabels', () => {
+    abilityScoresSection.items.forEach((item) => {
+      expect(item.sublabel).toBeUndefined();
+    });
+  });
+
+  describe('renderDetail', () => {
+    it('renders Strength card', () => {
+      const c = makeContainer();
+      abilityScoresSection.renderDetail(c, 'str');
+      expect(c.textContent).toContain('Strength');
+    });
+
+    it('renders Charisma card', () => {
+      const c = makeContainer();
+      abilityScoresSection.renderDetail(c, 'cha');
+      expect(c.textContent).toContain('Charisma');
+    });
+
+    it('card includes a description', () => {
+      const c = makeContainer();
+      abilityScoresSection.renderDetail(c, 'wis');
+      expect(c.querySelector('.reference-card__description')).not.toBeNull();
+    });
+  });
+});
+
+// ── backgroundsSection ─────────────────────────────────────────────────────
+
+describe('backgroundsSection', () => {
+  it('has id "backgrounds"', () => { expect(backgroundsSection.id).toBe('backgrounds'); });
+
+  it('has 3 items (one per mocked background)', () => {
+    expect(backgroundsSection.items.length).toBe(3);
+  });
+
+  it('items have sublabels with roll number', () => {
+    const urchin = backgroundsSection.items.find((i) => i.label === 'Urchin');
+    expect(urchin.sublabel).toBe('d20: 1');
+  });
+
+  it('items are sorted alphabetically (Scholar before Urchin before Wanted)', () => {
+    const labels = backgroundsSection.items.map((i) => i.label);
+    expect(labels.indexOf('Scholar')).toBeLessThan(labels.indexOf('Urchin'));
+    expect(labels.indexOf('Urchin')).toBeLessThan(labels.indexOf('Wanted'));
+  });
+
+  describe('renderDetail', () => {
+    it('renders Urchin card with roll in name', () => {
+      const c = makeContainer();
+      backgroundsSection.renderDetail(c, 'urchin');
+      expect(c.querySelector('.reference-card__name').textContent).toContain('Urchin');
+    });
+
+    it('renders background description', () => {
+      const c = makeContainer();
+      backgroundsSection.renderDetail(c, 'urchin');
+      expect(c.textContent).toContain('City streets');
+    });
+  });
+});
+
+// ── alignmentsSection ──────────────────────────────────────────────────────
+
+describe('alignmentsSection', () => {
+  it('has id "alignments"', () => { expect(alignmentsSection.id).toBe('alignments'); });
+
+  it('has 3 items', () => { expect(alignmentsSection.items.length).toBe(3); });
 
   it('includes Lawful, Neutral, Chaotic', () => {
-    renderAlignmentsSection(container);
-    const names = Array.from(container.querySelectorAll('.reference-card__name')).map((n) => n.textContent);
-    expect(names).toContain('Lawful');
-    expect(names).toContain('Neutral');
-    expect(names).toContain('Chaotic');
+    const labels = alignmentsSection.items.map((i) => i.label);
+    expect(labels).toContain('Lawful');
+    expect(labels).toContain('Neutral');
+    expect(labels).toContain('Chaotic');
+  });
+
+  describe('renderDetail', () => {
+    it('renders Lawful card', () => {
+      const c = makeContainer();
+      alignmentsSection.renderDetail(c, 'lawful');
+      expect(c.querySelector('.reference-card__name').textContent).toBe('Lawful');
+    });
+
+    it('renders Chaotic description', () => {
+      const c = makeContainer();
+      alignmentsSection.renderDetail(c, 'chaotic');
+      expect(c.textContent).toContain('destruction');
+    });
   });
 });
 
-describe('renderLanguagesSection', () => {
-  let container;
+// ── languagesSection ───────────────────────────────────────────────────────
 
-  beforeEach(() => {
-    container = document.createElement('div');
+describe('languagesSection', () => {
+  it('has id "languages"', () => { expect(languagesSection.id).toBe('languages'); });
+
+  it('has 14 items', () => { expect(languagesSection.items.length).toBe(14); });
+
+  it('items have Common or Rare sublabels', () => {
+    languagesSection.items.forEach((item) => {
+      expect(['Common', 'Rare']).toContain(item.sublabel);
+    });
   });
 
-  it('renders a reference list', () => {
-    renderLanguagesSection(container);
-    expect(container.querySelector('.reference-list')).not.toBeNull();
+  it('Common is marked Common', () => {
+    const common = languagesSection.items.find((i) => i.id === 'common');
+    expect(common.sublabel).toBe('Common');
   });
 
-  it('renders multiple language cards', () => {
-    renderLanguagesSection(container);
-    expect(container.querySelectorAll('.reference-card').length).toBeGreaterThan(1);
+  it('Draconic is marked Rare', () => {
+    const draconic = languagesSection.items.find((i) => i.id === 'draconic');
+    expect(draconic.sublabel).toBe('Rare');
   });
 
-  it('includes Common', () => {
-    renderLanguagesSection(container);
-    const names = Array.from(container.querySelectorAll('.reference-card__name')).map((n) => n.textContent);
-    expect(names).toContain('Common');
+  describe('renderDetail', () => {
+    it('renders Common language card', () => {
+      const c = makeContainer();
+      languagesSection.renderDetail(c, 'common');
+      expect(c.querySelector('.reference-card__name').textContent).toBe('Common');
+    });
+
+    it('meta shows sublabel (Common/Rare)', () => {
+      const c = makeContainer();
+      languagesSection.renderDetail(c, 'elvish');
+      expect(c.querySelector('.reference-card__meta').textContent).toBe('Common');
+    });
+
+    it('renders language description', () => {
+      const c = makeContainer();
+      languagesSection.renderDetail(c, 'draconic');
+      expect(c.textContent).toContain('dragons');
+    });
   });
 });
 
-describe('renderEquipmentSection', () => {
-  let container;
+// ── equipmentSection ───────────────────────────────────────────────────────
 
-  beforeEach(() => {
-    container = document.createElement('div');
+describe('equipmentSection', () => {
+  it('has id "equipment"', () => { expect(equipmentSection.id).toBe('equipment'); });
+
+  it('has 3 items (Armor, Gear, Weapons)', () => {
+    expect(equipmentSection.items.length).toBe(3);
+    const labels = equipmentSection.items.map((i) => i.label);
+    expect(labels).toContain('Armor');
+    expect(labels).toContain('Gear');
+    expect(labels).toContain('Weapons');
   });
 
-  it('renders section headers for each category', () => {
-    renderEquipmentSection(container);
-    const headers = Array.from(container.querySelectorAll('.reference-section-header')).map((h) => h.textContent);
-    expect(headers).toContain('Weapons');
-    expect(headers).toContain('Armor');
-    expect(headers).toContain('Gear');
-  });
+  describe('renderDetail', () => {
+    it('armor renders leather armor card', () => {
+      const c = makeContainer();
+      equipmentSection.renderDetail(c, 'armor');
+      expect(c.textContent).toContain('Leather');
+      expect(c.textContent).toContain('11+DEX');
+    });
 
-  it('renders a card for each equipment item', () => {
-    renderEquipmentSection(container);
-    expect(container.querySelectorAll('.reference-card').length).toBe(3);
-  });
+    it('weapons renders dagger card with damage', () => {
+      const c = makeContainer();
+      equipmentSection.renderDetail(c, 'weapons');
+      expect(c.textContent).toContain('Dagger');
+      expect(c.textContent).toContain('1d4');
+    });
 
-  it('weapon card shows damage in meta', () => {
-    renderEquipmentSection(container);
-    const metas = Array.from(container.querySelectorAll('.reference-card__meta')).map((m) => m.textContent);
-    expect(metas.some((m) => m.includes('1d4'))).toBe(true);
-  });
+    it('gear renders torch card', () => {
+      const c = makeContainer();
+      equipmentSection.renderDetail(c, 'gear');
+      expect(c.textContent).toContain('Torch');
+    });
 
-  it('armor card shows armorClass in meta', () => {
-    renderEquipmentSection(container);
-    const metas = Array.from(container.querySelectorAll('.reference-card__meta')).map((m) => m.textContent);
-    expect(metas.some((m) => m.includes('11+DEX'))).toBe(true);
-  });
-
-  it('gear card shows cost in meta', () => {
-    renderEquipmentSection(container);
-    const metas = Array.from(container.querySelectorAll('.reference-card__meta')).map((m) => m.textContent);
-    expect(metas.some((m) => m.includes('1 cp'))).toBe(true);
+    it('gear card shows cost as meta', () => {
+      const c = makeContainer();
+      equipmentSection.renderDetail(c, 'gear');
+      const metas = Array.from(c.querySelectorAll('.reference-card__meta')).map((m) => m.textContent);
+      expect(metas.some((m) => m.includes('1 cp'))).toBe(true);
+    });
   });
 });

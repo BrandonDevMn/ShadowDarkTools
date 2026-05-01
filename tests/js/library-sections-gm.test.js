@@ -1,267 +1,363 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('../../app/js/gm-encounter-data.js', () => ({
   TERRAIN_NAMES: ['Arctic', 'Cave', 'Forest'],
   ENCOUNTER_TABLES: {
     Arctic: [['01', 'An albino kraken in a mountain of ice'], ['02-03', '2d20 cannibalistic bandits']],
     Cave:   [['01', 'A pool of black water'], ['02-03', '1d4 cave spiders']],
-    Forest: [['01', 'A peaceful clearing'], ['02-03', 'Suspicious druids']],
+    Forest: [['01', 'A peaceful clearing'],   ['02-03', 'Suspicious druids']],
   },
 }));
 
 import {
-  renderRunningTheGameSection,
-  renderMonstersSection,
-  renderMagicItemsSection,
-  renderTreasureSection,
-  renderNpcsAndReactionsSection,
-  renderAdventureGeneratorSection,
-  renderOverlandTravelSection,
-  renderEncounterTablesSection,
-  renderRandomEventsSection,
-  renderRumorsSection,
-  renderSettlementsSection,
+  runningTheGameSection,
+  monstersSection,
+  magicItemsSection,
+  treasureSection,
+  npcsAndReactionsSection,
+  adventureGeneratorSection,
+  overlandTravelSection,
+  encounterTablesSection,
+  randomEventsSection,
+  rumorsSection,
+  settlementsSection,
 } from '../../app/js/library-sections-gm.js';
 
 function makeContainer() {
   return document.createElement('div');
 }
 
-describe('renderRunningTheGameSection', () => {
-  let container;
-  beforeEach(() => { container = makeContainer(); renderRunningTheGameSection(container); });
+// ── Shared descriptor shape tests ──────────────────────────────────────────
 
-  it('renders Difficulty Classes header', () => {
-    const headers = Array.from(container.querySelectorAll('.reference-section-header')).map((h) => h.textContent);
-    expect(headers).toContain('Difficulty Classes');
-  });
+const SECTIONS = [
+  runningTheGameSection, monstersSection, magicItemsSection, treasureSection,
+  npcsAndReactionsSection, adventureGeneratorSection, overlandTravelSection,
+  encounterTablesSection, randomEventsSection, rumorsSection, settlementsSection,
+];
 
-  it('renders Traps table', () => {
-    expect(container.textContent).toContain('Traps');
-    expect(container.textContent).toContain('Crossbow');
-  });
-
-  it('renders Hazards table', () => {
-    expect(container.textContent).toContain('Hazards');
-    expect(container.textContent).toContain('Quicksand');
-  });
-
-  it('renders XP table', () => {
-    expect(container.textContent).toContain('Poor');
-    expect(container.textContent).toContain('Legendary');
-  });
-
-  it('renders optional modes', () => {
-    expect(container.textContent).toContain('Hunter Mode');
-    expect(container.textContent).toContain('Pulp Mode');
+SECTIONS.forEach((section) => {
+  describe(`${section.label} descriptor shape`, () => {
+    it('has a non-empty items array', () => {
+      expect(Array.isArray(section.items)).toBe(true);
+      expect(section.items.length).toBeGreaterThan(0);
+    });
+    it('items are sorted alphabetically', () => {
+      const labels = section.items.map((i) => i.label);
+      expect(labels).toEqual([...labels].sort((a, b) => a.localeCompare(b)));
+    });
+    it('renderDetail is a function', () => { expect(typeof section.renderDetail).toBe('function'); });
+    it('renderDetail does nothing for unknown id', () => {
+      const c = makeContainer();
+      expect(() => section.renderDetail(c, '__unknown__')).not.toThrow();
+    });
   });
 });
 
-describe('renderMonstersSection', () => {
-  let container;
-  beforeEach(() => { container = makeContainer(); renderMonstersSection(container); });
+// ── runningTheGameSection ──────────────────────────────────────────────────
 
-  it('renders stat block format section', () => {
-    const headers = Array.from(container.querySelectorAll('.reference-section-header')).map((h) => h.textContent);
-    expect(headers).toContain('Stat Block Format');
+describe('runningTheGameSection', () => {
+  it('has id "running-the-game"', () => { expect(runningTheGameSection.id).toBe('running-the-game'); });
+
+  it('includes Traps item', () => {
+    expect(runningTheGameSection.items.some((i) => i.label === 'Traps')).toBe(true);
   });
 
-  it('renders combat roles', () => {
-    expect(container.textContent).toContain('Mook');
-    expect(container.textContent).toContain('Legendary');
-  });
+  describe('renderDetail', () => {
+    it('traps renders Crossbow entry', () => {
+      const c = makeContainer();
+      runningTheGameSection.renderDetail(c, 'traps');
+      expect(c.textContent).toContain('Crossbow');
+    });
 
-  it('renders monster generator table', () => {
-    expect(container.textContent).toContain('Monster Generator');
-    expect(container.textContent).toContain('Beastlike');
-  });
+    it('hazards renders Quicksand entry', () => {
+      const c = makeContainer();
+      runningTheGameSection.renderDetail(c, 'hazards');
+      expect(c.textContent).toContain('Quicksand');
+    });
 
-  it('renders mutations table', () => {
-    expect(container.textContent).toContain('Mutations');
-  });
-});
+    it('awarding-xp renders XP quality table', () => {
+      const c = makeContainer();
+      runningTheGameSection.renderDetail(c, 'awarding-xp');
+      expect(c.textContent).toContain('Poor');
+      expect(c.textContent).toContain('Legendary');
+    });
 
-describe('renderMagicItemsSection', () => {
-  let container;
-  beforeEach(() => { container = makeContainer(); renderMagicItemsSection(container); });
-
-  it('renders design principles', () => {
-    expect(container.textContent).toContain('Design Principles');
-  });
-
-  it('renders qualities table', () => {
-    expect(container.textContent).toContain('Qualities Table');
-  });
-
-  it('renders item type table', () => {
-    expect(container.textContent).toContain('Item Type');
-    expect(container.textContent).toContain('Potion');
+    it('optional-modes renders Hunter Mode card', () => {
+      const c = makeContainer();
+      runningTheGameSection.renderDetail(c, 'optional-modes');
+      expect(c.textContent).toContain('Hunter Mode');
+      expect(c.textContent).toContain('Pulp Mode');
+    });
   });
 });
 
-describe('renderTreasureSection', () => {
-  let container;
-  beforeEach(() => { container = makeContainer(); renderTreasureSection(container); });
+// ── monstersSection ────────────────────────────────────────────────────────
 
-  it('renders XP quality table', () => {
-    expect(container.textContent).toContain('Fabulous');
-    expect(container.textContent).toContain('3');
+describe('monstersSection', () => {
+  it('has id "monsters"', () => { expect(monstersSection.id).toBe('monsters'); });
+
+  it('includes Monster Generator item', () => {
+    expect(monstersSection.items.some((i) => i.label === 'Monster Generator')).toBe(true);
   });
 
-  it('renders boons section', () => {
-    expect(container.textContent).toContain('Boons');
-    expect(container.textContent).toContain('Oaths');
-    expect(container.textContent).toContain('Secrets');
-  });
+  describe('renderDetail', () => {
+    it('stat-block renders stat block paragraph', () => {
+      const c = makeContainer();
+      monstersSection.renderDetail(c, 'stat-block');
+      expect(c.textContent).toContain('AC');
+      expect(c.textContent).toContain('HP');
+    });
 
-  it('renders sample blessings', () => {
-    expect(container.textContent).toContain('Wraithsight');
-  });
-});
+    it('combat-roles renders Mook card', () => {
+      const c = makeContainer();
+      monstersSection.renderDetail(c, 'combat-roles');
+      expect(c.textContent).toContain('Mook');
+      expect(c.textContent).toContain('Legendary');
+    });
 
-describe('renderNpcsAndReactionsSection', () => {
-  let container;
-  beforeEach(() => { container = makeContainer(); renderNpcsAndReactionsSection(container); });
+    it('monster-generator renders generator table with Beastlike', () => {
+      const c = makeContainer();
+      monstersSection.renderDetail(c, 'monster-generator');
+      expect(c.textContent).toContain('Beastlike');
+    });
 
-  it('renders reaction check table', () => {
-    expect(container.textContent).toContain('Hostile');
-    expect(container.textContent).toContain('Friendly');
-  });
-
-  it('renders NPC qualities table', () => {
-    expect(container.textContent).toContain('NPC Qualities');
-    expect(container.textContent).toContain('Balding');
-  });
-
-  it('renders occupation table', () => {
-    expect(container.textContent).toContain('Gravedigger');
-  });
-});
-
-describe('renderAdventureGeneratorSection', () => {
-  let container;
-  beforeEach(() => { container = makeContainer(); renderAdventureGeneratorSection(container); });
-
-  it('renders adventure generator table', () => {
-    expect(container.textContent).toContain('Adventure Generator');
-    expect(container.textContent).toContain('Rescue the');
-  });
-
-  it('renders site name generator', () => {
-    expect(container.textContent).toContain('Site Name');
-    expect(container.textContent).toContain('Mines of the');
+    it('monster-mutations renders mutations table', () => {
+      const c = makeContainer();
+      monstersSection.renderDetail(c, 'monster-mutations');
+      expect(c.textContent).toContain('Wings');
+    });
   });
 });
 
-describe('renderOverlandTravelSection', () => {
-  let container;
-  beforeEach(() => { container = makeContainer(); renderOverlandTravelSection(container); });
+// ── magicItemsSection ──────────────────────────────────────────────────────
 
-  it('renders travel per day table', () => {
-    expect(container.textContent).toContain('Travel per Day');
-    expect(container.textContent).toContain('Walking');
-    expect(container.textContent).toContain('4 hours');
-  });
+describe('magicItemsSection', () => {
+  it('has id "magic-items"', () => { expect(magicItemsSection.id).toBe('magic-items'); });
 
-  it('renders hex tables', () => {
-    expect(container.textContent).toContain('Hex Terrain');
-    expect(container.textContent).toContain('Points of Interest');
-  });
+  describe('renderDetail', () => {
+    it('design-principles renders Unique card', () => {
+      const c = makeContainer();
+      magicItemsSection.renderDetail(c, 'design-principles');
+      expect(c.textContent).toContain('Unique');
+    });
 
-  it('renders downtime section', () => {
-    expect(container.textContent).toContain('Carousing');
-  });
-});
-
-describe('renderEncounterTablesSection', () => {
-  let container;
-  beforeEach(() => { container = makeContainer(); renderEncounterTablesSection(container); });
-
-  it('renders a terrain selector', () => {
-    expect(container.querySelector('select')).not.toBeNull();
-  });
-
-  it('selector has terrain options from data', () => {
-    const options = Array.from(container.querySelectorAll('option')).map((o) => o.textContent);
-    expect(options).toContain('Arctic');
-    expect(options).toContain('Forest');
-  });
-
-  it('shows a table after selecting a terrain', () => {
-    const select = container.querySelector('select');
-    select.value = 'Arctic';
-    select.dispatchEvent(new Event('change'));
-    expect(container.querySelector('table')).not.toBeNull();
-  });
-
-  it('shows encounter entries for selected terrain', () => {
-    const select = container.querySelector('select');
-    select.value = 'Arctic';
-    select.dispatchEvent(new Event('change'));
-    expect(container.textContent).toContain('albino kraken');
+    it('item-tables renders Qualities table', () => {
+      const c = makeContainer();
+      magicItemsSection.renderDetail(c, 'item-tables');
+      expect(c.textContent).toContain('Qualities');
+    });
   });
 });
 
-describe('renderRandomEventsSection', () => {
-  let container;
-  beforeEach(() => { container = makeContainer(); renderRandomEventsSection(container); });
+// ── treasureSection ────────────────────────────────────────────────────────
 
-  it('renders a table with d100 header', () => {
-    expect(container.querySelector('table')).not.toBeNull();
-    expect(container.textContent).toContain('d100');
+describe('treasureSection', () => {
+  it('has id "treasure"', () => { expect(treasureSection.id).toBe('treasure'); });
+
+  it('includes Sample Blessings item', () => {
+    expect(treasureSection.items.some((i) => i.label === 'Sample Blessings')).toBe(true);
   });
 
-  it('includes event entries', () => {
-    expect(container.textContent).toContain('ground shakes');
-  });
+  describe('renderDetail', () => {
+    it('xp-for-treasure renders quality table', () => {
+      const c = makeContainer();
+      treasureSection.renderDetail(c, 'xp-for-treasure');
+      expect(c.textContent).toContain('Fabulous');
+    });
 
-  it('has 50 table body rows', () => {
-    expect(container.querySelectorAll('tbody tr').length).toBe(50);
-  });
-});
+    it('boons renders Oaths card', () => {
+      const c = makeContainer();
+      treasureSection.renderDetail(c, 'boons');
+      expect(c.textContent).toContain('Oaths');
+    });
 
-describe('renderRumorsSection', () => {
-  let container;
-  beforeEach(() => { container = makeContainer(); renderRumorsSection(container); });
-
-  it('renders a table', () => {
-    expect(container.querySelector('table')).not.toBeNull();
-  });
-
-  it('includes rumor entries', () => {
-    expect(container.textContent).toContain('armored beast');
-  });
-
-  it('has 50 table body rows', () => {
-    expect(container.querySelectorAll('tbody tr').length).toBe(50);
+    it('sample-blessings renders Wraithsight', () => {
+      const c = makeContainer();
+      treasureSection.renderDetail(c, 'sample-blessings');
+      expect(c.textContent).toContain('Wraithsight');
+    });
   });
 });
 
-describe('renderSettlementsSection', () => {
-  let container;
-  beforeEach(() => { container = makeContainer(); renderSettlementsSection(container); });
+// ── npcsAndReactionsSection ────────────────────────────────────────────────
 
-  it('renders settlement type table', () => {
-    expect(container.textContent).toContain('Village');
-    expect(container.textContent).toContain('Metropolis');
+describe('npcsAndReactionsSection', () => {
+  it('has id "npcs-and-reactions"', () => { expect(npcsAndReactionsSection.id).toBe('npcs-and-reactions'); });
+
+  it('includes Reaction Check item', () => {
+    expect(npcsAndReactionsSection.items.some((i) => i.label === 'Reaction Check')).toBe(true);
   });
 
-  it('renders districts table', () => {
-    expect(container.textContent).toContain('Slums');
-    expect(container.textContent).toContain('Castle district');
+  describe('renderDetail', () => {
+    it('reaction-check renders Hostile entry', () => {
+      const c = makeContainer();
+      npcsAndReactionsSection.renderDetail(c, 'reaction-check');
+      expect(c.textContent).toContain('Hostile');
+      expect(c.textContent).toContain('Friendly');
+    });
+
+    it('npc-qualities renders qualities table', () => {
+      const c = makeContainer();
+      npcsAndReactionsSection.renderDetail(c, 'npc-qualities');
+      expect(c.textContent).toContain('Balding');
+    });
+  });
+});
+
+// ── adventureGeneratorSection ──────────────────────────────────────────────
+
+describe('adventureGeneratorSection', () => {
+  it('has id "adventure-generator"', () => { expect(adventureGeneratorSection.id).toBe('adventure-generator'); });
+
+  it('has 2 items', () => { expect(adventureGeneratorSection.items.length).toBe(2); });
+
+  describe('renderDetail', () => {
+    it('adventure-hooks renders generator table', () => {
+      const c = makeContainer();
+      adventureGeneratorSection.renderDetail(c, 'adventure-hooks');
+      expect(c.textContent).toContain('Rescue the');
+    });
+
+    it('site-names renders site name table', () => {
+      const c = makeContainer();
+      adventureGeneratorSection.renderDetail(c, 'site-names');
+      expect(c.textContent).toContain('Mines of the');
+    });
+  });
+});
+
+// ── overlandTravelSection ──────────────────────────────────────────────────
+
+describe('overlandTravelSection', () => {
+  it('has id "overland-travel"', () => { expect(overlandTravelSection.id).toBe('overland-travel'); });
+
+  it('includes Travel Speeds item', () => {
+    expect(overlandTravelSection.items.some((i) => i.label === 'Travel Speeds')).toBe(true);
   });
 
-  it('renders tavern generator', () => {
-    expect(container.textContent).toContain('Tavern Generator');
-    expect(container.textContent).toContain('The Crimson Rat');
+  describe('renderDetail', () => {
+    it('travel-speeds renders travel table', () => {
+      const c = makeContainer();
+      overlandTravelSection.renderDetail(c, 'travel-speeds');
+      expect(c.textContent).toContain('Walking');
+      expect(c.textContent).toContain('Mounted');
+    });
+
+    it('hex-tables renders hex danger level table', () => {
+      const c = makeContainer();
+      overlandTravelSection.renderDetail(c, 'hex-tables');
+      expect(c.textContent).toContain('Safe');
+      expect(c.textContent).toContain('Deadly');
+    });
+
+    it('downtime renders carousing entry', () => {
+      const c = makeContainer();
+      overlandTravelSection.renderDetail(c, 'downtime');
+      expect(c.textContent).toContain('Carousing');
+    });
+  });
+});
+
+// ── encounterTablesSection ─────────────────────────────────────────────────
+
+describe('encounterTablesSection', () => {
+  it('has id "encounter-tables"', () => { expect(encounterTablesSection.id).toBe('encounter-tables'); });
+
+  it('items match TERRAIN_NAMES (mocked: Arctic, Cave, Forest)', () => {
+    const labels = encounterTablesSection.items.map((i) => i.label);
+    expect(labels).toContain('Arctic');
+    expect(labels).toContain('Cave');
+    expect(labels).toContain('Forest');
   });
 
-  it('renders food table', () => {
-    expect(container.textContent).toContain('Poor');
-    expect(container.textContent).toContain('Boiled cabbage');
+  it('items are sorted alphabetically', () => {
+    const labels = encounterTablesSection.items.map((i) => i.label);
+    expect(labels).toEqual([...labels].sort((a, b) => a.localeCompare(b)));
   });
 
-  it('renders drinks table', () => {
-    expect(container.textContent).toContain('Barnacle grog');
+  describe('renderDetail', () => {
+    it('Arctic terrain renders encounter table', () => {
+      const c = makeContainer();
+      encounterTablesSection.renderDetail(c, 'Arctic');
+      expect(c.querySelector('table')).not.toBeNull();
+      expect(c.textContent).toContain('kraken');
+    });
+
+    it('unknown terrain renders nothing', () => {
+      const c = makeContainer();
+      encounterTablesSection.renderDetail(c, 'Volcano');
+      expect(c.querySelector('table')).toBeNull();
+    });
+  });
+});
+
+// ── randomEventsSection ────────────────────────────────────────────────────
+
+describe('randomEventsSection', () => {
+  it('has id "random-events"', () => { expect(randomEventsSection.id).toBe('random-events'); });
+
+  it('has 50 items', () => { expect(randomEventsSection.items.length).toBe(50); });
+
+  it('each item has a sublabel with a roll range', () => {
+    randomEventsSection.items.forEach((item) => {
+      expect(item.sublabel).toMatch(/^d100:/);
+    });
+  });
+
+  describe('renderDetail', () => {
+    it('renders a reference card for a known item', () => {
+      const firstItem = randomEventsSection.items[0];
+      const c = makeContainer();
+      randomEventsSection.renderDetail(c, firstItem.id);
+      expect(c.querySelector('.reference-card')).not.toBeNull();
+    });
+  });
+});
+
+// ── rumorsSection ──────────────────────────────────────────────────────────
+
+describe('rumorsSection', () => {
+  it('has id "rumors"', () => { expect(rumorsSection.id).toBe('rumors'); });
+
+  it('has 50 items', () => { expect(rumorsSection.items.length).toBe(50); });
+
+  describe('renderDetail', () => {
+    it('renders a reference card for a known item', () => {
+      const firstItem = rumorsSection.items[0];
+      const c = makeContainer();
+      rumorsSection.renderDetail(c, firstItem.id);
+      expect(c.querySelector('.reference-card')).not.toBeNull();
+    });
+  });
+});
+
+// ── settlementsSection ─────────────────────────────────────────────────────
+
+describe('settlementsSection', () => {
+  it('has id "settlements"', () => { expect(settlementsSection.id).toBe('settlements'); });
+
+  it('includes Tavern Generator item', () => {
+    expect(settlementsSection.items.some((i) => i.label === 'Tavern Generator')).toBe(true);
+  });
+
+  describe('renderDetail', () => {
+    it('settlement-types renders type table', () => {
+      const c = makeContainer();
+      settlementsSection.renderDetail(c, 'settlement-types');
+      expect(c.textContent).toContain('Village');
+      expect(c.textContent).toContain('Metropolis');
+    });
+
+    it('tavern-generator renders tavern table', () => {
+      const c = makeContainer();
+      settlementsSection.renderDetail(c, 'tavern-generator');
+      expect(c.textContent).toContain('Crimson Rat');
+    });
+
+    it('food-and-drinks renders food table', () => {
+      const c = makeContainer();
+      settlementsSection.renderDetail(c, 'food-and-drinks');
+      expect(c.textContent).toContain('Boiled cabbage');
+    });
   });
 });

@@ -1,106 +1,169 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 
 import {
-  renderTitlesSection,
-  renderDeitiesSection,
-  renderRandomCharacterGenerationSection,
+  titlesSection,
+  deitiesSection,
+  randomCharacterGenerationSection,
 } from '../../app/js/library-sections-character.js';
 
 function makeContainer() {
   return document.createElement('div');
 }
 
-describe('renderTitlesSection', () => {
-  let container;
-  beforeEach(() => { container = makeContainer(); renderTitlesSection(container); });
+// ── Shared descriptor shape tests ──────────────────────────────────────────
 
-  it('renders a header for each class', () => {
-    const headers = Array.from(container.querySelectorAll('.reference-section-header')).map((h) => h.textContent);
-    expect(headers).toContain('Fighter');
-    expect(headers).toContain('Priest');
-    expect(headers).toContain('Thief');
-    expect(headers).toContain('Wizard');
-  });
-
-  it('renders four title tables', () => {
-    expect(container.querySelectorAll('table').length).toBe(4);
-  });
-
-  it('shows correct fighter titles', () => {
-    expect(container.textContent).toContain('Squire');
-    expect(container.textContent).toContain('Lord/Lady');
-  });
-
-  it('shows correct wizard titles', () => {
-    expect(container.textContent).toContain('Apprentice');
-    expect(container.textContent).toContain('Archmage');
+[titlesSection, deitiesSection, randomCharacterGenerationSection].forEach((section) => {
+  describe(`${section.label} descriptor shape`, () => {
+    it('has an id string', () => { expect(typeof section.id).toBe('string'); });
+    it('has a label string', () => { expect(typeof section.label).toBe('string'); });
+    it('items are sorted alphabetically', () => {
+      const labels = section.items.map((i) => i.label);
+      expect(labels).toEqual([...labels].sort((a, b) => a.localeCompare(b)));
+    });
+    it('renderDetail is a function', () => { expect(typeof section.renderDetail).toBe('function'); });
+    it('renderDetail does nothing for unknown id', () => {
+      const c = makeContainer();
+      expect(() => section.renderDetail(c, 'nonexistent')).not.toThrow();
+    });
   });
 });
 
-describe('renderDeitiesSection', () => {
-  let container;
-  beforeEach(() => { container = makeContainer(); renderDeitiesSection(container); });
+// ── titlesSection ──────────────────────────────────────────────────────────
 
-  it('renders group headers', () => {
-    const headers = Array.from(container.querySelectorAll('.reference-section-header')).map((h) => h.textContent);
-    expect(headers).toContain('The Four Lords');
-    expect(headers).toContain('The Dark Trio');
+describe('titlesSection', () => {
+  it('has id "titles"', () => { expect(titlesSection.id).toBe('titles'); });
+
+  it('has 4 items (one per class)', () => { expect(titlesSection.items.length).toBe(4); });
+
+  it('includes Fighter, Priest, Thief, Wizard', () => {
+    const labels = titlesSection.items.map((i) => i.label);
+    expect(labels).toContain('Fighter');
+    expect(labels).toContain('Priest');
+    expect(labels).toContain('Thief');
+    expect(labels).toContain('Wizard');
   });
 
-  it('renders Saint Terragnis as a card', () => {
-    const names = Array.from(container.querySelectorAll('.reference-card__name')).map((n) => n.textContent);
-    expect(names).toContain('Saint Terragnis');
-  });
+  describe('renderDetail', () => {
+    it('fighter renders fighter title table with Squire', () => {
+      const c = makeContainer();
+      titlesSection.renderDetail(c, 'fighter');
+      expect(c.querySelector('table')).not.toBeNull();
+      expect(c.textContent).toContain('Squire');
+      expect(c.textContent).toContain('Lord/Lady');
+    });
 
-  it('renders all seven named deities', () => {
-    expect(container.textContent).toContain('Gede');
-    expect(container.textContent).toContain('Madeera the Covenant');
-    expect(container.textContent).toContain('Ord');
-    expect(container.textContent).toContain('Memnon');
-    expect(container.textContent).toContain('Ramlaat');
-    expect(container.textContent).toContain('Shune the Vile');
-  });
-
-  it('shows alignment for each deity', () => {
-    const metas = Array.from(container.querySelectorAll('.reference-card__meta')).map((m) => m.textContent);
-    expect(metas).toContain('Lawful');
-    expect(metas).toContain('Chaotic');
-    expect(metas).toContain('Neutral');
-  });
-
-  it('renders the random deity table', () => {
-    expect(container.textContent).toContain('Random Deity');
+    it('wizard renders wizard title table with Apprentice', () => {
+      const c = makeContainer();
+      titlesSection.renderDetail(c, 'wizard');
+      expect(c.textContent).toContain('Apprentice');
+      expect(c.textContent).toContain('Archmage');
+    });
   });
 });
 
-describe('renderRandomCharacterGenerationSection', () => {
-  let container;
-  beforeEach(() => { container = makeContainer(); renderRandomCharacterGenerationSection(container); });
+// ── deitiesSection ─────────────────────────────────────────────────────────
 
-  it('renders ancestry table', () => {
-    const headers = Array.from(container.querySelectorAll('.reference-section-header')).map((h) => h.textContent);
-    expect(headers.some((h) => h.includes('Ancestry'))).toBe(true);
+describe('deitiesSection', () => {
+  it('has id "deities"', () => { expect(deitiesSection.id).toBe('deities'); });
+
+  it('has 8 items', () => { expect(deitiesSection.items.length).toBe(8); });
+
+  it('includes all named deities', () => {
+    const labels = deitiesSection.items.map((i) => i.label);
+    expect(labels).toContain('Saint Terragnis');
+    expect(labels).toContain('Gede');
+    expect(labels).toContain('Madeera the Covenant');
+    expect(labels).toContain('Ord');
+    expect(labels).toContain('Memnon');
+    expect(labels).toContain('Ramlaat');
+    expect(labels).toContain('Shune the Vile');
   });
 
-  it('renders class table', () => {
-    expect(container.textContent).toContain('Fighter');
-    expect(container.textContent).toContain('Wizard');
+  it('deity items include alignment sublabels', () => {
+    const item = deitiesSection.items.find((i) => i.label === 'Saint Terragnis');
+    expect(item.sublabel).toBe('Lawful');
   });
 
-  it('renders alignment table', () => {
-    expect(container.textContent).toContain('Lawful');
-    expect(container.textContent).toContain('Chaotic');
+  describe('renderDetail', () => {
+    it('saint-terragnis renders Saint Terragnis card', () => {
+      const c = makeContainer();
+      deitiesSection.renderDetail(c, 'saint-terragnis');
+      const names = Array.from(c.querySelectorAll('.reference-card__name')).map((n) => n.textContent);
+      expect(names).toContain('Saint Terragnis');
+    });
+
+    it('saint-terragnis card shows Lawful alignment meta', () => {
+      const c = makeContainer();
+      deitiesSection.renderDetail(c, 'saint-terragnis');
+      const metas = Array.from(c.querySelectorAll('.reference-card__meta')).map((m) => m.textContent);
+      expect(metas).toContain('Lawful');
+    });
+
+    it('shune-the-vile renders Shune the Vile card', () => {
+      const c = makeContainer();
+      deitiesSection.renderDetail(c, 'shune-the-vile');
+      expect(c.textContent).toContain('Shune the Vile');
+    });
+  });
+});
+
+// ── randomCharacterGenerationSection ──────────────────────────────────────
+
+describe('randomCharacterGenerationSection', () => {
+  it('has id "random-character-generation"', () => {
+    expect(randomCharacterGenerationSection.id).toBe('random-character-generation');
   });
 
-  it('renders starting spells tables for priest and wizard', () => {
-    const headers = Array.from(container.querySelectorAll('.reference-section-header')).map((h) => h.textContent);
-    expect(headers.some((h) => h.includes('Priest'))).toBe(true);
-    expect(headers.some((h) => h.includes('Wizard'))).toBe(true);
+  it('includes Ancestry item', () => {
+    expect(randomCharacterGenerationSection.items.some((i) => i.label === 'Ancestry')).toBe(true);
   });
 
-  it('renders 0-level gear table', () => {
-    const headers = Array.from(container.querySelectorAll('.reference-section-header')).map((h) => h.textContent);
-    expect(headers.some((h) => h.includes('Gear'))).toBe(true);
-    expect(container.textContent).toContain('Torch');
+  it('includes Class item', () => {
+    expect(randomCharacterGenerationSection.items.some((i) => i.label === 'Class')).toBe(true);
+  });
+
+  it('includes Starting Gear item', () => {
+    expect(randomCharacterGenerationSection.items.some((i) => i.label === 'Starting Gear')).toBe(true);
+  });
+
+  describe('renderDetail', () => {
+    it('ancestry renders ancestry table', () => {
+      const c = makeContainer();
+      randomCharacterGenerationSection.renderDetail(c, 'ancestry');
+      expect(c.querySelector('table')).not.toBeNull();
+      expect(c.textContent).toContain('Human');
+    });
+
+    it('class renders class table', () => {
+      const c = makeContainer();
+      randomCharacterGenerationSection.renderDetail(c, 'class');
+      expect(c.textContent).toContain('Fighter');
+      expect(c.textContent).toContain('Wizard');
+    });
+
+    it('starting-spells-priest renders priest spells table', () => {
+      const c = makeContainer();
+      randomCharacterGenerationSection.renderDetail(c, 'starting-spells-priest');
+      expect(c.textContent).toContain('Cure Wounds');
+    });
+
+    it('starting-spells-wizard renders wizard spells table', () => {
+      const c = makeContainer();
+      randomCharacterGenerationSection.renderDetail(c, 'starting-spells-wizard');
+      expect(c.textContent).toContain('Magic Missile');
+    });
+
+    it('starting-gear renders gear table with Torch', () => {
+      const c = makeContainer();
+      randomCharacterGenerationSection.renderDetail(c, 'starting-gear');
+      expect(c.textContent).toContain('Torch');
+    });
+
+    it('alignment renders alignment table', () => {
+      const c = makeContainer();
+      randomCharacterGenerationSection.renderDetail(c, 'alignment');
+      expect(c.textContent).toContain('Lawful');
+      expect(c.textContent).toContain('Chaotic');
+    });
   });
 });

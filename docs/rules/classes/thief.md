@@ -1,46 +1,53 @@
-# Class: Thief
+# Thief
 
-## At a Glance
+Rooftop assassins, grinning con artists, or cloaked cat burglars who can pluck a gem from the claws of a sleeping demon and sell it for twice its worth.
 
-| Property | Value |
-|---|---|
-| Hit Die  | d4 per level |
-| Armor    | Leather only (or mithral chainmail) |
-| Weapons  | Club, crossbow, dagger, shortbow, shortsword |
-| Key Stat | DEX |
+**Weapons:** Club, crossbow, dagger, shortbow, shortsword
+
+**Armor:** Leather armor, mithral chainmail
+
+**Hit Points:** 1d4 per level
+
+---
 
 ## Class Features
 
-### Backstab
-When you hit a creature that is **unaware of your attack**, deal extra damage:
-- **Base:** +1 extra weapon die
-- **Per two levels above 1st:** +1 additional weapon die (half your level, rounded down)
+**Backstab.** If you hit a creature who is unaware of your attack, you deal an extra weapon die of damage. Add additional weapon dice of damage equal to half your level (round down).
 
-| Level | Total Weapon Dice |
-|---|---|
-| 1 | 2 (1 base + 1 backstab) |
-| 2 | 2 |
-| 3 | 3 |
-| 4 | 4 |
-| 5 | 5 |
-| … | … |
+**Thievery.** You are adept at thieving skills and have the necessary tools of the trade secreted on your person (they take up no gear slots).
 
-### Thievery
-You have **advantage** on checks involving:
+You are trained in the following tasks and have advantage on any associated checks:
+
 - Climbing
 - Sneaking and hiding
-- Disguises
-- Finding or disabling traps
-- Delicate tasks (picking locks, pickpocketing)
+- Applying disguises
+- Finding and disabling traps
+- Delicate tasks such as picking pockets and opening locks
 
-## Talent Table
+---
 
-Roll 2d6 at levels 1, 3, 5, 7, and 9. Humans roll twice at level 1.
+## Thief Talents
 
-| 2d6 | Result |
-|---|---|
-| 2     | Backstab gains +1 additional weapon die |
-| 3–6   | +1 to attack rolls |
-| 7–9   | +2 to DEX, INT, or CHA (your choice) |
-| 10–11 | Gain an additional Thievery application or +1 Backstab die |
-| 12    | Gain a new class feature or +1 Backstab die |
+Roll 2d6 on the following table when you gain a talent roll.
+
+| 2d6   | Effect |
+|-------|--------|
+| 2     | Gain advantage on initiative rolls (reroll if duplicate) |
+| 3–5   | Your Backstab deals +1 dice of damage |
+| 6–9   | +2 to Strength, Dexterity, or Charisma stat |
+| 10–11 | +1 to melee and ranged attacks |
+| 12    | Choose a talent or +2 points to distribute to stats |
+
+Duplicate talents stack unless noted.
+
+---
+
+## Thief Titles
+
+| Level | Lawful     | Chaotic    | Neutral          |
+|-------|------------|------------|------------------|
+| 1–2   | Footpad    | Thug       | Robber           |
+| 3–4   | Burglar    | Cutthroat  | Outlaw           |
+| 5–6   | Rook       | Shadow     | Rogue            |
+| 7–8   | Underboss  | Assassin   | Renegade         |
+| 9–10  | Boss       | Wraith     | Bandit King/Queen |

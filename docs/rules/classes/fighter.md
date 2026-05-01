@@ -1,36 +1,47 @@
-# Class: Fighter
+# Fighter
 
-## At a Glance
+Blood-soaked gladiators in dented armor, acrobatic duelists with darting swords, or far-eyed elven archers who carve their legends with steel and grit.
 
-| Property | Value |
-|---|---|
-| Hit Die   | d8 per level |
-| Armor     | All armor types; shields |
-| Weapons   | All weapons |
-| Key Stats | STR (melee) or DEX (ranged) |
+**Weapons:** All weapons
+
+**Armor:** All armor and shields
+
+**Hit Points:** 1d8 per level
+
+---
 
 ## Class Features
 
-### Weapon Mastery
-Choose one weapon type at character creation. You gain **+1 to attack and damage rolls** with that weapon type,
-plus add **half your level (rounded down)** to those rolls as you advance.
+**Hauler.** Add your Constitution modifier, if positive, to your gear slots.
 
-### Grit
-You have **advantage** on STR or DEX checks made to overcome opposing physical force —
-breaking down doors, escaping restraints, resisting being shoved, etc.
+**Weapon Mastery.** Choose one type of weapon, such as longswords. You gain +1 to attack and damage with that weapon type. In addition, add half your level to these rolls (round down).
 
-### Hauler
-Add your **positive CON modifier** to your total gear slot count.
-(Only applies if CON modifier is +1 or higher; negative modifiers do not reduce slots here.)
+**Grit.** Choose Strength or Dexterity. You have advantage on checks of that type to overcome an opposing force, such as kicking open a stuck door (Strength) or slipping free of rusty chains (Dexterity).
 
-## Talent Table
+---
 
-Roll 2d6 at levels 1, 3, 5, 7, and 9. Humans roll twice at level 1.
+## Fighter Talents
 
-| 2d6 | Result |
-|---|---|
+Roll 2d6 on the following table when you gain a talent roll.
+
+| 2d6   | Effect |
+|-------|--------|
 | 2     | Gain Weapon Mastery with one additional weapon type |
-| 3–6   | +1 to melee and ranged attack rolls |
-| 7–9   | +2 to STR, DEX, or CON (your choice) |
-| 10–11 | Gain proficiency or improved capability with one armor type |
-| 12    | +1 to attack and damage rolls; or gain a new Weapon Mastery |
+| 3–6   | +1 to melee and ranged attacks |
+| 7–9   | +2 to Strength, Dexterity, or Constitution stat |
+| 10–11 | Choose one kind of armor. You get +1 AC from that armor |
+| 12    | Choose a talent or +2 points to distribute to stats |
+
+Duplicate talents stack unless noted.
+
+---
+
+## Fighter Titles
+
+| Level | Lawful    | Chaotic   | Neutral     |
+|-------|-----------|-----------|-------------|
+| 1–2   | Squire    | Knave     | Warrior     |
+| 3–4   | Cavalier  | Bandit    | Barbarian   |
+| 5–6   | Knight    | Slayer    | Battlerager |
+| 7–8   | Thane     | Reaver    | Warchief    |
+| 9–10  | Lord/Lady | Warlord   | Chieftain   |

@@ -1,36 +1,40 @@
 # Death and Dying
 
-## Reaching 0 HP
+## Going to Zero HP
 
-When a character reaches 0 HP they begin **dying**.
-Roll **1d4 + CON modifier** (minimum result of 1) — this is your **death timer** in rounds.
-When the timer reaches 0, the character dies.
+A character who goes to 0 HP falls unconscious and is **dying**.
 
-## Each Round While Dying
+A character who goes above 0 HP wakes up and is no longer dying.
 
-On your turn while dying, roll **1d20**:
-- **Natural 20:** Miraculously recover — return to 1 HP and regain consciousness immediately.
-- Any other result: nothing happens; the timer continues counting down.
+## Death Timer
 
-Taking damage while at 0 HP removes 1 round from the death timer.
+A dying character rolls 1d4 + their CON modifier (minimum 1 total) on their turn. They die in that many rounds unless healed or stabilized.
 
-A monster that reaches a dying character may **coup de grace** them, killing them instantly with no further rolls.
+On each of the character's subsequent turns, that player rolls a d20. On a natural 20, the character rises with 1 hit point.
 
 ## Stabilization
 
-An ally within **Close** range (≈5 feet) may spend their action to attempt a **DC 15 INT check**.
+An intelligent being can give first aid to a dying creature at close range. On a successful **DC 15 Intelligence check**, the target stops dying (but is still unconscious).
 
-- **Success:** The dying character is stabilized — the death timer stops. They remain unconscious at 0 HP.
-- **Failure:** Nothing changes; they may try again next round.
+## Death
 
-A stabilized character recovers **1 HP** after completing a rest.
+A character who perishes is **retired from the game**.
 
-## Other Ways to Stop Dying
+## Character Death Notes
 
-Any effect that restores at least 1 HP immediately ends the dying state:
-- A healing spell
-- A healing potion administered by an ally (a dying character cannot drink it themselves)
+Character deaths will happen (especially among 0-level adventurers). The dice can be fickle, and crawlers sometimes get into more trouble than they can handle.
 
-## Instant Death
+When a character dies due to the player's choices and it makes sense, it was a just death. A game world without death is one without risk or tension.
 
-Some effects kill outright without a death timer. When the rules state a character "dies," there is no timer — they are dead.
+## 0-Level Hit Points
+
+0-level characters start with hit points equal to their Constitution modifier (minimum 1).
+
+## Optional: Deadly Mode
+
+- Death timers are always 1.
+- DC 18 INT to stabilize dying.
+
+## Optional: Fatality Mode
+
+- Characters die at 0 hit points (no death timer).
