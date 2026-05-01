@@ -57,11 +57,6 @@ describe('renderGeneratePage', () => {
       configurable: true,
       writable: true,
     });
-    Object.defineProperty(navigator, 'canShare', {
-      value: vi.fn().mockReturnValue(false),
-      configurable: true,
-      writable: true,
-    });
   });
 
   afterEach(() => {

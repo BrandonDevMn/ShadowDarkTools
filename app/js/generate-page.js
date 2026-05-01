@@ -301,17 +301,8 @@ function gearSlotsFormula(char) {
 
 async function exportCharacter(char) {
   if (!navigator.share) return;
-
-  const text     = formatCharacterText(char);
-  const filename = `${char.name.replace(/[^a-zA-Z0-9]/g, '-')}.txt`;
-  const file     = new File([text], filename, { type: 'text/plain' });
-
   try {
-    if (navigator.canShare?.({ files: [file] })) {
-      await navigator.share({ files: [file] });
-    } else {
-      await navigator.share({ text });
-    }
+    await navigator.share({ text: formatCharacterText(char) });
   } catch (e) {
     if (e.name !== 'AbortError') console.error('Share failed', e);
   }
