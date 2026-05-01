@@ -1,11 +1,20 @@
 /**
  * Generate tab — random character generator.
  *
- * Level 1: menu list with a single "Generate a Character" option.
- * Level 2: rendered character sheet with a Re-roll button.
+ * State flow:
+ *   showMenu()    — list with "Generate a Character" row
+ *   showLanding() — title + big Generate button
+ *   showRolling() — 1-second stat-flicker animation, then calls onComplete
+ *   showCharacter() — character sheet + Re-roll button
+ *
+ * Back navigation: character → landing → menu
+ * Back during rolling cancels the animation and returns to landing.
  */
 
 import { generateCharacter, fmtMod } from './character-generator.js';
+
+const ROLL_DURATION_MS = 1000;
+const FLICKER_INTERVAL_MS = 80;
 
 /**
  * Mounts the Generate page into the given container.
@@ -20,12 +29,18 @@ export function renderGeneratePage(container) {
     return false;
   }
 
-  showMenu();
-  return true;
+  let flickerId  = null;
+  let rollingId  = null;
 
-  // ── Level helpers ─────────────────────────────────────────────────────────
+  function cancelAnimation() {
+    if (flickerId  !== null) { clearInterval(flickerId);  flickerId  = null; }
+    if (rollingId  !== null) { clearTimeout(rollingId);   rollingId  = null; }
+  }
+
+  // ── Screens ────────────────────────────────────────────────────────────────
 
   function showMenu() {
+    cancelAnimation();
     container.innerHTML = '';
 
     const title = document.createElement('h1');
@@ -50,16 +65,83 @@ export function renderGeneratePage(container) {
     indicator.textContent = '›';
     row.appendChild(indicator);
 
-    row.addEventListener('click', () => showCharacter());
+    row.addEventListener('click', () => showLanding());
     nav.appendChild(row);
     container.appendChild(nav);
   }
 
-  function showCharacter() {
-    const char = generateCharacter();
+  function showLanding() {
+    cancelAnimation();
     container.innerHTML = '';
 
     container.appendChild(makeBackButton('Generate', showMenu));
+
+    const title = document.createElement('h1');
+    title.className = 'page-title';
+    title.textContent = 'Generate a Character';
+    container.appendChild(title);
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'generate-btn';
+    btn.textContent = 'Generate';
+    btn.addEventListener('click', () => showRolling(() => showCharacter(generateCharacter())));
+    container.appendChild(btn);
+  }
+
+  function showRolling(onComplete) {
+    container.innerHTML = '';
+
+    container.appendChild(makeBackButton('Generate', showLanding));
+
+    const title = document.createElement('h1');
+    title.className = 'page-title';
+    title.textContent = 'Rolling...';
+    container.appendChild(title);
+
+    // Stat flicker grid
+    const grid = document.createElement('div');
+    grid.className = 'generate-rolling';
+
+    const ABBRS = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
+    const valueEls = ABBRS.map((abbr) => {
+      const cell = document.createElement('div');
+      cell.className = 'character-sheet__stat';
+
+      const lbl = document.createElement('span');
+      lbl.className = 'character-sheet__stat-label';
+      lbl.textContent = abbr;
+
+      const val = document.createElement('span');
+      val.className = 'character-sheet__stat-score generate-rolling__value';
+      val.textContent = '—';
+
+      cell.appendChild(lbl);
+      cell.appendChild(val);
+      grid.appendChild(cell);
+      return val;
+    });
+
+    container.appendChild(grid);
+
+    // Flicker numbers
+    flickerId = setInterval(() => {
+      valueEls.forEach((el) => {
+        el.textContent = Math.floor(Math.random() * 16) + 3;
+      });
+    }, FLICKER_INTERVAL_MS);
+
+    // Resolve after ROLL_DURATION_MS
+    rollingId = setTimeout(() => {
+      cancelAnimation();
+      onComplete();
+    }, ROLL_DURATION_MS);
+  }
+
+  function showCharacter(char) {
+    container.innerHTML = '';
+
+    container.appendChild(makeBackButton('Generate', showLanding));
 
     const title = document.createElement('h1');
     title.className = 'page-title';
@@ -70,18 +152,21 @@ export function renderGeneratePage(container) {
     reroll.type = 'button';
     reroll.className = 'generate-reroll-btn';
     reroll.textContent = 'Re-roll';
-    reroll.addEventListener('click', () => showCharacter());
+    reroll.addEventListener('click', () => showRolling(() => showCharacter(generateCharacter())));
     container.appendChild(reroll);
 
     renderCharacterSheet(container, char);
   }
+
+  showMenu();
+  return true;
 }
 
 // ── Character sheet renderer ───────────────────────────────────────────────
 
 function renderCharacterSheet(container, char) {
   const sheet = document.createElement('div');
-  sheet.className = 'character-sheet';
+  sheet.className = 'character-sheet generate-fade-in';
 
   // Identity
   sheet.appendChild(makeCard(

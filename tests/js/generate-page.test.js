@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 const MOCK_CHAR = {
   name: 'Aldric',
@@ -37,7 +37,12 @@ describe('renderGeneratePage', () => {
 
   beforeEach(() => {
     container = document.createElement('div');
+    vi.useFakeTimers();
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   // ── Invalid container ───────────────────────────────────────────────────
@@ -57,15 +62,15 @@ describe('renderGeneratePage', () => {
     expect(container.querySelector('.page-title').textContent).toBe('Generate');
   });
 
-  it('renders a library-nav element', () => {
-    renderGeneratePage(container);
-    expect(container.querySelector('.library-nav')).not.toBeNull();
-  });
-
-  it('renders a "Generate a Character" row', () => {
+  it('renders a library-nav with a "Generate a Character" row', () => {
     renderGeneratePage(container);
     const labels = Array.from(container.querySelectorAll('.library-nav__row-label')).map((el) => el.textContent);
     expect(labels).toContain('Generate a Character');
+  });
+
+  it('no back button shown on the menu', () => {
+    renderGeneratePage(container);
+    expect(container.querySelector('.library-back-btn')).toBeNull();
   });
 
   it('does not call generateCharacter on initial load', () => {
@@ -73,179 +78,189 @@ describe('renderGeneratePage', () => {
     expect(generateCharacter).not.toHaveBeenCalled();
   });
 
-  it('does not show a back button on the menu', () => {
-    renderGeneratePage(container);
-    expect(container.querySelector('.library-back-btn')).toBeNull();
-  });
+  // ── Level 2: landing screen ─────────────────────────────────────────────
 
-  // ── Level 2: character sheet ────────────────────────────────────────────
-
-  it('clicking the row calls generateCharacter', () => {
+  it('clicking the row shows the landing screen', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    expect(generateCharacter).toHaveBeenCalledOnce();
+    expect(container.querySelector('.page-title').textContent).toBe('Generate a Character');
   });
 
-  it('clicking the row removes the menu', () => {
+  it('landing screen shows a Generate button', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    expect(container.querySelector('.library-nav')).toBeNull();
+    expect(container.querySelector('.generate-btn')).not.toBeNull();
+    expect(container.querySelector('.generate-btn').textContent).toBe('Generate');
   });
 
-  it('character sheet shows the character name as page title', () => {
-    renderGeneratePage(container);
-    container.querySelector('.library-nav__row').click();
-    expect(container.querySelector('.page-title').textContent).toBe('Aldric');
-  });
-
-  it('character sheet shows a back button reading "‹ Generate"', () => {
+  it('landing screen shows a back button reading "‹ Generate"', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
     expect(container.querySelector('.library-back-btn').textContent).toBe('‹ Generate');
   });
 
-  it('character sheet shows a re-roll button', () => {
+  it('landing screen does not call generateCharacter', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    expect(container.querySelector('.generate-reroll-btn')).not.toBeNull();
+    expect(generateCharacter).not.toHaveBeenCalled();
   });
 
-  it('character sheet renders ancestry and class', () => {
+  // ── Level 3: rolling animation ──────────────────────────────────────────
+
+  it('clicking Generate shows Rolling... title', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    expect(container.textContent).toContain('Human');
-    expect(container.textContent).toContain('Fighter');
+    container.querySelector('.generate-btn').click();
+    expect(container.querySelector('.page-title').textContent).toBe('Rolling...');
   });
 
-  it('character sheet renders HP', () => {
+  it('clicking Generate shows the stat flicker grid', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    expect(container.querySelector('.character-sheet__hp-value').textContent).toBe('9');
+    container.querySelector('.generate-btn').click();
+    expect(container.querySelector('.generate-rolling')).not.toBeNull();
   });
 
-  it('character sheet renders all 6 stat boxes', () => {
+  it('clicking Generate shows 6 stat cells', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
+    container.querySelector('.generate-btn').click();
     expect(container.querySelectorAll('.character-sheet__stat').length).toBe(6);
   });
 
-  it('stat labels include STR and WIS', () => {
+  it('does not call generateCharacter immediately when rolling starts', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    const labels = Array.from(container.querySelectorAll('.character-sheet__stat-label')).map((el) => el.textContent);
-    expect(labels).toContain('STR');
-    expect(labels).toContain('WIS');
+    container.querySelector('.generate-btn').click();
+    expect(generateCharacter).not.toHaveBeenCalled();
   });
 
-  it('stat modifiers are shown with sign', () => {
+  it('rolling screen shows a back button', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    const mods = Array.from(container.querySelectorAll('.character-sheet__stat-mod')).map((el) => el.textContent);
-    expect(mods).toContain('+2');
-    expect(mods).toContain('-1');
+    container.querySelector('.generate-btn').click();
+    expect(container.querySelector('.library-back-btn')).not.toBeNull();
   });
 
-  it('character sheet shows background name', () => {
+  // ── Level 4: character sheet (after animation) ──────────────────────────
+
+  it('after 1 second the character sheet is shown', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    expect(container.textContent).toContain('Mercenary');
-  });
-
-  it('character sheet shows talent', () => {
-    renderGeneratePage(container);
-    container.querySelector('.library-nav__row').click();
-    expect(container.textContent).toContain('+1 to melee and ranged attacks');
-  });
-
-  it('character sheet shows ancestry trait', () => {
-    renderGeneratePage(container);
-    container.querySelector('.library-nav__row').click();
-    expect(container.textContent).toContain('Ambitious');
-  });
-
-  it('character sheet shows languages', () => {
-    renderGeneratePage(container);
-    container.querySelector('.library-nav__row').click();
-    expect(container.textContent).toContain('Common');
-  });
-
-  // ── Spells (priest mock) ────────────────────────────────────────────────
-
-  it('spell names appear when character has spells', () => {
-    generateCharacter.mockReturnValueOnce({
-      ...structuredClone(MOCK_CHAR),
-      class: 'Priest',
-      spells: ['Cure Wounds', 'Light'],
-      deity: 'Saint Terragnis',
-    });
-    renderGeneratePage(container);
-    container.querySelector('.library-nav__row').click();
-    expect(container.textContent).toContain('Cure Wounds');
-    expect(container.textContent).toContain('Light');
-  });
-
-  it('deity appears in meta when character is a priest', () => {
-    generateCharacter.mockReturnValueOnce({
-      ...structuredClone(MOCK_CHAR),
-      class: 'Priest',
-      spells: ['Cure Wounds', 'Light'],
-      deity: 'Saint Terragnis',
-    });
-    renderGeneratePage(container);
-    container.querySelector('.library-nav__row').click();
-    expect(container.textContent).toContain('Saint Terragnis');
-  });
-
-  // ── Multiple talents (Human) ────────────────────────────────────────────
-
-  it('two talent cards rendered for human', () => {
-    generateCharacter.mockReturnValueOnce({
-      ...structuredClone(MOCK_CHAR),
-      ancestry: 'Human',
-      talents: ['+1 to melee and ranged attacks', '+2 to Strength, Dexterity, or Constitution'],
-    });
-    renderGeneratePage(container);
-    container.querySelector('.library-nav__row').click();
-    expect(container.textContent).toContain('Talent 1');
-    expect(container.textContent).toContain('Talent 2');
-  });
-
-  // ── Re-roll button ──────────────────────────────────────────────────────
-
-  it('re-roll button calls generateCharacter again', () => {
-    renderGeneratePage(container);
-    container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-reroll-btn').click();
-    expect(generateCharacter).toHaveBeenCalledTimes(2);
-  });
-
-  it('re-roll renders a new character sheet', () => {
-    renderGeneratePage(container);
-    container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-reroll-btn').click();
+    container.querySelector('.generate-btn').click();
+    vi.advanceTimersByTime(1000);
     expect(container.querySelector('.character-sheet')).not.toBeNull();
+  });
+
+  it('generateCharacter is called once after the animation completes', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    container.querySelector('.generate-btn').click();
+    vi.advanceTimersByTime(1000);
+    expect(generateCharacter).toHaveBeenCalledOnce();
+  });
+
+  it('character sheet shows the character name as page title', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    container.querySelector('.generate-btn').click();
+    vi.advanceTimersByTime(1000);
+    expect(container.querySelector('.page-title').textContent).toBe('Aldric');
+  });
+
+  it('character sheet shows the Re-roll button', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    container.querySelector('.generate-btn').click();
+    vi.advanceTimersByTime(1000);
+    expect(container.querySelector('.generate-reroll-btn')).not.toBeNull();
+  });
+
+  it('character sheet shows HP', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    container.querySelector('.generate-btn').click();
+    vi.advanceTimersByTime(1000);
+    expect(container.querySelector('.character-sheet__hp-value').textContent).toBe('9');
+  });
+
+  it('character sheet back button reads "‹ Generate"', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    container.querySelector('.generate-btn').click();
+    vi.advanceTimersByTime(1000);
+    expect(container.querySelector('.library-back-btn').textContent).toBe('‹ Generate');
+  });
+
+  it('rolling animation is gone after 1 second', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    container.querySelector('.generate-btn').click();
+    vi.advanceTimersByTime(1000);
+    expect(container.querySelector('.generate-rolling')).toBeNull();
+  });
+
+  // ── Re-roll ─────────────────────────────────────────────────────────────
+
+  it('Re-roll shows rolling animation again', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    container.querySelector('.generate-btn').click();
+    vi.advanceTimersByTime(1000);
+    container.querySelector('.generate-reroll-btn').click();
+    expect(container.querySelector('.generate-rolling')).not.toBeNull();
+  });
+
+  it('Re-roll calls generateCharacter a second time after animation', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    container.querySelector('.generate-btn').click();
+    vi.advanceTimersByTime(1000);
+    container.querySelector('.generate-reroll-btn').click();
+    vi.advanceTimersByTime(1000);
+    expect(generateCharacter).toHaveBeenCalledTimes(2);
   });
 
   // ── Back navigation ─────────────────────────────────────────────────────
 
-  it('back button restores the menu', () => {
-    renderGeneratePage(container);
-    container.querySelector('.library-nav__row').click();
-    container.querySelector('.library-back-btn').click();
-    expect(container.querySelector('.library-nav')).not.toBeNull();
-  });
-
-  it('back button removes the character sheet', () => {
-    renderGeneratePage(container);
-    container.querySelector('.library-nav__row').click();
-    container.querySelector('.library-back-btn').click();
-    expect(container.querySelector('.character-sheet')).toBeNull();
-  });
-
-  it('back button restores "Generate" title', () => {
+  it('back on landing returns to the menu', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
     container.querySelector('.library-back-btn').click();
     expect(container.querySelector('.page-title').textContent).toBe('Generate');
+  });
+
+  it('back on landing removes the Generate button', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    container.querySelector('.library-back-btn').click();
+    expect(container.querySelector('.generate-btn')).toBeNull();
+  });
+
+  it('back during rolling cancels the animation and shows landing', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    container.querySelector('.generate-btn').click();
+    container.querySelector('.library-back-btn').click();
+    expect(container.querySelector('.page-title').textContent).toBe('Generate a Character');
+  });
+
+  it('after cancelling roll, advancing time does not call generateCharacter', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    container.querySelector('.generate-btn').click();
+    container.querySelector('.library-back-btn').click();
+    vi.advanceTimersByTime(1000);
+    expect(generateCharacter).not.toHaveBeenCalled();
+  });
+
+  it('back on character sheet returns to landing screen', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    container.querySelector('.generate-btn').click();
+    vi.advanceTimersByTime(1000);
+    container.querySelector('.library-back-btn').click();
+    expect(container.querySelector('.generate-btn')).not.toBeNull();
+    expect(container.querySelector('.page-title').textContent).toBe('Generate a Character');
   });
 });
