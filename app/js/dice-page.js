@@ -1,5 +1,7 @@
 import { rollDie, DICE_TYPES } from './dice-roller.js';
 
+const ROLL_ANIMATION_MS = 700;
+
 // Dice whose button label or result text differs from the default d{sides}/number pattern.
 // All other dice follow the defaults automatically — no entry needed here.
 const DIE_OVERRIDES = {
@@ -39,6 +41,16 @@ export function renderDicePage(container) {
   const resultArea = document.createElement('div');
   resultArea.className = 'dice-result';
 
+  // Spinning die — visible during the roll animation
+  const dieEl = document.createElement('div');
+  dieEl.className = 'generate-die';
+  dieEl.hidden = true;
+  for (let i = 0; i < 6; i++) {
+    const pip = document.createElement('span');
+    pip.className = 'generate-die__pip';
+    dieEl.appendChild(pip);
+  }
+
   // Large value — em-dash until first roll, then the number or word
   const resultValue = document.createElement('span');
   resultValue.className = 'dice-result__value';
@@ -49,18 +61,21 @@ export function renderDicePage(container) {
   resultLabel.className = 'dice-result__label';
   resultLabel.textContent = 'tap a die to roll';
 
+  resultArea.appendChild(dieEl);
   resultArea.appendChild(resultValue);
   resultArea.appendChild(resultLabel);
   container.appendChild(resultArea);
 
   // ── Dice button grid ──────────────────────────────────────────────────
 
+  let rollTimeout = null;
+
   const grid = document.createElement('div');
   grid.className = 'dice-grid';
 
   DICE_TYPES.forEach((sides) => {
-    const override     = DIE_OVERRIDES[sides];
-    const buttonLabel  = override?.buttonLabel ?? `d${sides}`;
+    const override    = DIE_OVERRIDES[sides];
+    const buttonLabel = override?.buttonLabel ?? `d${sides}`;
 
     const button = document.createElement('button');
     button.className = 'dice-button';
@@ -69,10 +84,26 @@ export function renderDicePage(container) {
     button.dataset.sides = String(sides);
 
     button.addEventListener('click', () => {
+      // Roll immediately so the result is determined at tap time
       const roll         = rollDie(sides);
       const displayValue = override?.formatResult?.(roll) ?? String(roll);
-      resultValue.textContent = displayValue;
-      resultLabel.textContent = buttonLabel;
+
+      // Cancel any in-progress animation
+      if (rollTimeout !== null) { clearTimeout(rollTimeout); rollTimeout = null; }
+
+      // Show spinning die, hide previous result
+      dieEl.hidden        = false;
+      resultValue.hidden  = true;
+      resultLabel.hidden  = true;
+
+      rollTimeout = setTimeout(() => {
+        rollTimeout = null;
+        dieEl.hidden       = true;
+        resultValue.hidden = false;
+        resultLabel.hidden = false;
+        resultValue.textContent = displayValue;
+        resultLabel.textContent = buttonLabel;
+      }, ROLL_ANIMATION_MS);
     });
 
     grid.appendChild(button);
