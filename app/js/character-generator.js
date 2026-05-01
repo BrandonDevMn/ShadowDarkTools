@@ -9,6 +9,7 @@
 import { ANCESTRIES }  from './ancestries-data.js';
 import { CLASSES }     from './classes-data.js';
 import { BACKGROUNDS } from './backgrounds-data.js';
+import { SPELLS }      from './spells-data.js';
 
 // ── Dice ──────────────────────────────────────────────────────────────────
 
@@ -113,23 +114,23 @@ const WIZARD_SPELL_TABLE = [
 ];
 
 function rollPriestSpells(count) {
-  const spells = [];
-  while (spells.length < count) {
+  const names = [];
+  while (names.length < count) {
     const r = rollDie(6);
     if (r === 6) continue;                          // reroll
-    const spell = PRIEST_SPELL_TABLE[r - 1];
-    if (!spells.includes(spell)) spells.push(spell);
+    const name = PRIEST_SPELL_TABLE[r - 1];
+    if (!names.includes(name)) names.push(name);
   }
-  return spells;
+  return names.map((name) => SPELLS.find((s) => s.class === 'priest' && s.name === name)).filter(Boolean);
 }
 
 function rollWizardSpells(count) {
-  const spells = [];
-  while (spells.length < count) {
-    const spell = WIZARD_SPELL_TABLE[rollDie(12) - 1];
-    if (!spells.includes(spell)) spells.push(spell);
+  const names = [];
+  while (names.length < count) {
+    const name = WIZARD_SPELL_TABLE[rollDie(12) - 1];
+    if (!names.includes(name)) names.push(name);
   }
-  return spells;
+  return names.map((name) => SPELLS.find((s) => s.class === 'wizard' && s.name === name)).filter(Boolean);
 }
 
 // ── HP ────────────────────────────────────────────────────────────────────
@@ -255,6 +256,7 @@ export function generateCharacter() {
 
   const alignment = rollAlignment();
   const hp        = rollHP(className, stats.con.mod, isDwarf);
+  const gold      = (rollDie(6) + rollDie(6) + rollDie(6)) * 5;
   const name      = rollName(ancestry);
   const languages = rollLanguages(className);
 
@@ -282,6 +284,7 @@ export function generateCharacter() {
     level:     1,
     alignment,
     hp,
+    gold,
     stats,
     background: { roll: background.roll, name: background.name, description: background.description },
     talents,

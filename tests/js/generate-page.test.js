@@ -8,6 +8,7 @@ const MOCK_CHAR = {
   alignment: 'Lawful',
   hitDie: 'd8',
   hp: 9,
+  gold: 45,
   stats: {
     str: { score: 15, mod: 2 },
     dex: { score: 10, mod: 0 },
@@ -19,7 +20,9 @@ const MOCK_CHAR = {
   background: { roll: 11, name: 'Mercenary', description: 'You sold your sword to whoever paid.' },
   talents: ['+1 to melee and ranged attacks'],
   deity: null,
-  spells: [],
+  spells: [
+    { class: 'wizard', tier: 1, name: 'Magic Missile', range: 'Far', duration: 'Instant', description: 'Three darts deal 1d4 damage each.' },
+  ],
   languages: ['Common'],
   ancestryTrait: { name: 'Ambitious', description: 'Extra talent roll at 1st level.' },
 };
@@ -145,6 +148,38 @@ describe('renderGeneratePage', () => {
     container.querySelector('.library-nav__row').click();
     vi.advanceTimersByTime(1000);
     expect(container.querySelector('.character-sheet__hp-value').textContent).toBe('9');
+  });
+
+  it('character sheet shows gold', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    const values = Array.from(container.querySelectorAll('.character-sheet__hp-value'));
+    expect(values.some((el) => el.textContent === '45 gp')).toBe(true);
+  });
+
+  it('character sheet renders a card for each spell', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    const cardNames = Array.from(container.querySelectorAll('.reference-card__name')).map((el) => el.textContent);
+    expect(cardNames).toContain('Magic Missile');
+  });
+
+  it('spell card shows meta line with class label and tier', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    const metas = Array.from(container.querySelectorAll('.reference-card__meta')).map((el) => el.textContent);
+    expect(metas.some((m) => m.includes('Wizard') && m.includes('T1'))).toBe(true);
+  });
+
+  it('spell card shows description', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    const descs = Array.from(container.querySelectorAll('.reference-card__description')).map((el) => el.textContent);
+    expect(descs.some((d) => d.includes('Three darts'))).toBe(true);
   });
 
   it('character sheet back button reads "‹ Generate"', () => {

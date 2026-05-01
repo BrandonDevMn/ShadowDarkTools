@@ -616,7 +616,14 @@ body {
   padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 2rem;
+}
+
+/* One HP/Gold stat block inside the card */
+.character-sheet__hp-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
 }
 
 .character-sheet__hp-label {

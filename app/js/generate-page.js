@@ -130,17 +130,11 @@ function renderCharacterSheet(container, char) {
     null,
   ));
 
-  // HP
+  // HP + Gold
   const hpCard = document.createElement('div');
   hpCard.className = 'character-sheet__hp-card';
-  const hpLabel = document.createElement('span');
-  hpLabel.className = 'character-sheet__hp-label';
-  hpLabel.textContent = 'HP';
-  const hpValue = document.createElement('span');
-  hpValue.className = 'character-sheet__hp-value';
-  hpValue.textContent = char.hp;
-  hpCard.appendChild(hpLabel);
-  hpCard.appendChild(hpValue);
+  hpCard.appendChild(makeStat('HP',   char.hp));
+  hpCard.appendChild(makeStat('Gold', `${char.gold} gp`));
   sheet.appendChild(hpCard);
 
   // Stats grid
@@ -187,14 +181,15 @@ function renderCharacterSheet(container, char) {
     sheet.appendChild(makeCard(label, null, talent));
   });
 
-  // Spells (Priest / Wizard)
-  if (char.spells.length > 0) {
+  // Spells (Priest / Wizard) — one full card per spell
+  char.spells.forEach((spell) => {
+    const classLabel = spell.class === 'wizard' ? 'Wizard' : 'Priest';
     sheet.appendChild(makeCard(
-      'Starting Spells',
-      null,
-      char.spells.join(', '),
+      spell.name,
+      `${classLabel} T${spell.tier} · ${spell.range} · ${spell.duration}`,
+      spell.description,
     ));
-  }
+  });
 
   // Languages
   sheet.appendChild(makeCard(
@@ -243,6 +238,20 @@ function makeCard(name, meta, description) {
   }
 
   return card;
+}
+
+function makeStat(label, value) {
+  const wrap = document.createElement('div');
+  wrap.className = 'character-sheet__hp-stat';
+  const lbl = document.createElement('span');
+  lbl.className = 'character-sheet__hp-label';
+  lbl.textContent = label;
+  const val = document.createElement('span');
+  val.className = 'character-sheet__hp-value';
+  val.textContent = value;
+  wrap.appendChild(lbl);
+  wrap.appendChild(val);
+  return wrap;
 }
 
 function makeBackButton(label, onClick) {

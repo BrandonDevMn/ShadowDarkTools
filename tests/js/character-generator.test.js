@@ -28,6 +28,28 @@ vi.mock('../../app/js/backgrounds-data.js', () => ({
   })),
 }));
 
+vi.mock('../../app/js/spells-data.js', () => ({
+  SPELLS: [
+    { class: 'priest', tier: 1, name: 'Light',                range: 'Close', duration: '1 hour',    description: 'An object glows with light.' },
+    { class: 'priest', tier: 1, name: 'Cure Wounds',          range: 'Close', duration: 'Instant',   description: 'Restore HP to a touched target.' },
+    { class: 'priest', tier: 1, name: 'Holy Weapon',          range: 'Close', duration: '5 rounds',  description: 'A weapon gets +1 attack and damage.' },
+    { class: 'priest', tier: 1, name: 'Protection From Evil', range: 'Close', duration: 'Focus',     description: 'Chaotic beings have disadvantage.' },
+    { class: 'priest', tier: 1, name: 'Shield of Faith',      range: 'Self',  duration: '5 rounds',  description: 'Gain +2 AC.' },
+    { class: 'wizard', tier: 1, name: 'Alarm',                range: 'Close', duration: '1 day',     description: 'Touch an object to set a magical alarm.' },
+    { class: 'wizard', tier: 1, name: 'Burning Hands',        range: 'Close', duration: 'Instant',   description: 'Circle of flame, 1d6 damage.' },
+    { class: 'wizard', tier: 1, name: 'Charm Person',         range: 'Near',  duration: '1d8 days',  description: 'One humanoid regards you as a friend.' },
+    { class: 'wizard', tier: 1, name: 'Detect Magic',         range: 'Near',  duration: 'Focus',     description: 'Sense the presence of magic.' },
+    { class: 'wizard', tier: 1, name: 'Feather Fall',         range: 'Self',  duration: 'Instant',   description: 'Slow your rate of descent.' },
+    { class: 'wizard', tier: 1, name: 'Floating Disk',        range: 'Close', duration: '1 hour',    description: 'A floating magical disk follows you.' },
+    { class: 'wizard', tier: 1, name: 'Hold Portal',          range: 'Near',  duration: 'Focus',     description: 'A door or gate is magically held shut.' },
+    { class: 'wizard', tier: 1, name: 'Light',                range: 'Close', duration: '1 hour',    description: 'An object glows with light.' },
+    { class: 'wizard', tier: 1, name: 'Mage Armor',           range: 'Self',  duration: '1 hour',    description: 'Gain 12 + DEX modifier AC.' },
+    { class: 'wizard', tier: 1, name: 'Magic Missile',        range: 'Far',   duration: 'Instant',   description: 'Three darts deal 1d4 damage each.' },
+    { class: 'wizard', tier: 1, name: 'Protection From Evil', range: 'Close', duration: 'Focus',     description: 'Chaotic beings have disadvantage.' },
+    { class: 'wizard', tier: 1, name: 'Sleep',                range: 'Near',  duration: '1d6 rounds', description: 'Up to 4 total levels of creatures fall asleep.' },
+  ],
+}));
+
 import { generateCharacter, statMod, fmtMod } from '../../app/js/character-generator.js';
 
 // ── statMod ────────────────────────────────────────────────────────────────
@@ -114,6 +136,17 @@ describe('generateCharacter return shape', () => {
     expect(typeof char.background.description).toBe('string');
   });
 
+  it('gold is a multiple of 5 between 15 and 90', () => {
+    expect(typeof char.gold).toBe('number');
+    expect(char.gold).toBeGreaterThanOrEqual(15);
+    expect(char.gold).toBeLessThanOrEqual(90);
+    expect(char.gold % 5).toBe(0);
+  });
+
+  it('spells is an array', () => {
+    expect(Array.isArray(char.spells)).toBe(true);
+  });
+
   it('languages array contains Common', () => {
     expect(char.languages).toContain('Common');
   });
@@ -141,6 +174,21 @@ describe('Priest character', () => {
       priests.forEach((p) => expect(p.spells.length).toBe(2));
     }
   });
+
+  it('each spell is an object with required fields', () => {
+    const chars = Array.from({ length: 40 }, () => generateCharacter());
+    const priests = chars.filter((c) => c.class === 'Priest');
+    if (priests.length > 0) {
+      priests[0].spells.forEach((s) => {
+        expect(s.class).toBe('priest');
+        expect(typeof s.name).toBe('string');
+        expect(typeof s.tier).toBe('number');
+        expect(typeof s.range).toBe('string');
+        expect(typeof s.duration).toBe('string');
+        expect(typeof s.description).toBe('string');
+      });
+    }
+  });
 });
 
 describe('Wizard character', () => {
@@ -149,6 +197,21 @@ describe('Wizard character', () => {
     const wizards = chars.filter((c) => c.class === 'Wizard');
     if (wizards.length > 0) {
       wizards.forEach((w) => expect(w.spells.length).toBe(3));
+    }
+  });
+
+  it('each spell is an object with required fields', () => {
+    const chars = Array.from({ length: 30 }, () => generateCharacter());
+    const wizards = chars.filter((c) => c.class === 'Wizard');
+    if (wizards.length > 0) {
+      wizards[0].spells.forEach((s) => {
+        expect(s.class).toBe('wizard');
+        expect(typeof s.name).toBe('string');
+        expect(typeof s.tier).toBe('number');
+        expect(typeof s.range).toBe('string');
+        expect(typeof s.duration).toBe('string');
+        expect(typeof s.description).toBe('string');
+      });
     }
   });
 
@@ -221,7 +284,8 @@ describe('distribution smoke tests over 100 rolls', () => {
 
   it('spell names are distinct within each character', () => {
     chars.filter((c) => c.spells.length > 0).forEach((c) => {
-      expect(new Set(c.spells).size).toBe(c.spells.length);
+      const names = c.spells.map((s) => s.name);
+      expect(new Set(names).size).toBe(names.length);
     });
   });
 });
