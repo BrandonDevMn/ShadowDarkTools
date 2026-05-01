@@ -465,7 +465,7 @@ describe('renderGeneratePage', () => {
 
   const GM_ROWS = [
     'Adventure Hook', 'NPC', 'Random Encounter', 'Random Event',
-    'Rumor', 'Oath', 'Secret', 'Blessing', 'Magic Item', 'Dungeon', 'March',
+    'Rumor', 'Oath', 'Secret', 'Blessing', 'Magic Item', 'Dungeon', 'Overworld March',
   ];
 
   GM_ROWS.forEach((label) => {
@@ -727,20 +727,20 @@ describe('renderGeneratePage', () => {
 
   it('clicking March shows picker with title "March", no rolling animation', () => {
     renderGeneratePage(container);
-    clickGMRow(container, 'March');
+    clickGMRow(container, 'Overworld March');
     expect(container.querySelector('.page-title').textContent).toBe('March');
     expect(container.querySelector('.generate-die')).toBeNull();
   });
 
   it('march picker shows a back button reading "‹ Generate"', () => {
     renderGeneratePage(container);
-    clickGMRow(container, 'March');
+    clickGMRow(container, 'Overworld March');
     expect(container.querySelector('.library-back-btn').textContent).toBe('‹ Generate');
   });
 
   it('march picker shows a terrain select with overland terrain options', () => {
     renderGeneratePage(container);
-    clickGMRow(container, 'March');
+    clickGMRow(container, 'Overworld March');
     const sel = container.querySelector('.march-select');
     expect(sel).not.toBeNull();
     const options = Array.from(sel.querySelectorAll('option')).map((o) => o.value);
@@ -750,21 +750,21 @@ describe('renderGeneratePage', () => {
 
   it('march picker back button returns to the menu', () => {
     renderGeneratePage(container);
-    clickGMRow(container, 'March');
+    clickGMRow(container, 'Overworld March');
     container.querySelector('.library-back-btn').click();
     expect(container.querySelector('.page-title').textContent).toBe('Generate');
   });
 
   it('clicking "March →" starts the rolling animation', () => {
     renderGeneratePage(container);
-    clickGMRow(container, 'March');
+    clickGMRow(container, 'Overworld March');
     container.querySelector('.march-btn').click();
     expect(container.querySelector('.generate-die')).not.toBeNull();
   });
 
   it('after animation, march result page title is "New Hex"', () => {
     renderGeneratePage(container);
-    clickGMRow(container, 'March');
+    clickGMRow(container, 'Overworld March');
     container.querySelector('.march-btn').click();
     vi.advanceTimersByTime(1000);
     expect(container.querySelector('.page-title').textContent).toBe('New Hex');
@@ -772,7 +772,7 @@ describe('renderGeneratePage', () => {
 
   it('march result shows new terrain as card name', () => {
     renderGeneratePage(container);
-    clickGMRow(container, 'March');
+    clickGMRow(container, 'Overworld March');
     container.querySelector('.march-btn').click();
     vi.advanceTimersByTime(1000);
     const names = Array.from(container.querySelectorAll('.reference-card__name')).map((el) => el.textContent);
@@ -781,7 +781,7 @@ describe('renderGeneratePage', () => {
 
   it('march result shows danger as card meta', () => {
     renderGeneratePage(container);
-    clickGMRow(container, 'March');
+    clickGMRow(container, 'Overworld March');
     container.querySelector('.march-btn').click();
     vi.advanceTimersByTime(1000);
     const metas = Array.from(container.querySelectorAll('.reference-card__meta')).map((el) => el.textContent);
@@ -790,7 +790,7 @@ describe('renderGeneratePage', () => {
 
   it('march result shows POI card when hasPOI is true', () => {
     renderGeneratePage(container);
-    clickGMRow(container, 'March');
+    clickGMRow(container, 'Overworld March');
     container.querySelector('.march-btn').click();
     vi.advanceTimersByTime(1000);
     const names = Array.from(container.querySelectorAll('.reference-card__name')).map((el) => el.textContent);
@@ -799,7 +799,7 @@ describe('renderGeneratePage', () => {
 
   it('POI card meta shows settlement name when present', () => {
     renderGeneratePage(container);
-    clickGMRow(container, 'March');
+    clickGMRow(container, 'Overworld March');
     container.querySelector('.march-btn').click();
     vi.advanceTimersByTime(1000);
     const metas = Array.from(container.querySelectorAll('.reference-card__meta')).map((el) => el.textContent);
@@ -808,7 +808,7 @@ describe('renderGeneratePage', () => {
 
   it('POI card shows development text as description', () => {
     renderGeneratePage(container);
-    clickGMRow(container, 'March');
+    clickGMRow(container, 'Overworld March');
     container.querySelector('.march-btn').click();
     vi.advanceTimersByTime(1000);
     const descs = Array.from(container.querySelectorAll('.reference-card__description')).map((el) => el.textContent);
@@ -817,7 +817,7 @@ describe('renderGeneratePage', () => {
 
   it('back button on march result goes to picker with new terrain pre-filled', () => {
     renderGeneratePage(container);
-    clickGMRow(container, 'March');
+    clickGMRow(container, 'Overworld March');
     container.querySelector('.march-btn').click();
     vi.advanceTimersByTime(1000);
     // Back on result should go to picker showing the NEW terrain (Forest/Jungle)
@@ -829,7 +829,7 @@ describe('renderGeneratePage', () => {
 
   it('re-roll on march result calls generateMarch again', () => {
     renderGeneratePage(container);
-    clickGMRow(container, 'March');
+    clickGMRow(container, 'Overworld March');
     container.querySelector('.march-btn').click();
     vi.advanceTimersByTime(1000);
     container.querySelector('.character-export-btn').click(); // re-roll

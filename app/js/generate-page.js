@@ -119,7 +119,7 @@ export function renderGeneratePage(container) {
         onClick: () => showRolling(() => showDungeonResult(generateDungeon())),
       },
       {
-        label: 'March',
+        label: 'Overworld March',
         onClick: () => showMarchPicker(),
       },
     ]));
