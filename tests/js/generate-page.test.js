@@ -363,14 +363,14 @@ describe('renderGeneratePage', () => {
     );
   });
 
-  it('clicking export passes text that includes the character name in uppercase', async () => {
+  it('clicking export passes text that includes the character name', async () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
     vi.advanceTimersByTime(1000);
     container.querySelector('.character-export-btn').click();
     await vi.runAllTimersAsync();
     const [{ text }] = navigator.share.mock.calls[0];
-    expect(text).toContain('ALDRIC');
+    expect(text).toContain('Aldric');
   });
 
   it('back on character sheet returns to the menu', () => {
