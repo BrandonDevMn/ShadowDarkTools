@@ -356,14 +356,14 @@ describe('renderGeneratePage', () => {
     expect(navigator.share).toHaveBeenCalled();
   });
 
-  it('exported text starts with the character name on its own line', async () => {
+  it('exported text starts with name then labeled identity fields', async () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
     vi.advanceTimersByTime(1000);
     container.querySelector('.character-export-btn').click();
     await vi.runAllTimersAsync();
     const [{ text }] = navigator.share.mock.calls[0];
-    expect(text.startsWith('Aldric\n')).toBe(true);
+    expect(text).toContain('Aldric\nAncestry: Human\nClass: Fighter\nLevel: 1\nAlignment: Lawful');
   });
 
   // ── Inventory in export ─────────────────────────────────────────────────

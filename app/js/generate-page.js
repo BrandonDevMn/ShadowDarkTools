@@ -320,7 +320,11 @@ function formatCharacterText(char) {
 
   // ── Header ──────────────────────────────────────────────────────────────
   add(char.name);
-  add(`${char.ancestry} ${char.class} · Level ${char.level} · ${char.alignment}${char.deity ? ` · ${char.deity}` : ''}`);
+  add(`Ancestry: ${char.ancestry}`);
+  add(`Class: ${char.class}`);
+  add(`Level: ${char.level}`);
+  add(`Alignment: ${char.alignment}`);
+  if (char.deity) add(`Deity: ${char.deity}`);
 
   // ── Derived stats ────────────────────────────────────────────────────────
   add('');
