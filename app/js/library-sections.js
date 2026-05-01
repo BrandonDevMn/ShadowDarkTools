@@ -1,9 +1,15 @@
 /**
  * Render functions for each Library section.
  *
- * Each function receives the page container (which already holds the back
- * button and section title added by library-page.js) and appends the
- * section's content below. Returns true on success.
+ * Each function receives the page container and appends the section's content
+ * below any heading or back button already added by library-page.js.
+ *
+ * Player sections are implemented here (Spells, Ancestries, Classes,
+ * Ability Scores, Backgrounds, Alignments, Languages, Equipment).
+ *
+ * Additional player rules sections are re-exported from library-sections-rules.js.
+ * Character creation sections are re-exported from library-sections-character.js.
+ * GM tools sections are re-exported from library-sections-gm.js.
  */
 
 import { renderSpellsList } from './spells-list.js';
@@ -11,8 +17,48 @@ import { ANCESTRIES }       from './ancestries-data.js';
 import { CLASSES }          from './classes-data.js';
 import { BACKGROUNDS }      from './backgrounds-data.js';
 import { EQUIPMENT }        from './equipment-data.js';
+import {
+  makeReferenceCard,
+  makeSectionHeader,
+  makeReferenceList,
+} from './library-helpers.js';
 
-// ── Ability score definitions — small enough to live inline ────────────────
+// ── Re-exports: player rules sections ─────────────────────────────────────
+export {
+  renderCoreMechanicSection,
+  renderCombatSection,
+  renderAdvancementSection,
+  renderSpellcastingSection,
+  renderLightAndDarknessSection,
+  renderRestingSection,
+  renderDeathAndDyingSection,
+  renderStealthAndSurpriseSection,
+  renderLuckTokensSection,
+} from './library-sections-rules.js';
+
+// ── Re-exports: character creation sections ────────────────────────────────
+export {
+  renderTitlesSection,
+  renderDeitiesSection,
+  renderRandomCharacterGenerationSection,
+} from './library-sections-character.js';
+
+// ── Re-exports: GM tools sections ─────────────────────────────────────────
+export {
+  renderRunningTheGameSection,
+  renderMonstersSection,
+  renderMagicItemsSection,
+  renderTreasureSection,
+  renderNpcsAndReactionsSection,
+  renderAdventureGeneratorSection,
+  renderOverlandTravelSection,
+  renderEncounterTablesSection,
+  renderRandomEventsSection,
+  renderRumorsSection,
+  renderSettlementsSection,
+} from './library-sections-gm.js';
+
+// ── Ability score definitions ──────────────────────────────────────────────
 
 const ABILITY_SCORES = [
   { name: 'Strength (STR)',     description: 'Physical power. Used for melee attacks, breaking things, and carrying gear.' },
@@ -23,7 +69,7 @@ const ABILITY_SCORES = [
   { name: 'Charisma (CHA)',     description: 'Personality and presence. Used for persuasion, intimidation, and reaction rolls.' },
 ];
 
-// ── Alignments — three in Shadowdark ──────────────────────────────────────
+// ── Alignments ─────────────────────────────────────────────────────────────
 
 const ALIGNMENTS = [
   { name: 'Lawful',  description: 'Lawful characters align themselves with fairness, order, and virtue. They operate from a "good of the whole" mentality.' },
@@ -31,7 +77,7 @@ const ALIGNMENTS = [
   { name: 'Chaotic', description: 'Chaotic characters align themselves with destruction, ambition, and wickedness. They adopt a "survival of the fittest" mentality.' },
 ];
 
-// ── Common languages spoken in the Shadowdark world ───────────────────────
+// ── Common languages ───────────────────────────────────────────────────────
 
 const COMMON_LANGUAGES = [
   { name: 'Common',    description: 'Spoken by most humanoids.' },
@@ -46,7 +92,7 @@ const COMMON_LANGUAGES = [
   { name: 'Thanian',   description: 'Spoken by minotaurs, beastmen, and manticores.' },
 ];
 
-// ── Rare languages spoken in the Shadowdark world ─────────────────────────
+// ── Rare languages ─────────────────────────────────────────────────────────
 
 const RARE_LANGUAGES = [
   { name: 'Celestial',  description: 'Spoken by angels.' },
@@ -55,79 +101,22 @@ const RARE_LANGUAGES = [
   { name: 'Primordial', description: 'Spoken by elder things and elementals.' },
 ];
 
-// ── Shared helpers ─────────────────────────────────────────────────────────
-
-/**
- * Creates a simple reference card element from name, optional meta line,
- * and description text.
- */
-function makeReferenceCard(name, meta, description) {
-  const card = document.createElement('div');
-  card.className = 'reference-card';
-
-  const nameEl = document.createElement('div');
-  nameEl.className = 'reference-card__name';
-  nameEl.textContent = name;
-  card.appendChild(nameEl);
-
-  if (meta) {
-    const metaEl = document.createElement('div');
-    metaEl.className = 'reference-card__meta';
-    metaEl.textContent = meta;
-    card.appendChild(metaEl);
-  }
-
-  const descEl = document.createElement('p');
-  descEl.className = 'reference-card__description';
-  descEl.textContent = description;
-  card.appendChild(descEl);
-
-  return card;
-}
-
-/**
- * Creates a section sub-header (e.g. "Weapons", "Armor") within a section.
- */
-function makeSectionHeader(text) {
-  const header = document.createElement('h2');
-  header.className = 'reference-section-header';
-  header.textContent = text;
-  return header;
-}
-
 // ── Section render functions ───────────────────────────────────────────────
 
-/**
- * Delegates to the spells list component, which handles its own filter UI
- * and tier-grouped card layout.
- */
 export function renderSpellsSection(container) {
   return renderSpellsList(container);
 }
 
-/**
- * Renders a card for each ancestry, showing the trait name and its effect.
- */
 export function renderAncestriesSection(container) {
-  const list = document.createElement('div');
-  list.className = 'reference-list';
-
+  const list = makeReferenceList();
   ANCESTRIES.forEach((ancestry) => {
-    list.appendChild(
-      makeReferenceCard(ancestry.name, ancestry.traitName, ancestry.traitDescription)
-    );
+    list.appendChild(makeReferenceCard(ancestry.name, ancestry.traitName, ancestry.traitDescription));
   });
-
   container.appendChild(list);
 }
 
-/**
- * Renders a card for each class showing hit die, gear proficiencies, and
- * a list of class abilities.
- */
 export function renderClassesSection(container) {
-  const list = document.createElement('div');
-  list.className = 'reference-list';
+  const list = makeReferenceList();
 
   CLASSES.forEach((cls) => {
     const card = document.createElement('div');
@@ -148,7 +137,6 @@ export function renderClassesSection(container) {
     descEl.textContent = cls.description;
     card.appendChild(descEl);
 
-    // Each class ability as an indented sub-item
     cls.abilities.forEach((ability) => {
       const abilityEl = document.createElement('div');
       abilityEl.className = 'reference-card__ability';
@@ -172,81 +160,51 @@ export function renderClassesSection(container) {
   container.appendChild(list);
 }
 
-/**
- * Renders all six ability score definitions as simple reference cards.
- */
 export function renderAbilityScoresSection(container) {
-  const list = document.createElement('div');
-  list.className = 'reference-list';
-
+  const list = makeReferenceList();
   ABILITY_SCORES.forEach((score) => {
     list.appendChild(makeReferenceCard(score.name, null, score.description));
   });
-
   container.appendChild(list);
 }
 
-/**
- * Renders the d20 background table. Players roll 1d20 at character creation
- * to determine their starting background and equipment.
- */
 export function renderBackgroundsSection(container) {
   const intro = document.createElement('p');
   intro.className = 'reference-card__description';
   intro.textContent = 'Roll 1d20 at character creation to determine your background.';
   container.appendChild(intro);
 
-  const list = document.createElement('div');
-  list.className = 'reference-list';
-
+  const list = makeReferenceList();
   BACKGROUNDS.forEach((bg) => {
-    list.appendChild(
-      makeReferenceCard(`${bg.roll}. ${bg.name}`, null, bg.description)
-    );
+    list.appendChild(makeReferenceCard(`${bg.roll}. ${bg.name}`, null, bg.description));
   });
-
   container.appendChild(list);
 }
 
-/**
- * Renders the three alignments available in Shadowdark.
- */
 export function renderAlignmentsSection(container) {
-  const list = document.createElement('div');
-  list.className = 'reference-list';
-
+  const list = makeReferenceList();
   ALIGNMENTS.forEach((alignment) => {
     list.appendChild(makeReferenceCard(alignment.name, null, alignment.description));
   });
-
   container.appendChild(list);
 }
 
-/**
- * Renders languages grouped as Common and Rare, matching the rules split.
- */
 export function renderLanguagesSection(container) {
   container.appendChild(makeSectionHeader('Common Languages'));
-  const commonList = document.createElement('div');
-  commonList.className = 'reference-list';
+  const commonList = makeReferenceList();
   COMMON_LANGUAGES.forEach((lang) => {
     commonList.appendChild(makeReferenceCard(lang.name, null, lang.description));
   });
   container.appendChild(commonList);
 
   container.appendChild(makeSectionHeader('Rare Languages'));
-  const rareList = document.createElement('div');
-  rareList.className = 'reference-list';
+  const rareList = makeReferenceList();
   RARE_LANGUAGES.forEach((lang) => {
     rareList.appendChild(makeReferenceCard(lang.name, null, lang.description));
   });
   container.appendChild(rareList);
 }
 
-/**
- * Renders equipment grouped by category: Weapons, Armor, then Gear.
- * Weapons show damage and range; armor shows armor class; gear shows notes.
- */
 export function renderEquipmentSection(container) {
   const categories = [
     { key: 'weapon', label: 'Weapons' },
@@ -260,9 +218,7 @@ export function renderEquipmentSection(container) {
 
     container.appendChild(makeSectionHeader(label));
 
-    const list = document.createElement('div');
-    list.className = 'reference-list';
-
+    const list = makeReferenceList();
     items.forEach((item) => {
       let meta;
       if (key === 'weapon') {
@@ -272,7 +228,6 @@ export function renderEquipmentSection(container) {
       } else {
         meta = item.cost;
       }
-
       list.appendChild(makeReferenceCard(item.name, meta, item.notes));
     });
 
