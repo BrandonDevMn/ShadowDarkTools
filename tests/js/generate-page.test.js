@@ -121,11 +121,11 @@ describe('renderGeneratePage', () => {
     expect(container.querySelector('.generate-die')).not.toBeNull();
   });
 
-  it('die graphic shows "20"', () => {
+  it('die graphic shows 6 pips', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
     container.querySelector('.generate-btn').click();
-    expect(container.querySelector('.generate-die').textContent).toBe('20');
+    expect(container.querySelectorAll('.generate-die__pip').length).toBe(6);
   });
 
   it('does not call generateCharacter immediately when rolling starts', () => {

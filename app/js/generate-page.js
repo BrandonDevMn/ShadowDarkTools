@@ -100,7 +100,11 @@ export function renderGeneratePage(container) {
     wrap.className = 'generate-die-wrap';
     const die = document.createElement('div');
     die.className = 'generate-die';
-    die.textContent = '20';
+    for (let i = 0; i < 6; i++) {
+      const pip = document.createElement('span');
+      pip.className = 'generate-die__pip';
+      die.appendChild(pip);
+    }
     wrap.appendChild(die);
     container.appendChild(wrap);
 

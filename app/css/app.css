@@ -594,13 +594,17 @@ body {
   height: 80px;
   border: 3px solid var(--color-accent);
   border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-accent);
-  font-size: 1.5rem;
-  font-weight: 700;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  padding: 14px;
+  gap: 6px;
   animation: die-spin 1.4s linear infinite;
+}
+
+.generate-die__pip {
+  border-radius: 50%;
+  background: var(--color-accent);
 }
 
 @keyframes die-spin {
