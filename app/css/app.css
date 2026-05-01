@@ -620,6 +620,20 @@ body {
   animation: generate-fadein 0.35s ease-out both;
 }
 
+.generate-section {
+  margin-bottom: 1.25rem;
+}
+
+.generate-section__heading {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding: 0 1rem 0.375rem;
+  margin: 0;
+}
+
 @keyframes generate-fadein {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }

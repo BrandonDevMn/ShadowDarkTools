@@ -1,15 +1,29 @@
 /**
- * Generate tab — random character generator.
+ * Generate tab — random character generator and GM tools.
  *
  * State flow:
- *   showMenu()      — list with "Generate a Character" row
- *   showRolling()   — 1-second spinning d6 animation, then calls onComplete
- *   showCharacter() — character sheet + Re-roll button
+ *   showMenu()           — two sections: Player Tools and GM Tools
+ *   showRolling()        — 1-second spinning d6 animation, then calls onComplete
+ *   showCharacter()      — character sheet + Re-roll button
+ *   showTerrainMenu()    — terrain picker before rolling a random encounter
+ *   showResult()         — generic result card for GM generators
  *
- * Back navigation: character → menu; back during rolling → menu.
+ * Back navigation: any result/sheet → menu; back during rolling → menu.
  */
 
 import { generateCharacter, fmtMod } from './character-generator.js';
+import {
+  generateAdventureHook,
+  generateNPC,
+  generateEncounter,
+  getTerrainNames,
+  generateRandomEvent,
+  generateRumor,
+  generateOath,
+  generateSecret,
+  generateBlessing,
+  generateMagicItem,
+} from './gm-generators.js';
 
 const ROLL_DURATION_MS = 1000;
 
@@ -43,26 +57,83 @@ export function renderGeneratePage(container) {
     title.textContent = 'Generate';
     container.appendChild(title);
 
-    const nav = document.createElement('nav');
-    nav.className = 'library-nav';
+    // ── Player Tools section ────────────────────────────────────────────────
+    container.appendChild(makeNavSection('Player Tools', [
+      {
+        label: 'Generate a Character',
+        onClick: () => showRolling(() => showCharacter(generateCharacter())),
+      },
+    ]));
 
-    const row = document.createElement('button');
-    row.type = 'button';
-    row.className = 'library-nav__row';
+    // ── GM Tools section ────────────────────────────────────────────────────
+    container.appendChild(makeNavSection('GM Tools', [
+      {
+        label: 'Adventure Hook',
+        onClick: () => showRolling(() => showAdventureHookResult(generateAdventureHook())),
+      },
+      {
+        label: 'NPC',
+        onClick: () => showRolling(() => showNPCResult(generateNPC())),
+      },
+      {
+        label: 'Random Encounter',
+        // Terrain must be chosen before rolling — skip the animation, go to terrain picker
+        onClick: () => showTerrainMenu(),
+      },
+      {
+        label: 'Random Event',
+        onClick: () => showRolling(() => showResult('Random Event', generateRandomEvent().event)),
+      },
+      {
+        label: 'Rumor',
+        onClick: () => showRolling(() => showResult('Rumor', generateRumor().rumor)),
+      },
+      {
+        label: 'Oath',
+        onClick: () => showRolling(() => showResult('Oath', generateOath().oath)),
+      },
+      {
+        label: 'Secret',
+        onClick: () => showRolling(() => showResult('Secret', generateSecret().secret)),
+      },
+      {
+        label: 'Blessing',
+        onClick: () => {
+          const b = generateBlessing();
+          showRolling(() => showResult('Blessing', b.description, b.name));
+        },
+      },
+      {
+        label: 'Magic Item',
+        onClick: () => {
+          const item = generateMagicItem();
+          showRolling(() => showResult('Magic Item', item.description, item.name));
+        },
+      },
+    ]));
+  }
 
-    const label = document.createElement('span');
-    label.className = 'library-nav__row-label';
-    label.textContent = 'Generate a Character';
-    row.appendChild(label);
+  // ── Terrain menu — pick before rolling an encounter ──────────────────────
 
-    const indicator = document.createElement('span');
-    indicator.className = 'library-nav__row-indicator';
-    indicator.textContent = '›';
-    row.appendChild(indicator);
+  function showTerrainMenu() {
+    cancelAnimation();
+    container.innerHTML = '';
 
-    row.addEventListener('click', () => showRolling(() => showCharacter(generateCharacter())));
-    nav.appendChild(row);
-    container.appendChild(nav);
+    container.appendChild(makeBackButton('Generate', showMenu));
+
+    const title = document.createElement('h1');
+    title.className = 'page-title';
+    title.textContent = 'Choose Terrain';
+    container.appendChild(title);
+
+    const terrains = getTerrainNames();
+    container.appendChild(makeNavSection(null, terrains.map((terrain) => ({
+      label: terrain,
+      onClick: () => showRolling(() => {
+        const result = generateEncounter(terrain);
+        showResult(`Encounter: ${result.terrain}`, result.encounter);
+      }),
+    }))));
   }
 
   function showRolling(onComplete) {
@@ -122,6 +193,102 @@ export function renderGeneratePage(container) {
     container.appendChild(reroll);
 
     renderCharacterSheet(container, char);
+  }
+
+  // ── Generic GM result screen ────────────────────────────────────────────
+
+  /**
+   * Renders a simple result card for single-output GM generators.
+   * `title` is the page heading; `body` is the result text;
+   * `subtitle` is an optional bold name above the body (e.g. blessing name).
+   */
+  function showResult(title, body, subtitle = null) {
+    container.innerHTML = '';
+
+    const header = document.createElement('div');
+    header.className = 'character-header';
+    header.appendChild(makeBackButton('Generate', showMenu));
+
+    const rerollBtn = document.createElement('button');
+    rerollBtn.type = 'button';
+    rerollBtn.className = 'character-export-btn';
+    rerollBtn.textContent = 'Re-roll';
+    rerollBtn.addEventListener('click', () => rerollBtn._reroll && rerollBtn._reroll());
+    header.appendChild(rerollBtn);
+    container.appendChild(header);
+
+    const heading = document.createElement('h1');
+    heading.className = 'page-title';
+    heading.textContent = title;
+    container.appendChild(heading);
+
+    const sheet = document.createElement('div');
+    sheet.className = 'character-sheet generate-fade-in';
+    sheet.appendChild(makeCard(subtitle, null, body));
+    container.appendChild(sheet);
+
+    return rerollBtn;
+  }
+
+  // ── Adventure Hook result ───────────────────────────────────────────────
+
+  function showAdventureHookResult(result) {
+    const btn = showResult('Adventure Hook', result.hook);
+    btn._reroll = () => showRolling(() => showAdventureHookResult(generateAdventureHook()));
+
+    // Site name card appended after initial render
+    const sheet = container.querySelector('.character-sheet');
+    sheet.appendChild(makeCard('Site Name', null, result.site));
+  }
+
+  // ── NPC result ──────────────────────────────────────────────────────────
+
+  function showNPCResult(npc) {
+    container.innerHTML = '';
+
+    const header = document.createElement('div');
+    header.className = 'character-header';
+    header.appendChild(makeBackButton('Generate', showMenu));
+
+    const rerollBtn = document.createElement('button');
+    rerollBtn.type = 'button';
+    rerollBtn.className = 'character-export-btn';
+    rerollBtn.textContent = 'Re-roll';
+    rerollBtn.addEventListener('click', () => showRolling(() => showNPCResult(generateNPC())));
+    header.appendChild(rerollBtn);
+    container.appendChild(header);
+
+    const heading = document.createElement('h1');
+    heading.className = 'page-title';
+    heading.textContent = npc.name;
+    container.appendChild(heading);
+
+    const sheet = document.createElement('div');
+    sheet.className = 'character-sheet generate-fade-in';
+
+    sheet.appendChild(makeCard(
+      `${npc.ancestry} · ${npc.alignment}`,
+      `${npc.age} · ${npc.wealth}`,
+      npc.occupation,
+    ));
+
+    sheet.appendChild(makeCard('Appearance', null, npc.appearance));
+    sheet.appendChild(makeCard('Mannerism', null, npc.does));
+    sheet.appendChild(makeCard('Secret', null, npc.secret));
+
+    sheet.appendChild(makeCard(
+      'Epithet',
+      null,
+      npc.epithet,
+    ));
+
+    sheet.appendChild(makeCard(
+      'First Impression',
+      `2d6 = ${npc.reactionRoll}`,
+      npc.reaction,
+    ));
+
+    container.appendChild(sheet);
   }
 
   showMenu();
@@ -423,4 +590,46 @@ function makeBackButton(label, onClick) {
   btn.textContent = `‹ ${label}`;
   btn.addEventListener('click', onClick);
   return btn;
+}
+
+/**
+ * Builds a nav section with an optional heading and a list of labelled rows.
+ * `heading` may be null to omit the section label.
+ * `rows` is an array of { label, onClick } objects.
+ */
+function makeNavSection(heading, rows) {
+  const wrap = document.createElement('div');
+  wrap.className = 'generate-section';
+
+  if (heading) {
+    const h2 = document.createElement('h2');
+    h2.className = 'generate-section__heading';
+    h2.textContent = heading;
+    wrap.appendChild(h2);
+  }
+
+  const nav = document.createElement('nav');
+  nav.className = 'library-nav';
+
+  rows.forEach(({ label, onClick }) => {
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'library-nav__row';
+
+    const labelEl = document.createElement('span');
+    labelEl.className = 'library-nav__row-label';
+    labelEl.textContent = label;
+    row.appendChild(labelEl);
+
+    const indicator = document.createElement('span');
+    indicator.className = 'library-nav__row-indicator';
+    indicator.textContent = '›';
+    row.appendChild(indicator);
+
+    row.addEventListener('click', onClick);
+    nav.appendChild(row);
+  });
+
+  wrap.appendChild(nav);
+  return wrap;
 }

@@ -41,8 +41,40 @@ vi.mock('../../app/js/character-generator.js', () => ({
   fmtMod: (mod) => (mod >= 0 ? `+${mod}` : `${mod}`),
 }));
 
+const MOCK_HOOK = { hook: 'Rescue the Goblet Of the evil wizard', site: 'Mines of the Cursed Flame' };
+const MOCK_NPC  = {
+  name: 'Hesta', ancestry: 'Human', alignment: 'Lawful', age: 'Adult',
+  wealth: 'Standard', appearance: 'Balding', does: 'Spits', secret: 'Hiding a fugitive',
+  occupation: 'Gravedigger', epithet: 'The Gray', reaction: 'Neutral', reactionRoll: 9,
+};
+const MOCK_ENCOUNTER = { terrain: 'Forest', roll: 42, encounter: 'Wolves in the trees' };
+const MOCK_EVENT     = { roll: 1, event: 'A fissure opens' };
+const MOCK_RUMOR     = { roll: 1, rumor: 'An armored beast rampages' };
+const MOCK_OATH      = { oath: 'The duke will help you' };
+const MOCK_SECRET    = { secret: 'The True Name of The king' };
+const MOCK_BLESSING  = { name: 'Wraithsight', description: 'See invisible creatures' };
+const MOCK_ITEM      = { name: 'Amulet of Vitality', description: 'CON becomes 18 (+4)' };
+
+vi.mock('../../app/js/gm-generators.js', () => ({
+  generateAdventureHook: vi.fn(() => ({ ...MOCK_HOOK })),
+  generateNPC:           vi.fn(() => ({ ...MOCK_NPC })),
+  generateEncounter:     vi.fn((terrain) => ({ ...MOCK_ENCOUNTER, terrain })),
+  getTerrainNames:       vi.fn(() => ['Arctic', 'Forest']),
+  generateRandomEvent:   vi.fn(() => ({ ...MOCK_EVENT })),
+  generateRumor:         vi.fn(() => ({ ...MOCK_RUMOR })),
+  generateOath:          vi.fn(() => ({ ...MOCK_OATH })),
+  generateSecret:        vi.fn(() => ({ ...MOCK_SECRET })),
+  generateBlessing:      vi.fn(() => ({ ...MOCK_BLESSING })),
+  generateMagicItem:     vi.fn(() => ({ ...MOCK_ITEM })),
+}));
+
 import { renderGeneratePage } from '../../app/js/generate-page.js';
 import { generateCharacter }  from '../../app/js/character-generator.js';
+import {
+  generateAdventureHook, generateNPC, generateEncounter,
+  generateRandomEvent, generateRumor, generateOath,
+  generateSecret, generateBlessing, generateMagicItem,
+} from '../../app/js/gm-generators.js';
 
 describe('renderGeneratePage', () => {
   let container;
@@ -396,4 +428,213 @@ describe('renderGeneratePage', () => {
     expect(container.querySelector('.page-title').textContent).toBe('Generate');
     expect(container.querySelector('.library-nav')).not.toBeNull();
   });
+
+  // ── GM Tools menu ─────────────────────────────────────────────────────────
+
+  it('menu shows a Player Tools section heading', () => {
+    renderGeneratePage(container);
+    const headings = Array.from(container.querySelectorAll('.generate-section__heading')).map((h) => h.textContent);
+    expect(headings).toContain('Player Tools');
+  });
+
+  it('menu shows a GM Tools section heading', () => {
+    renderGeneratePage(container);
+    const headings = Array.from(container.querySelectorAll('.generate-section__heading')).map((h) => h.textContent);
+    expect(headings).toContain('GM Tools');
+  });
+
+  const GM_ROWS = [
+    'Adventure Hook', 'NPC', 'Random Encounter', 'Random Event',
+    'Rumor', 'Oath', 'Secret', 'Blessing', 'Magic Item',
+  ];
+
+  GM_ROWS.forEach((label) => {
+    it(`menu shows a "${label}" row`, () => {
+      renderGeneratePage(container);
+      const labels = Array.from(container.querySelectorAll('.library-nav__row-label')).map((el) => el.textContent);
+      expect(labels).toContain(label);
+    });
+  });
+
+  // ── Adventure Hook ─────────────────────────────────────────────────────────
+
+  it('clicking Adventure Hook shows rolling animation', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Adventure Hook');
+    expect(container.querySelector('.generate-die')).not.toBeNull();
+  });
+
+  it('after animation, Adventure Hook result shows page title', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Adventure Hook');
+    vi.advanceTimersByTime(1000);
+    expect(container.querySelector('.page-title').textContent).toBe('Adventure Hook');
+  });
+
+  it('Adventure Hook result shows hook text', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Adventure Hook');
+    vi.advanceTimersByTime(1000);
+    const descs = Array.from(container.querySelectorAll('.reference-card__description')).map((el) => el.textContent);
+    expect(descs.some((d) => d.includes('Rescue the Goblet'))).toBe(true);
+  });
+
+  it('Adventure Hook result shows site name card', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Adventure Hook');
+    vi.advanceTimersByTime(1000);
+    const names = Array.from(container.querySelectorAll('.reference-card__name')).map((el) => el.textContent);
+    expect(names).toContain('Site Name');
+  });
+
+  // ── NPC ────────────────────────────────────────────────────────────────────
+
+  it('after animation, NPC result shows NPC name as page title', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'NPC');
+    vi.advanceTimersByTime(1000);
+    expect(container.querySelector('.page-title').textContent).toBe('Hesta');
+  });
+
+  it('NPC result shows ancestry and alignment', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'NPC');
+    vi.advanceTimersByTime(1000);
+    const name = container.querySelector('.reference-card__name').textContent;
+    expect(name).toContain('Human');
+    expect(name).toContain('Lawful');
+  });
+
+  it('NPC result shows an Appearance card', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'NPC');
+    vi.advanceTimersByTime(1000);
+    const names = Array.from(container.querySelectorAll('.reference-card__name')).map((el) => el.textContent);
+    expect(names).toContain('Appearance');
+  });
+
+  it('NPC result shows a Secret card', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'NPC');
+    vi.advanceTimersByTime(1000);
+    const names = Array.from(container.querySelectorAll('.reference-card__name')).map((el) => el.textContent);
+    expect(names).toContain('Secret');
+  });
+
+  it('NPC result shows First Impression with reaction text', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'NPC');
+    vi.advanceTimersByTime(1000);
+    const cards = Array.from(container.querySelectorAll('.reference-card'));
+    const reactionCard = cards.find((c) => c.querySelector('.reference-card__name')?.textContent === 'First Impression');
+    expect(reactionCard).toBeDefined();
+    expect(reactionCard.querySelector('.reference-card__description').textContent).toBe('Neutral');
+  });
+
+  // ── Random Encounter ───────────────────────────────────────────────────────
+
+  it('clicking Random Encounter shows terrain picker, not rolling', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Random Encounter');
+    expect(container.querySelector('.page-title').textContent).toBe('Choose Terrain');
+    expect(container.querySelector('.generate-die')).toBeNull();
+  });
+
+  it('terrain picker lists the available terrains', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Random Encounter');
+    const labels = Array.from(container.querySelectorAll('.library-nav__row-label')).map((el) => el.textContent);
+    expect(labels).toContain('Arctic');
+    expect(labels).toContain('Forest');
+  });
+
+  it('choosing a terrain starts the rolling animation', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Random Encounter');
+    container.querySelector('.library-nav__row').click(); // first terrain (Arctic)
+    expect(container.querySelector('.generate-die')).not.toBeNull();
+  });
+
+  it('after animation, encounter result shows terrain in title', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Random Encounter');
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    expect(container.querySelector('.page-title').textContent).toMatch(/Encounter:/);
+  });
+
+  it('encounter result shows encounter text', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Random Encounter');
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    const descs = Array.from(container.querySelectorAll('.reference-card__description')).map((el) => el.textContent);
+    expect(descs.some((d) => d.includes('Wolves in the trees'))).toBe(true);
+  });
+
+  // ── Single-card GM results ─────────────────────────────────────────────────
+
+  const SINGLE_CARD_TOOLS = [
+    { label: 'Random Event', expectedText: 'A fissure opens' },
+    { label: 'Rumor',        expectedText: 'An armored beast rampages' },
+    { label: 'Oath',         expectedText: 'The duke will help you' },
+    { label: 'Secret',       expectedText: 'The True Name of The king' },
+  ];
+
+  SINGLE_CARD_TOOLS.forEach(({ label, expectedText }) => {
+    it(`${label} result shows expected text after animation`, () => {
+      renderGeneratePage(container);
+      clickGMRow(container, label);
+      vi.advanceTimersByTime(1000);
+      const descs = Array.from(container.querySelectorAll('.reference-card__description')).map((el) => el.textContent);
+      expect(descs.some((d) => d.includes(expectedText))).toBe(true);
+    });
+  });
+
+  it('Blessing result shows blessing name and description', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Blessing');
+    vi.advanceTimersByTime(1000);
+    const names = Array.from(container.querySelectorAll('.reference-card__name')).map((el) => el.textContent);
+    expect(names).toContain('Wraithsight');
+    const descs = Array.from(container.querySelectorAll('.reference-card__description')).map((el) => el.textContent);
+    expect(descs.some((d) => d.includes('See invisible'))).toBe(true);
+  });
+
+  it('Magic Item result shows item name and description', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Magic Item');
+    vi.advanceTimersByTime(1000);
+    const names = Array.from(container.querySelectorAll('.reference-card__name')).map((el) => el.textContent);
+    expect(names).toContain('Amulet of Vitality');
+    const descs = Array.from(container.querySelectorAll('.reference-card__description')).map((el) => el.textContent);
+    expect(descs.some((d) => d.includes('CON becomes 18'))).toBe(true);
+  });
+
+  // ── Back navigation from GM results ───────────────────────────────────────
+
+  it('back button on GM result returns to the menu', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Random Event');
+    vi.advanceTimersByTime(1000);
+    container.querySelector('.library-back-btn').click();
+    expect(container.querySelector('.page-title').textContent).toBe('Generate');
+  });
+
+  it('back button on terrain picker returns to the menu', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Random Encounter');
+    container.querySelector('.library-back-btn').click();
+    expect(container.querySelector('.page-title').textContent).toBe('Generate');
+  });
 });
+
+// ── Helper ────────────────────────────────────────────────────────────────
+
+/** Click the nav row in the GM Tools section that matches `label`. */
+function clickGMRow(container, label) {
+  const rows = Array.from(container.querySelectorAll('.library-nav__row'));
+  const row  = rows.find((r) => r.querySelector('.library-nav__row-label')?.textContent === label);
+  if (!row) throw new Error(`No row found with label "${label}"`);
+  row.click();
+}
