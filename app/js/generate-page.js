@@ -319,7 +319,8 @@ function formatCharacterText(char) {
   };
 
   // ── Header ──────────────────────────────────────────────────────────────
-  add(`${char.name} · ${char.ancestry} ${char.class} · Level ${char.level} · ${char.alignment}${char.deity ? ` · ${char.deity}` : ''}`);
+  add(char.name);
+  add(`${char.ancestry} ${char.class} · Level ${char.level} · ${char.alignment}${char.deity ? ` · ${char.deity}` : ''}`);
 
   // ── Derived stats ────────────────────────────────────────────────────────
   add('');

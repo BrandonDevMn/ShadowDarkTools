@@ -356,14 +356,14 @@ describe('renderGeneratePage', () => {
     expect(navigator.share).toHaveBeenCalled();
   });
 
-  it('exported text includes the character name and identity on one line', async () => {
+  it('exported text starts with the character name on its own line', async () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
     vi.advanceTimersByTime(1000);
     container.querySelector('.character-export-btn').click();
     await vi.runAllTimersAsync();
     const [{ text }] = navigator.share.mock.calls[0];
-    expect(text).toContain('Aldric · Human Fighter');
+    expect(text.startsWith('Aldric\n')).toBe(true);
   });
 
   // ── Inventory in export ─────────────────────────────────────────────────
