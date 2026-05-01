@@ -51,6 +51,17 @@ describe('renderGeneratePage', () => {
     container = document.createElement('div');
     vi.useFakeTimers();
     vi.clearAllMocks();
+    // Mock Web Share API
+    Object.defineProperty(navigator, 'share', {
+      value: vi.fn().mockResolvedValue(undefined),
+      configurable: true,
+      writable: true,
+    });
+    Object.defineProperty(navigator, 'canShare', {
+      value: vi.fn().mockReturnValue(false),
+      configurable: true,
+      writable: true,
+    });
   });
 
   afterEach(() => {
@@ -309,6 +320,57 @@ describe('renderGeneratePage', () => {
     container.querySelector('.library-back-btn').click();
     vi.advanceTimersByTime(1000);
     expect(generateCharacter).not.toHaveBeenCalled();
+  });
+
+  // ── Export ──────────────────────────────────────────────────────────────
+
+  it('export button appears on the character sheet', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    expect(container.querySelector('.character-export-btn')).not.toBeNull();
+  });
+
+  it('export button is not shown on the menu', () => {
+    renderGeneratePage(container);
+    expect(container.querySelector('.character-export-btn')).toBeNull();
+  });
+
+  it('export button is not shown during rolling', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    expect(container.querySelector('.character-export-btn')).toBeNull();
+  });
+
+  it('export button and back button are in a .character-header row', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    const header = container.querySelector('.character-header');
+    expect(header).not.toBeNull();
+    expect(header.querySelector('.library-back-btn')).not.toBeNull();
+    expect(header.querySelector('.character-export-btn')).not.toBeNull();
+  });
+
+  it('clicking export calls navigator.share with the character name as title', async () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    container.querySelector('.character-export-btn').click();
+    await vi.runAllTimersAsync();
+    expect(navigator.share).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'Aldric' }),
+    );
+  });
+
+  it('clicking export passes text that includes the character name in uppercase', async () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    container.querySelector('.character-export-btn').click();
+    await vi.runAllTimersAsync();
+    const [{ text }] = navigator.share.mock.calls[0];
+    expect(text).toContain('ALDRIC');
   });
 
   it('back on character sheet returns to the menu', () => {
