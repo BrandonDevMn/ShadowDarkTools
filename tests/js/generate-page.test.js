@@ -352,25 +352,23 @@ describe('renderGeneratePage', () => {
     expect(header.querySelector('.character-export-btn')).not.toBeNull();
   });
 
-  it('clicking export calls navigator.share with the character name as title', async () => {
+  it('clicking export calls navigator.share', async () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
     vi.advanceTimersByTime(1000);
     container.querySelector('.character-export-btn').click();
     await vi.runAllTimersAsync();
-    expect(navigator.share).toHaveBeenCalledWith(
-      expect.objectContaining({ title: 'Aldric' }),
-    );
+    expect(navigator.share).toHaveBeenCalled();
   });
 
-  it('clicking export passes text that includes the character name', async () => {
+  it('exported text includes the character name and identity on one line', async () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
     vi.advanceTimersByTime(1000);
     container.querySelector('.character-export-btn').click();
     await vi.runAllTimersAsync();
     const [{ text }] = navigator.share.mock.calls[0];
-    expect(text).toContain('Aldric');
+    expect(text).toContain('Aldric · Human Fighter');
   });
 
   it('back on character sheet returns to the menu', () => {

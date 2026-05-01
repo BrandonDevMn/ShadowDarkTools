@@ -308,9 +308,9 @@ async function exportCharacter(char) {
 
   try {
     if (navigator.canShare?.({ files: [file] })) {
-      await navigator.share({ files: [file], title: char.name });
+      await navigator.share({ files: [file] });
     } else {
-      await navigator.share({ title: char.name, text });
+      await navigator.share({ text });
     }
   } catch (e) {
     if (e.name !== 'AbortError') console.error('Share failed', e);
@@ -328,11 +328,10 @@ function formatCharacterText(char) {
   };
 
   // ── Header ──────────────────────────────────────────────────────────────
-  add(char.name);
-  add(`${char.ancestry} ${char.class} · Level ${char.level} · ${char.alignment}${char.deity ? ` · ${char.deity}` : ''}`);
+  add(`${char.name} · ${char.ancestry} ${char.class} · Level ${char.level} · ${char.alignment}${char.deity ? ` · ${char.deity}` : ''}`);
 
   // ── Derived stats ────────────────────────────────────────────────────────
-  sect('Stats');
+  add('');
   add(
     `HP: ${char.hp}/${char.hp}   ` +
     `AC: ${char.ac} (10 + DEX ${fmtMod(char.stats.dex.mod)})   ` +
