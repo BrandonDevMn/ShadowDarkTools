@@ -254,9 +254,12 @@ export function generateCharacter() {
   const classData    = CLASSES.find((c) => c.name === className);
   const background   = BACKGROUNDS[rollDie(20) - 1];
 
-  const alignment = rollAlignment();
-  const hp        = rollHP(className, stats.con.mod, isDwarf);
-  const gold      = (rollDie(6) + rollDie(6) + rollDie(6)) * 5;
+  const alignment  = rollAlignment();
+  const hp         = rollHP(className, stats.con.mod, isDwarf);
+  const gold       = (rollDie(6) + rollDie(6) + rollDie(6)) * 5;
+  const ac         = 10 + stats.dex.mod;
+  // Fighters' Hauler ability adds CON mod (if positive) to gear slots
+  const gearSlots  = 10 + stats.str.mod + (className === 'Fighter' ? Math.max(0, stats.con.mod) : 0);
   const name      = rollName(ancestry);
   const languages = rollLanguages(className);
 
@@ -279,12 +282,17 @@ export function generateCharacter() {
     ancestryTrait: ancestryData
       ? { name: ancestryData.traitName, description: ancestryData.traitDescription }
       : null,
-    class:     className,
-    hitDie:    `d${HIT_DIE[className]}`,
-    level:     1,
+    class:          className,
+    hitDie:         `d${HIT_DIE[className]}`,
+    level:          1,
     alignment,
     hp,
+    ac,
     gold,
+    gearSlots,
+    armor:          classData?.armor ?? '',
+    weapons:        classData?.weapons ?? '',
+    classAbilities: classData?.abilities ?? [],
     stats,
     background: { roll: background.roll, name: background.name, description: background.description },
     talents,

@@ -13,10 +13,10 @@ vi.mock('../../app/js/ancestries-data.js', () => ({
 
 vi.mock('../../app/js/classes-data.js', () => ({
   CLASSES: [
-    { name: 'Fighter', hitDie: 'd8', armor: 'All armor',  weapons: 'All weapons',     abilities: [] },
-    { name: 'Priest',  hitDie: 'd6', armor: 'All armor',  weapons: 'Club, mace, etc', abilities: [] },
-    { name: 'Thief',   hitDie: 'd4', armor: 'Leather',    weapons: 'Dagger, etc',     abilities: [] },
-    { name: 'Wizard',  hitDie: 'd4', armor: 'None',       weapons: 'Daggers, staves', abilities: [] },
+    { name: 'Fighter', hitDie: 'd8', armor: 'All armor',  weapons: 'All weapons',     abilities: [{ name: 'Hauler',       description: 'Add CON mod to gear slots.' }] },
+    { name: 'Priest',  hitDie: 'd6', armor: 'All armor',  weapons: 'Club, mace, etc', abilities: [{ name: 'Spellcasting', description: 'Cast priest spells.' }] },
+    { name: 'Thief',   hitDie: 'd4', armor: 'Leather',    weapons: 'Dagger, etc',     abilities: [{ name: 'Backstab',     description: 'Extra damage die when unseen.' }] },
+    { name: 'Wizard',  hitDie: 'd4', armor: 'None',       weapons: 'Daggers, staves', abilities: [{ name: 'Spellcasting', description: 'Cast wizard spells.' }] },
   ],
 }));
 
@@ -143,6 +143,34 @@ describe('generateCharacter return shape', () => {
     expect(char.gold % 5).toBe(0);
   });
 
+  it('ac equals 10 + DEX modifier', () => {
+    expect(char.ac).toBe(10 + char.stats.dex.mod);
+  });
+
+  it('gearSlots is a positive integer', () => {
+    expect(Number.isInteger(char.gearSlots)).toBe(true);
+    expect(char.gearSlots).toBeGreaterThan(0);
+  });
+
+  it('armor is a non-empty string', () => {
+    expect(typeof char.armor).toBe('string');
+    expect(char.armor.length).toBeGreaterThan(0);
+  });
+
+  it('weapons is a non-empty string', () => {
+    expect(typeof char.weapons).toBe('string');
+    expect(char.weapons.length).toBeGreaterThan(0);
+  });
+
+  it('classAbilities is a non-empty array with name and description', () => {
+    expect(Array.isArray(char.classAbilities)).toBe(true);
+    expect(char.classAbilities.length).toBeGreaterThan(0);
+    char.classAbilities.forEach((a) => {
+      expect(typeof a.name).toBe('string');
+      expect(typeof a.description).toBe('string');
+    });
+  });
+
   it('spells is an array', () => {
     expect(Array.isArray(char.spells)).toBe(true);
   });
@@ -248,6 +276,18 @@ describe('Human character', () => {
     const humans = chars.filter((c) => c.ancestry === 'Human');
     if (humans.length > 0) {
       humans.forEach((h) => expect(h.talents.length).toBe(2));
+    }
+  });
+});
+
+describe('Fighter character', () => {
+  it('gearSlots includes positive CON modifier via Hauler', () => {
+    const chars = Array.from({ length: 60 }, () => generateCharacter());
+    const fighters = chars.filter((c) => c.class === 'Fighter' && c.stats.con.mod > 0);
+    if (fighters.length > 0) {
+      fighters.forEach((f) => {
+        expect(f.gearSlots).toBe(10 + f.stats.str.mod + f.stats.con.mod);
+      });
     }
   });
 });

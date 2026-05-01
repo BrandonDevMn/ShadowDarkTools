@@ -130,11 +130,13 @@ function renderCharacterSheet(container, char) {
     null,
   ));
 
-  // HP + Gold
+  // HP / AC / Gear Slots / Gold
   const hpCard = document.createElement('div');
   hpCard.className = 'character-sheet__hp-card';
-  hpCard.appendChild(makeStat('HP',   char.hp));
-  hpCard.appendChild(makeStat('Gold', `${char.gold} gp`));
+  hpCard.appendChild(makeStat('HP',         `${char.hp}/${char.hp}`));
+  hpCard.appendChild(makeStat('AC',         char.ac,        `10 + DEX (${fmtMod(char.stats.dex.mod)})`));
+  hpCard.appendChild(makeStat('Gear Slots', char.gearSlots, gearSlotsFormula(char)));
+  hpCard.appendChild(makeStat('Gold',       `${char.gold} gp`));
   sheet.appendChild(hpCard);
 
   // Stats grid
@@ -168,6 +170,16 @@ function renderCharacterSheet(container, char) {
   });
   sheet.appendChild(statsGrid);
 
+  // Proficiencies
+  if (char.armor || char.weapons) {
+    sheet.appendChild(makeCard(
+      'Proficiencies',
+      null,
+      [char.armor && `Armor: ${char.armor}`, char.weapons && `Weapons: ${char.weapons}`]
+        .filter(Boolean).join(' · '),
+    ));
+  }
+
   // Background
   sheet.appendChild(makeCard(
     `Background: ${char.background.name}`,
@@ -179,6 +191,11 @@ function renderCharacterSheet(container, char) {
   char.talents.forEach((talent, i) => {
     const label = char.talents.length > 1 ? `Talent ${i + 1}` : 'Talent';
     sheet.appendChild(makeCard(label, null, talent));
+  });
+
+  // Class abilities
+  char.classAbilities.forEach((ability) => {
+    sheet.appendChild(makeCard(ability.name, 'Class Feature', ability.description));
   });
 
   // Spells (Priest / Wizard) — one full card per spell
@@ -240,7 +257,7 @@ function makeCard(name, meta, description) {
   return card;
 }
 
-function makeStat(label, value) {
+function makeStat(label, value, formula = null) {
   const wrap = document.createElement('div');
   wrap.className = 'character-sheet__hp-stat';
   const lbl = document.createElement('span');
@@ -251,7 +268,22 @@ function makeStat(label, value) {
   val.textContent = value;
   wrap.appendChild(lbl);
   wrap.appendChild(val);
+  if (formula) {
+    const fml = document.createElement('span');
+    fml.className = 'character-sheet__hp-formula';
+    fml.textContent = formula;
+    wrap.appendChild(fml);
+  }
   return wrap;
+}
+
+function gearSlotsFormula(char) {
+  const { str, con } = char.stats;
+  let formula = `10 + STR (${fmtMod(str.mod)})`;
+  if (char.class === 'Fighter' && con.mod > 0) {
+    formula += ` + CON (${fmtMod(con.mod)}) Hauler`;
+  }
+  return formula;
 }
 
 function makeBackButton(label, onClick) {

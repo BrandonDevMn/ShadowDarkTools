@@ -8,7 +8,16 @@ const MOCK_CHAR = {
   alignment: 'Lawful',
   hitDie: 'd8',
   hp: 9,
+  ac: 10,
   gold: 45,
+  gearSlots: 12,
+  armor: 'All armor and shields',
+  weapons: 'All weapons',
+  classAbilities: [
+    { name: 'Hauler',         description: 'Add your Constitution modifier to gear slots.' },
+    { name: 'Weapon Mastery', description: 'Choose a weapon type; +1 to attack and damage.' },
+    { name: 'Grit',           description: 'Choose STR or DEX — advantage on those checks.' },
+  ],
   stats: {
     str: { score: 15, mod: 2 },
     dex: { score: 10, mod: 0 },
@@ -143,11 +152,11 @@ describe('renderGeneratePage', () => {
     expect(container.querySelector('.generate-reroll-btn')).not.toBeNull();
   });
 
-  it('character sheet shows HP', () => {
+  it('character sheet shows HP as current/max', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
     vi.advanceTimersByTime(1000);
-    expect(container.querySelector('.character-sheet__hp-value').textContent).toBe('9');
+    expect(container.querySelector('.character-sheet__hp-value').textContent).toBe('9/9');
   });
 
   it('character sheet shows gold', () => {
@@ -156,6 +165,76 @@ describe('renderGeneratePage', () => {
     vi.advanceTimersByTime(1000);
     const values = Array.from(container.querySelectorAll('.character-sheet__hp-value'));
     expect(values.some((el) => el.textContent === '45 gp')).toBe(true);
+  });
+
+  it('character sheet shows AC', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    const values = Array.from(container.querySelectorAll('.character-sheet__hp-value'));
+    expect(values.some((el) => el.textContent === '10')).toBe(true);
+  });
+
+  it('character sheet shows gear slots', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    const values = Array.from(container.querySelectorAll('.character-sheet__hp-value'));
+    expect(values.some((el) => el.textContent === '12')).toBe(true);
+  });
+
+  it('AC stat shows a formula line', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    const formulas = Array.from(container.querySelectorAll('.character-sheet__hp-formula')).map((el) => el.textContent);
+    expect(formulas.some((f) => f.includes('DEX'))).toBe(true);
+  });
+
+  it('gear slots stat shows a formula line', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    const formulas = Array.from(container.querySelectorAll('.character-sheet__hp-formula')).map((el) => el.textContent);
+    expect(formulas.some((f) => f.includes('STR'))).toBe(true);
+  });
+
+  it('character sheet shows a proficiencies card', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    const cardNames = Array.from(container.querySelectorAll('.reference-card__name')).map((el) => el.textContent);
+    expect(cardNames).toContain('Proficiencies');
+  });
+
+  it('proficiencies card lists armor and weapons', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    const cards = Array.from(container.querySelectorAll('.reference-card'));
+    const profCard = cards.find((c) => c.querySelector('.reference-card__name')?.textContent === 'Proficiencies');
+    expect(profCard).toBeDefined();
+    const desc = profCard.querySelector('.reference-card__description').textContent;
+    expect(desc).toContain('All armor and shields');
+    expect(desc).toContain('All weapons');
+  });
+
+  it('character sheet renders a card for each class ability', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    const cardNames = Array.from(container.querySelectorAll('.reference-card__name')).map((el) => el.textContent);
+    expect(cardNames).toContain('Hauler');
+    expect(cardNames).toContain('Weapon Mastery');
+    expect(cardNames).toContain('Grit');
+  });
+
+  it('class ability cards are labelled "Class Feature"', () => {
+    renderGeneratePage(container);
+    container.querySelector('.library-nav__row').click();
+    vi.advanceTimersByTime(1000);
+    const metas = Array.from(container.querySelectorAll('.reference-card__meta')).map((el) => el.textContent);
+    expect(metas.filter((m) => m === 'Class Feature').length).toBe(3);
   });
 
   it('character sheet renders a card for each spell', () => {
