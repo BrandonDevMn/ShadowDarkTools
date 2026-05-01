@@ -99,6 +99,32 @@ vi.mock('../../app/js/gm-encounter-data.js', () => ({
   },
 }));
 
+vi.mock('../../app/js/gm-overland-data.js', () => ({
+  TERRAIN_ORDER: ['Desert/Arctic', 'Swamp', 'Grassland', 'Forest/Jungle'],
+  HEX_TERRAIN_TABLE: [
+    { min: 2,  max: 5,  terrain: 'Grassland' },
+    { min: 6,  max: 12, terrain: 'Forest/Jungle' },
+  ],
+  NEW_HEX_TABLE: [
+    { min: 2,  max: 3,  steps: 1,    fresh: false },
+    { min: 4,  max: 10, steps: 0,    fresh: false },
+    { min: 11, max: 11, steps: 2,    fresh: false },
+    { min: 12, max: 12, steps: null, fresh: true  },
+  ],
+  HEX_DANGER_TABLE: [
+    { min: 1, max: 3, level: 'Unsafe' },
+    { min: 4, max: 6, level: 'Risky'  },
+  ],
+  POINTS_OF_INTEREST: [
+    { min: 1,  max: 1,  location: 'Small tower', development: 'Disaster! Roll on Cataclysm table', isCataclysm: true },
+    { min: 2,  max: 20, location: 'Village',      development: 'Abandoned',                        isCataclysm: false },
+  ],
+  CATACLYSM_TABLE: ['Volcano', 'Fire'],
+  SETTLEMENT_NAMES: {
+    Village: ['Lastwatch', 'Ostlin'],
+  },
+}));
+
 vi.mock('../../app/js/gm-dungeon-data.js', () => ({
   SITE_SIZES: [
     { min: 1, max: 3, label: 'Small',  dice: 3 },
@@ -145,6 +171,9 @@ import {
   generateBlessing,
   generateMagicItem,
   generateDungeon,
+  generateMarch,
+  getOverlandTerrains,
+  getOverlandDangerLevels,
 } from '../../app/js/gm-generators.js';
 
 // ── Adventure Hook ─────────────────────────────────────────────────────────
@@ -511,5 +540,115 @@ describe('generateDungeon', () => {
   it('generates different dungeons on repeated calls', () => {
     const types = new Set(Array.from({ length: 30 }, () => generateDungeon().type));
     expect(types.size).toBeGreaterThan(1);
+  });
+});
+
+// ── Overland March ─────────────────────────────────────────────────────────
+
+describe('getOverlandTerrains', () => {
+  it('returns the terrain order array', () => {
+    expect(getOverlandTerrains()).toEqual(['Desert/Arctic', 'Swamp', 'Grassland', 'Forest/Jungle']);
+  });
+});
+
+describe('getOverlandDangerLevels', () => {
+  it('returns all danger level strings', () => {
+    const levels = getOverlandDangerLevels();
+    expect(levels).toContain('Unsafe');
+    expect(levels).toContain('Risky');
+  });
+});
+
+describe('generateMarch', () => {
+  it('returns an object with terrain, danger, hasPOI, and poi fields', () => {
+    const result = generateMarch('Grassland');
+    expect(typeof result.terrain).toBe('string');
+    expect(typeof result.danger).toBe('string');
+    expect(typeof result.hasPOI).toBe('boolean');
+  });
+
+  it('terrain is one of the known terrain types', () => {
+    const known = ['Desert/Arctic', 'Swamp', 'Grassland', 'Forest/Jungle'];
+    for (let i = 0; i < 20; i++) {
+      expect(known).toContain(generateMarch('Grassland').terrain);
+    }
+  });
+
+  it('steps +1 forward from current terrain correctly', () => {
+    // Force new-hex roll of 2 (steps=1) and no POI (d6 > 1)
+    const calls = [
+      0.1,   // new-hex 2d6 die 1: floor(0.1*6)+1 = 1
+      0.1,   // new-hex 2d6 die 2: 1 → total 2 → steps=1
+      0.1,   // danger d6: 1 → Unsafe
+      0.9,   // poi d6: floor(0.9*6)+1 = 6 → no POI
+    ];
+    let callIdx = 0;
+    vi.spyOn(Math, 'random').mockImplementation(() => calls[callIdx++ % calls.length]);
+    const result = generateMarch('Grassland'); // Grassland is index 2 → +1 = Forest/Jungle (index 3)
+    expect(result.terrain).toBe('Forest/Jungle');
+    vi.restoreAllMocks();
+  });
+
+  it('poi is null when hasPOI is false', () => {
+    // Force no POI: d6 result > 1 → mock Math.random to give ~0.9 for the poi roll
+    vi.spyOn(Math, 'random').mockReturnValue(0.9);
+    const result = generateMarch('Grassland');
+    if (!result.hasPOI) {
+      expect(result.poi).toBeNull();
+    }
+    vi.restoreAllMocks();
+  });
+
+  it('when hasPOI is true, poi has location and development', () => {
+    // Force POI: make Math.random return ~0 so d6 roll = 1
+    vi.spyOn(Math, 'random').mockReturnValue(0.0);
+    const result = generateMarch('Grassland');
+    if (result.hasPOI) {
+      expect(typeof result.poi.location).toBe('string');
+      expect(typeof result.poi.development).toBe('string');
+    }
+    vi.restoreAllMocks();
+  });
+
+  it('cataclysm POI includes a cataclysm string', () => {
+    // Force: new-hex same terrain, poi d6=1, poi d20=1 (cataclysm row)
+    const seq = [
+      0.5,  // die1 new-hex: 4
+      0.5,  // die2 new-hex: 4 → total 8 → steps=0 (same terrain)
+      0.1,  // danger d6: 1
+      0.0,  // poi d6: 1 → has POI
+      0.0,  // poi d20: 1 → cataclysm row
+      0.0,  // cataclysm d2: 1 → Volcano
+    ];
+    let i = 0;
+    vi.spyOn(Math, 'random').mockImplementation(() => seq[i++ % seq.length]);
+    const result = generateMarch('Grassland');
+    if (result.hasPOI && result.poi?.cataclysm) {
+      expect(typeof result.poi.cataclysm).toBe('string');
+      expect(result.poi.cataclysm.length).toBeGreaterThan(0);
+    }
+    vi.restoreAllMocks();
+  });
+
+  it('settlement locations get a settlement name', () => {
+    // Force: same terrain, POI d6=1, d20=2 (Village row, index 1 in mock)
+    const seq = [
+      0.5, 0.5,  // new-hex 2d6: 4+4=8, same terrain
+      0.1,       // danger
+      0.0,       // poi d6: 1 → has POI
+      0.05,      // poi d20: floor(0.05*20)+1 = 2 → Village row
+      0.0,       // settlement name d2: 1 → Lastwatch
+    ];
+    let i = 0;
+    vi.spyOn(Math, 'random').mockImplementation(() => seq[i++ % seq.length]);
+    const result = generateMarch('Grassland');
+    if (result.hasPOI && result.poi?.settlementName) {
+      expect(typeof result.poi.settlementName).toBe('string');
+    }
+    vi.restoreAllMocks();
+  });
+
+  it('unknown current terrain falls back gracefully', () => {
+    expect(() => generateMarch('Volcano')).not.toThrow();
   });
 });

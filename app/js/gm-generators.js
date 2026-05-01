@@ -20,6 +20,11 @@ import {
   SITE_SIZES, SITE_TYPES, DANGER_LEVELS, ROOM_CONTENTS,
   TRAPS, HAZARDS, CREATURE_ACTIVITY, STARTING_DISTANCES,
 }                                                              from './gm-dungeon-data.js';
+import {
+  TERRAIN_ORDER, HEX_TERRAIN_TABLE, NEW_HEX_TABLE,
+  HEX_DANGER_TABLE, POINTS_OF_INTEREST, CATACLYSM_TABLE,
+  SETTLEMENT_NAMES,
+}                                                              from './gm-overland-data.js';
 
 // ── Dice ──────────────────────────────────────────────────────────────────
 
@@ -267,4 +272,81 @@ function rollRoomDetail(roomLabel) {
     default:
       return null;
   }
+}
+
+// ── Overland March ────────────────────────────────────────────────────────
+
+/**
+ * Returns the ordered list of terrain names for populating the picker UI.
+ */
+export function getOverlandTerrains() {
+  return [...TERRAIN_ORDER];
+}
+
+/**
+ * Returns the list of danger levels for populating the picker UI.
+ */
+export function getOverlandDangerLevels() {
+  return HEX_DANGER_TABLE.map((d) => d.level);
+}
+
+/**
+ * Generates the next hex when the party marches from their current hex.
+ *
+ * Rolls 2d6 on the New Hex table to determine terrain change, then rolls
+ * d6 for danger level, and d6 to check for a point of interest.
+ *
+ * @param {string} currentTerrain - one of the TERRAIN_ORDER values
+ * @returns {{ terrain, danger, hasPOI, poi }}
+ */
+export function generateMarch(currentTerrain) {
+  // Determine new terrain via the New Hex table
+  const newHexRoll = rollDie(6) + rollDie(6);
+  const newHexRow  = NEW_HEX_TABLE.find((r) => newHexRoll >= r.min && newHexRoll <= r.max);
+
+  let terrain;
+  if (newHexRow.fresh) {
+    // Roll fresh 2d6 on the hex terrain table
+    const freshRoll = rollDie(6) + rollDie(6);
+    terrain = HEX_TERRAIN_TABLE.find((r) => freshRoll >= r.min && freshRoll <= r.max)?.terrain
+              ?? TERRAIN_ORDER[0];
+  } else {
+    // Step forward from current terrain in the circular loop
+    const idx = TERRAIN_ORDER.indexOf(currentTerrain);
+    const base = idx === -1 ? 0 : idx;
+    terrain = TERRAIN_ORDER[(base + newHexRow.steps) % TERRAIN_ORDER.length];
+  }
+
+  // New danger level (d6)
+  const dangerRoll = rollDie(6);
+  const danger = HEX_DANGER_TABLE.find((r) => dangerRoll >= r.min && dangerRoll <= r.max)?.level
+                 ?? 'Unsafe';
+
+  // Point of interest — exists on a d6 roll of 1
+  const hasPOI = rollDie(6) === 1;
+  let poi = null;
+  if (hasPOI) {
+    const poiRoll = rollDie(20);
+    const poiRow  = POINTS_OF_INTEREST.find((r) => poiRoll >= r.min && poiRoll <= r.max);
+
+    let cataclysm = null;
+    if (poiRow?.isCataclysm) {
+      cataclysm = CATACLYSM_TABLE[rollDie(CATACLYSM_TABLE.length) - 1];
+    }
+
+    // Roll a settlement name when the location is a named settlement tier
+    const settlementNames = SETTLEMENT_NAMES[poiRow?.location];
+    const settlementName  = settlementNames
+      ? settlementNames[rollDie(settlementNames.length) - 1]
+      : null;
+
+    poi = {
+      location:       poiRow?.location ?? 'Unknown',
+      development:    poiRow?.development ?? '',
+      cataclysm,
+      settlementName,
+    };
+  }
+
+  return { terrain, danger, hasPOI, poi };
 }

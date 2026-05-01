@@ -24,6 +24,9 @@ import {
   generateBlessing,
   generateMagicItem,
   generateDungeon,
+  generateMarch,
+  getOverlandTerrains,
+  getOverlandDangerLevels,
 } from './gm-generators.js';
 
 const ROLL_DURATION_MS = 1000;
@@ -114,6 +117,10 @@ export function renderGeneratePage(container) {
       {
         label: 'Dungeon',
         onClick: () => showRolling(() => showDungeonResult(generateDungeon())),
+      },
+      {
+        label: 'March',
+        onClick: () => showMarchPicker(),
       },
     ]));
   }
@@ -292,6 +299,98 @@ export function renderGeneratePage(container) {
       `2d6 = ${npc.reactionRoll}`,
       npc.reaction,
     ));
+
+    container.appendChild(sheet);
+  }
+
+  // ── March picker ────────────────────────────────────────────────────────
+
+  /**
+   * Screen with two dropdowns (terrain + danger) and a March button.
+   * Back returns to the main menu; March triggers the rolling animation.
+   */
+  function showMarchPicker(selectedTerrain, selectedDanger) {
+    cancelAnimation();
+    container.innerHTML = '';
+
+    container.appendChild(makeBackButton('Generate', showMenu));
+
+    const title = document.createElement('h1');
+    title.className = 'page-title';
+    title.textContent = 'March';
+    container.appendChild(title);
+
+    const form = document.createElement('div');
+    form.className = 'march-form';
+
+    const terrainSelect = makeSelect(
+      'Current Terrain',
+      getOverlandTerrains(),
+      selectedTerrain ?? getOverlandTerrains()[0],
+    );
+    form.appendChild(terrainSelect.wrap);
+
+    const marchBtn = document.createElement('button');
+    marchBtn.type = 'button';
+    marchBtn.className = 'generate-reroll-btn march-btn';
+    marchBtn.textContent = 'March →';
+    marchBtn.addEventListener('click', () => {
+      const terrain = terrainSelect.select.value;
+      showRolling(() => showMarchResult(generateMarch(terrain), terrain));
+    });
+    form.appendChild(marchBtn);
+
+    container.appendChild(form);
+  }
+
+  // ── March result ─────────────────────────────────────────────────────────
+
+  function showMarchResult(result, fromTerrain) {
+    container.innerHTML = '';
+
+    const header = document.createElement('div');
+    header.className = 'character-header';
+    // Back goes to picker so the GM can immediately do the next march
+    header.appendChild(makeBackButton('March', () => showMarchPicker(result.terrain)));
+
+    const rerollBtn = document.createElement('button');
+    rerollBtn.type = 'button';
+    rerollBtn.className = 'character-export-btn';
+    rerollBtn.textContent = 'Re-roll';
+    rerollBtn.addEventListener('click', () => {
+      showRolling(() => showMarchResult(generateMarch(fromTerrain), fromTerrain));
+    });
+    header.appendChild(rerollBtn);
+    container.appendChild(header);
+
+    const heading = document.createElement('h1');
+    heading.className = 'page-title';
+    heading.textContent = 'New Hex';
+    container.appendChild(heading);
+
+    const sheet = document.createElement('div');
+    sheet.className = 'character-sheet generate-fade-in';
+
+    // Terrain + danger summary
+    sheet.appendChild(makeCard(
+      result.terrain,
+      result.danger,
+      null,
+    ));
+
+    // Point of interest — only shown when one was rolled
+    if (result.hasPOI && result.poi) {
+      const { poi } = result;
+      const poiTitle = poi.settlementName
+        ? `${poi.location}: ${poi.settlementName}`
+        : poi.location;
+
+      sheet.appendChild(makeCard(
+        'Point of Interest',
+        poiTitle,
+        poi.cataclysm ? `Disaster! ${poi.cataclysm}` : poi.development,
+      ));
+    }
 
     container.appendChild(sheet);
   }
@@ -636,6 +735,33 @@ function makeBackButton(label, onClick) {
   btn.textContent = `‹ ${label}`;
   btn.addEventListener('click', onClick);
   return btn;
+}
+
+/**
+ * Builds a labelled <select> wrapper.
+ * Returns { wrap, select } so the caller can read select.value.
+ */
+function makeSelect(label, options, selected) {
+  const wrap = document.createElement('div');
+  wrap.className = 'march-select-wrap';
+
+  const lbl = document.createElement('label');
+  lbl.className = 'march-select-label';
+  lbl.textContent = label;
+  wrap.appendChild(lbl);
+
+  const sel = document.createElement('select');
+  sel.className = 'march-select';
+  options.forEach((opt) => {
+    const o = document.createElement('option');
+    o.value = opt;
+    o.textContent = opt;
+    if (opt === selected) o.selected = true;
+    sel.appendChild(o);
+  });
+  wrap.appendChild(sel);
+
+  return { wrap, select: sel };
 }
 
 /**
