@@ -114,18 +114,18 @@ describe('renderGeneratePage', () => {
     expect(container.querySelector('.page-title').textContent).toBe('Rolling...');
   });
 
-  it('clicking Generate shows the stat flicker grid', () => {
+  it('clicking Generate shows the die graphic', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
     container.querySelector('.generate-btn').click();
-    expect(container.querySelector('.generate-rolling')).not.toBeNull();
+    expect(container.querySelector('.generate-die')).not.toBeNull();
   });
 
-  it('clicking Generate shows 6 stat cells', () => {
+  it('die graphic shows "20"', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
     container.querySelector('.generate-btn').click();
-    expect(container.querySelectorAll('.character-sheet__stat').length).toBe(6);
+    expect(container.querySelector('.generate-die').textContent).toBe('20');
   });
 
   it('does not call generateCharacter immediately when rolling starts', () => {
@@ -192,23 +192,23 @@ describe('renderGeneratePage', () => {
     expect(container.querySelector('.library-back-btn').textContent).toBe('‹ Generate');
   });
 
-  it('rolling animation is gone after 1 second', () => {
+  it('die graphic is gone after 1 second', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
     container.querySelector('.generate-btn').click();
     vi.advanceTimersByTime(1000);
-    expect(container.querySelector('.generate-rolling')).toBeNull();
+    expect(container.querySelector('.generate-die')).toBeNull();
   });
 
   // ── Re-roll ─────────────────────────────────────────────────────────────
 
-  it('Re-roll shows rolling animation again', () => {
+  it('Re-roll shows the die again', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
     container.querySelector('.generate-btn').click();
     vi.advanceTimersByTime(1000);
     container.querySelector('.generate-reroll-btn').click();
-    expect(container.querySelector('.generate-rolling')).not.toBeNull();
+    expect(container.querySelector('.generate-die')).not.toBeNull();
   });
 
   it('Re-roll calls generateCharacter a second time after animation', () => {

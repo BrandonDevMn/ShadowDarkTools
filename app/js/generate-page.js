@@ -14,7 +14,6 @@
 import { generateCharacter, fmtMod } from './character-generator.js';
 
 const ROLL_DURATION_MS = 1000;
-const FLICKER_INTERVAL_MS = 80;
 
 /**
  * Mounts the Generate page into the given container.
@@ -29,12 +28,10 @@ export function renderGeneratePage(container) {
     return false;
   }
 
-  let flickerId  = null;
-  let rollingId  = null;
+  let rollingId = null;
 
   function cancelAnimation() {
-    if (flickerId  !== null) { clearInterval(flickerId);  flickerId  = null; }
-    if (rollingId  !== null) { clearTimeout(rollingId);   rollingId  = null; }
+    if (rollingId !== null) { clearTimeout(rollingId); rollingId = null; }
   }
 
   // ── Screens ────────────────────────────────────────────────────────────────
@@ -99,39 +96,14 @@ export function renderGeneratePage(container) {
     title.textContent = 'Rolling...';
     container.appendChild(title);
 
-    // Stat flicker grid
-    const grid = document.createElement('div');
-    grid.className = 'generate-rolling';
+    const wrap = document.createElement('div');
+    wrap.className = 'generate-die-wrap';
+    const die = document.createElement('div');
+    die.className = 'generate-die';
+    die.textContent = '20';
+    wrap.appendChild(die);
+    container.appendChild(wrap);
 
-    const ABBRS = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'];
-    const valueEls = ABBRS.map((abbr) => {
-      const cell = document.createElement('div');
-      cell.className = 'character-sheet__stat';
-
-      const lbl = document.createElement('span');
-      lbl.className = 'character-sheet__stat-label';
-      lbl.textContent = abbr;
-
-      const val = document.createElement('span');
-      val.className = 'character-sheet__stat-score generate-rolling__value';
-      val.textContent = '—';
-
-      cell.appendChild(lbl);
-      cell.appendChild(val);
-      grid.appendChild(cell);
-      return val;
-    });
-
-    container.appendChild(grid);
-
-    // Flicker numbers
-    flickerId = setInterval(() => {
-      valueEls.forEach((el) => {
-        el.textContent = Math.floor(Math.random() * 16) + 3;
-      });
-    }, FLICKER_INTERVAL_MS);
-
-    // Resolve after ROLL_DURATION_MS
     rollingId = setTimeout(() => {
       cancelAnimation();
       onComplete();
