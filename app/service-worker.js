@@ -28,11 +28,15 @@ const APP_SHELL_FILES = [
   './js/classes-data.js',
   './js/backgrounds-data.js',
   './js/equipment-data.js',
+  './js/library-helpers.js',
+  './js/library-sections-rules.js',
+  './js/library-sections-character.js',
+  './js/library-sections-gm.js',
+  './js/gm-encounter-data.js',
   './js/settings-page.js',
   './js/tab-bar.js',
   './js/home-feed.js',
   './js/service-worker-registration.js',
-  './js/update-checker.js',
 ];
 
 // Pre-cache the app shell the moment the service worker installs.
