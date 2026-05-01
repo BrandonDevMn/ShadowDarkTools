@@ -328,12 +328,10 @@ function formatCharacterText(char) {
 
   // ── Derived stats ────────────────────────────────────────────────────────
   add('');
-  add(
-    `HP: ${char.hp}/${char.hp}   ` +
-    `AC: ${char.ac} (10 + DEX ${fmtMod(char.stats.dex.mod)})   ` +
-    `Gear Slots: ${char.gearSlots}   ` +
-    `Gold: ${char.gold} gp`,
-  );
+  add(`HP: ${char.hp}/${char.hp}`);
+  add(`AC: ${char.ac} (10 + DEX ${fmtMod(char.stats.dex.mod)})`);
+  add(`Gear Slots: ${char.gearSlots}`);
+  add(`Gold: ${char.gold} gp`);
 
   // ── Ability scores ────────────────────────────────────────────────────────
   sect('Ability Scores');
