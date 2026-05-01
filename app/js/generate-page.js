@@ -23,6 +23,7 @@ import {
   generateSecret,
   generateBlessing,
   generateMagicItem,
+  generateDungeon,
 } from './gm-generators.js';
 
 const ROLL_DURATION_MS = 1000;
@@ -109,6 +110,10 @@ export function renderGeneratePage(container) {
           const item = generateMagicItem();
           showRolling(() => showResult('Magic Item', item.description, item.name));
         },
+      },
+      {
+        label: 'Dungeon',
+        onClick: () => showRolling(() => showDungeonResult(generateDungeon())),
       },
     ]));
   }
@@ -287,6 +292,47 @@ export function renderGeneratePage(container) {
       `2d6 = ${npc.reactionRoll}`,
       npc.reaction,
     ));
+
+    container.appendChild(sheet);
+  }
+
+  // ── Dungeon result ──────────────────────────────────────────────────────
+
+  function showDungeonResult(dungeon) {
+    container.innerHTML = '';
+
+    const header = document.createElement('div');
+    header.className = 'character-header';
+    header.appendChild(makeBackButton('Generate', showMenu));
+
+    const rerollBtn = document.createElement('button');
+    rerollBtn.type = 'button';
+    rerollBtn.className = 'character-export-btn';
+    rerollBtn.textContent = 'Re-roll';
+    rerollBtn.addEventListener('click', () => showRolling(() => showDungeonResult(generateDungeon())));
+    header.appendChild(rerollBtn);
+    container.appendChild(header);
+
+    const heading = document.createElement('h1');
+    heading.className = 'page-title';
+    heading.textContent = 'Dungeon';
+    container.appendChild(heading);
+
+    const sheet = document.createElement('div');
+    sheet.className = 'character-sheet generate-fade-in';
+
+    // Summary card
+    sheet.appendChild(makeCard(
+      `${dungeon.size} ${dungeon.type}`,
+      `${dungeon.dangerLevel} · ${dungeon.rooms.length} rooms`,
+      null,
+    ));
+
+    // One card per room
+    dungeon.rooms.forEach((room) => {
+      const label = room.isObjective ? `${room.label} ★` : room.label;
+      sheet.appendChild(makeCard(`Room ${room.number}`, label, room.detail));
+    });
 
     container.appendChild(sheet);
   }

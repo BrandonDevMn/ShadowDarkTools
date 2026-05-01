@@ -99,6 +99,40 @@ vi.mock('../../app/js/gm-encounter-data.js', () => ({
   },
 }));
 
+vi.mock('../../app/js/gm-dungeon-data.js', () => ({
+  SITE_SIZES: [
+    { min: 1, max: 3, label: 'Small',  dice: 3 },
+    { min: 4, max: 6, label: 'Medium', dice: 5 },
+  ],
+  SITE_TYPES: ['Cave', 'Ruins'],
+  DANGER_LEVELS: ['Unsafe', 'Risky', 'Deadly'],
+  ROOM_CONTENTS: [
+    { min: 1, max: 2, label: 'Empty' },
+    { min: 3, max: 3, label: 'Trap' },
+    { min: 4, max: 4, label: 'Minor Hazard' },
+    { min: 5, max: 5, label: 'Solo Monster' },
+    { min: 6, max: 6, label: 'NPC' },
+    { min: 7, max: 7, label: 'Monster Mob' },
+    { min: 8, max: 8, label: 'Major Hazard' },
+    { min: 9, max: 9, label: 'Treasure' },
+    { min: 10, max: 10, label: 'Boss Monster' },
+  ],
+  TRAPS: [
+    { name: 'Crossbow', trigger: 'Tripwire', effect: '1d6' },
+    { name: 'Spiked pit', trigger: 'Light beam', effect: '2d8' },
+  ],
+  HAZARDS: {
+    movement: ['Quicksand', 'Caltrops'],
+    damage:   ['Acid pools', 'Lava'],
+    weaken:   ['Blinding smoke', 'Antimagic zone'],
+  },
+  CREATURE_ACTIVITY: [
+    { min: 2,  max: 7,  activity: 'Hunting' },
+    { min: 8,  max: 12, activity: 'Sleeping' },
+  ],
+  STARTING_DISTANCES: ['Close', 'Near', 'Far'],
+}));
+
 import {
   generateAdventureHook,
   generateNPC,
@@ -110,6 +144,7 @@ import {
   generateSecret,
   generateBlessing,
   generateMagicItem,
+  generateDungeon,
 } from '../../app/js/gm-generators.js';
 
 // ── Adventure Hook ─────────────────────────────────────────────────────────
@@ -379,5 +414,102 @@ describe('generateMagicItem', () => {
   it('generates different items on repeated calls', () => {
     const names = new Set(Array.from({ length: 20 }, () => generateMagicItem().name));
     expect(names.size).toBeGreaterThan(1);
+  });
+});
+
+// ── Dungeon ────────────────────────────────────────────────────────────────
+
+describe('generateDungeon', () => {
+  it('returns an object with size, type, dangerLevel, and rooms', () => {
+    const dungeon = generateDungeon();
+    expect(typeof dungeon.size).toBe('string');
+    expect(typeof dungeon.type).toBe('string');
+    expect(typeof dungeon.dangerLevel).toBe('string');
+    expect(Array.isArray(dungeon.rooms)).toBe(true);
+  });
+
+  it('room count matches the dice count for the rolled size', () => {
+    // With the mock, Small=3 rooms, Medium=5 rooms
+    for (let i = 0; i < 20; i++) {
+      const { size, rooms } = generateDungeon();
+      const expectedDice = size === 'Small' ? 3 : 5;
+      expect(rooms).toHaveLength(expectedDice);
+    }
+  });
+
+  it('rooms are numbered sequentially starting at 1', () => {
+    const { rooms } = generateDungeon();
+    rooms.forEach((r, i) => expect(r.number).toBe(i + 1));
+  });
+
+  it('every room has a roll between 1 and 10', () => {
+    const { rooms } = generateDungeon();
+    rooms.forEach((r) => {
+      expect(r.roll).toBeGreaterThanOrEqual(1);
+      expect(r.roll).toBeLessThanOrEqual(10);
+    });
+  });
+
+  it('every room has a label string', () => {
+    const { rooms } = generateDungeon();
+    rooms.forEach((r) => expect(typeof r.label).toBe('string'));
+  });
+
+  it('at least one room is marked as the objective', () => {
+    const { rooms } = generateDungeon();
+    expect(rooms.some((r) => r.isObjective)).toBe(true);
+  });
+
+  it('the objective room has the highest roll', () => {
+    const { rooms } = generateDungeon();
+    const maxRoll = Math.max(...rooms.map((r) => r.roll));
+    const objectiveRooms = rooms.filter((r) => r.isObjective);
+    objectiveRooms.forEach((r) => expect(r.roll).toBe(maxRoll));
+  });
+
+  it('no non-objective room has a roll higher than the objective', () => {
+    const { rooms } = generateDungeon();
+    const maxRoll = Math.max(...rooms.map((r) => r.roll));
+    rooms.filter((r) => !r.isObjective).forEach((r) => {
+      expect(r.roll).toBeLessThanOrEqual(maxRoll);
+    });
+  });
+
+  it('trap rooms have a detail string', () => {
+    // Force all rooms to be traps (d10=3) by fixing Math.random
+    vi.spyOn(Math, 'random').mockReturnValue(0.25); // 0.25 * 10 + 1 = 3.5 → roll 3 (Trap)
+    const { rooms } = generateDungeon();
+    rooms.forEach((r) => {
+      if (r.label === 'Trap') {
+        expect(typeof r.detail).toBe('string');
+        expect(r.detail.length).toBeGreaterThan(0);
+      }
+    });
+    vi.restoreAllMocks();
+  });
+
+  it('empty rooms have null detail', () => {
+    // Force rolls of 1–2 (Empty)
+    vi.spyOn(Math, 'random').mockReturnValue(0.05);
+    const { rooms } = generateDungeon();
+    rooms.filter((r) => r.label === 'Empty').forEach((r) => {
+      expect(r.detail).toBeNull();
+    });
+    vi.restoreAllMocks();
+  });
+
+  it('treasure rooms have null detail', () => {
+    // Force roll of 9 (Treasure) — Math.random = 0.85 → floor(0.85*10)+1 = 9
+    vi.spyOn(Math, 'random').mockReturnValue(0.85);
+    const { rooms } = generateDungeon();
+    rooms.filter((r) => r.label === 'Treasure').forEach((r) => {
+      expect(r.detail).toBeNull();
+    });
+    vi.restoreAllMocks();
+  });
+
+  it('generates different dungeons on repeated calls', () => {
+    const types = new Set(Array.from({ length: 30 }, () => generateDungeon().type));
+    expect(types.size).toBeGreaterThan(1);
   });
 });

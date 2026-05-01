@@ -54,6 +54,14 @@ const MOCK_OATH      = { oath: 'The duke will help you' };
 const MOCK_SECRET    = { secret: 'The True Name of The king' };
 const MOCK_BLESSING  = { name: 'Wraithsight', description: 'See invisible creatures' };
 const MOCK_ITEM      = { name: 'Amulet of Vitality', description: 'CON becomes 18 (+4)' };
+const MOCK_DUNGEON   = {
+  size: 'Small', type: 'Cave', dangerLevel: 'Risky',
+  rooms: [
+    { number: 1, roll: 2, label: 'Empty',        isObjective: false, detail: null },
+    { number: 2, roll: 5, label: 'Solo Monster', isObjective: false, detail: 'Near · Hunting' },
+    { number: 3, roll: 9, label: 'Treasure',     isObjective: true,  detail: null },
+  ],
+};
 
 vi.mock('../../app/js/gm-generators.js', () => ({
   generateAdventureHook: vi.fn(() => ({ ...MOCK_HOOK })),
@@ -66,6 +74,11 @@ vi.mock('../../app/js/gm-generators.js', () => ({
   generateSecret:        vi.fn(() => ({ ...MOCK_SECRET })),
   generateBlessing:      vi.fn(() => ({ ...MOCK_BLESSING })),
   generateMagicItem:     vi.fn(() => ({ ...MOCK_ITEM })),
+  generateDungeon:       vi.fn(() => ({
+    size: MOCK_DUNGEON.size, type: MOCK_DUNGEON.type,
+    dangerLevel: MOCK_DUNGEON.dangerLevel,
+    rooms: MOCK_DUNGEON.rooms.map((r) => ({ ...r })),
+  })),
 }));
 
 import { renderGeneratePage } from '../../app/js/generate-page.js';
@@ -74,6 +87,7 @@ import {
   generateAdventureHook, generateNPC, generateEncounter,
   generateRandomEvent, generateRumor, generateOath,
   generateSecret, generateBlessing, generateMagicItem,
+  generateDungeon,
 } from '../../app/js/gm-generators.js';
 
 describe('renderGeneratePage', () => {
@@ -445,7 +459,7 @@ describe('renderGeneratePage', () => {
 
   const GM_ROWS = [
     'Adventure Hook', 'NPC', 'Random Encounter', 'Random Event',
-    'Rumor', 'Oath', 'Secret', 'Blessing', 'Magic Item',
+    'Rumor', 'Oath', 'Secret', 'Blessing', 'Magic Item', 'Dungeon',
   ];
 
   GM_ROWS.forEach((label) => {
@@ -626,6 +640,81 @@ describe('renderGeneratePage', () => {
     clickGMRow(container, 'Random Encounter');
     container.querySelector('.library-back-btn').click();
     expect(container.querySelector('.page-title').textContent).toBe('Generate');
+  });
+
+  // ── Dungeon ────────────────────────────────────────────────────────────────
+
+  it('clicking Dungeon shows rolling animation', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Dungeon');
+    expect(container.querySelector('.generate-die')).not.toBeNull();
+  });
+
+  it('after animation, Dungeon page title is "Dungeon"', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Dungeon');
+    vi.advanceTimersByTime(1000);
+    expect(container.querySelector('.page-title').textContent).toBe('Dungeon');
+  });
+
+  it('Dungeon result shows size and type in summary card', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Dungeon');
+    vi.advanceTimersByTime(1000);
+    const names = Array.from(container.querySelectorAll('.reference-card__name')).map((el) => el.textContent);
+    expect(names.some((n) => n.includes('Small') && n.includes('Cave'))).toBe(true);
+  });
+
+  it('Dungeon result shows danger level in summary card meta', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Dungeon');
+    vi.advanceTimersByTime(1000);
+    const metas = Array.from(container.querySelectorAll('.reference-card__meta')).map((el) => el.textContent);
+    expect(metas.some((m) => m.includes('Risky'))).toBe(true);
+  });
+
+  it('Dungeon result shows a card for each room', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Dungeon');
+    vi.advanceTimersByTime(1000);
+    const names = Array.from(container.querySelectorAll('.reference-card__name')).map((el) => el.textContent);
+    expect(names).toContain('Room 1');
+    expect(names).toContain('Room 2');
+    expect(names).toContain('Room 3');
+  });
+
+  it('objective room card meta contains ★', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Dungeon');
+    vi.advanceTimersByTime(1000);
+    const metas = Array.from(container.querySelectorAll('.reference-card__meta')).map((el) => el.textContent);
+    expect(metas.some((m) => m.includes('★'))).toBe(true);
+  });
+
+  it('room with detail shows description text', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Dungeon');
+    vi.advanceTimersByTime(1000);
+    const descs = Array.from(container.querySelectorAll('.reference-card__description')).map((el) => el.textContent);
+    expect(descs.some((d) => d.includes('Near · Hunting'))).toBe(true);
+  });
+
+  it('back button on Dungeon result returns to the menu', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Dungeon');
+    vi.advanceTimersByTime(1000);
+    container.querySelector('.library-back-btn').click();
+    expect(container.querySelector('.page-title').textContent).toBe('Generate');
+  });
+
+  it('Re-roll button on Dungeon result generates a new dungeon', () => {
+    renderGeneratePage(container);
+    clickGMRow(container, 'Dungeon');
+    vi.advanceTimersByTime(1000);
+    container.querySelector('.character-export-btn').click(); // Re-roll btn
+    expect(container.querySelector('.generate-die')).not.toBeNull();
+    vi.advanceTimersByTime(1000);
+    expect(generateDungeon).toHaveBeenCalledTimes(2);
   });
 });
 

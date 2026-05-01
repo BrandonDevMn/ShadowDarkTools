@@ -16,6 +16,10 @@ import { RUMORS }                                              from './gm-rumors
 import { OATHS, SECRET_DETAIL1, SECRET_DETAIL2, BLESSINGS }   from './gm-treasure-data.js';
 import { MAGIC_ITEMS }                                         from './gm-magic-items-data.js';
 import { ENCOUNTER_TABLES }                                    from './gm-encounter-data.js';
+import {
+  SITE_SIZES, SITE_TYPES, DANGER_LEVELS, ROOM_CONTENTS,
+  TRAPS, HAZARDS, CREATURE_ACTIVITY, STARTING_DISTANCES,
+}                                                              from './gm-dungeon-data.js';
 
 // ── Dice ──────────────────────────────────────────────────────────────────
 
@@ -184,4 +188,83 @@ export function generateBlessing() {
  */
 export function generateMagicItem() {
   return { ...MAGIC_ITEMS[rollDie(MAGIC_ITEMS.length) - 1] };
+}
+
+// ── Dungeon ───────────────────────────────────────────────────────────────
+
+/**
+ * Generates a full dungeon using the Dice Method:
+ *   1. Roll d6 for size → number of room dice (d10s)
+ *   2. Roll d6 for site type (Cave/Tomb/Ruins/etc.)
+ *   3. Roll d6 for danger level
+ *   4. Roll one d10 per room; highest roll marks the objective room(s)
+ *   5. Generate inline detail for each room based on its type
+ *
+ * Returns: { size, type, dangerLevel, rooms[] }
+ * Each room: { number, roll, label, isObjective, detail }
+ */
+export function generateDungeon() {
+  const sizeRoll  = rollDie(6);
+  const sizeEntry = SITE_SIZES.find((s) => sizeRoll >= s.min && sizeRoll <= s.max);
+  const type      = SITE_TYPES[rollDie(SITE_TYPES.length) - 1];
+  const dangerLevel = DANGER_LEVELS[rollDie(DANGER_LEVELS.length) - 1];
+
+  // Roll one d10 per room
+  const roomRolls = Array.from({ length: sizeEntry.dice }, () => rollDie(10));
+  const maxRoll   = Math.max(...roomRolls);
+
+  const rooms = roomRolls.map((roll, i) => {
+    const content    = ROOM_CONTENTS.find((r) => roll >= r.min && roll <= r.max);
+    const label      = content?.label ?? 'Empty';
+    const isObjective = roll === maxRoll;
+    const detail     = rollRoomDetail(label);
+    return { number: i + 1, roll, label, isObjective, detail };
+  });
+
+  return { size: sizeEntry.label, type, dangerLevel, rooms };
+}
+
+/**
+ * Generates inline flavour detail for a room based on its content type.
+ * Returns a string, or null for rooms with no extra detail (Empty, Treasure).
+ */
+function rollRoomDetail(roomLabel) {
+  switch (roomLabel) {
+    case 'Trap': {
+      const trap = TRAPS[rollDie(TRAPS.length) - 1];
+      return `${trap.name} · Trigger: ${trap.trigger} · ${trap.effect}`;
+    }
+    case 'Minor Hazard': {
+      // Pick one hazard from a random category
+      const cats  = Object.keys(HAZARDS);
+      const cat   = cats[rollDie(cats.length) - 1];
+      return HAZARDS[cat][rollDie(HAZARDS[cat].length) - 1];
+    }
+    case 'Major Hazard': {
+      // Pick from two different categories
+      const cats = Object.keys(HAZARDS);
+      const idx1 = rollDie(cats.length) - 1;
+      let idx2;
+      do { idx2 = rollDie(cats.length) - 1; } while (idx2 === idx1);
+      const h1 = HAZARDS[cats[idx1]][rollDie(HAZARDS[cats[idx1]].length) - 1];
+      const h2 = HAZARDS[cats[idx2]][rollDie(HAZARDS[cats[idx2]].length) - 1];
+      return `${h1} + ${h2}`;
+    }
+    case 'Solo Monster':
+    case 'Monster Mob':
+    case 'Boss Monster': {
+      const distance = STARTING_DISTANCES[rollDie(STARTING_DISTANCES.length) - 1];
+      const actRoll  = rollDie(6) + rollDie(6);
+      const activity = CREATURE_ACTIVITY.find((a) => actRoll >= a.min && actRoll <= a.max)?.activity ?? 'Guarding';
+      return `${distance} · ${activity}`;
+    }
+    case 'NPC': {
+      const ancestry    = NPC_ANCESTRY_TABLE[rollDie(NPC_ANCESTRY_TABLE.length) - 1];
+      const reactionRoll = rollDie(6) + rollDie(6);
+      const reaction    = REACTION_TABLE.find((r) => reactionRoll >= r.min && reactionRoll <= r.max)?.attitude ?? 'Neutral';
+      return `${ancestry} · ${reaction}`;
+    }
+    default:
+      return null;
+  }
 }
