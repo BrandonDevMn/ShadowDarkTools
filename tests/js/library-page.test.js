@@ -81,9 +81,9 @@ describe('renderLibraryPage', () => {
     expect(container.querySelector('.library-nav')).not.toBeNull();
   });
 
-  it('renders a nav row for each top-level section', () => {
+  it('renders a nav row for each section', () => {
     renderLibraryPage(container);
-    expect(container.querySelectorAll('.library-nav__row').length).toBe(21);
+    expect(container.querySelectorAll('.library-nav__row').length).toBe(31);
   });
 
   it('renders a Spells nav row', () => {
@@ -104,19 +104,15 @@ describe('renderLibraryPage', () => {
     expect(labels).toContain('Equipment');
   });
 
-  it('renders a GM Tools nav row', () => {
-    renderLibraryPage(container);
-    const labels = Array.from(container.querySelectorAll('.library-nav__row-label')).map((el) => el.textContent);
-    expect(labels).toContain('GM Tools');
-  });
-
-  it('renders new player section rows', () => {
+  it('renders new player and GM section rows', () => {
     renderLibraryPage(container);
     const labels = Array.from(container.querySelectorAll('.library-nav__row-label')).map((el) => el.textContent);
     expect(labels).toContain('Core Mechanic');
     expect(labels).toContain('Combat');
-    expect(labels).toContain('Advancement');
     expect(labels).toContain('Deities');
+    expect(labels).toContain('Monsters');
+    expect(labels).toContain('Running the Game');
+    expect(labels).toContain('Encounter Tables');
   });
 
   it('does not render a back button on the section list', () => {
@@ -185,63 +181,15 @@ describe('renderLibraryPage', () => {
     expect(container.querySelector('.page-title').textContent).toBe('Library');
   });
 
-  // ── GM Tools group navigation ────────────────────────────────────────────
-
-  it('clicking GM Tools shows a sub-nav', () => {
+  it('clicking a GM section row calls its render function', () => {
     renderLibraryPage(container);
-    container.querySelector('[data-section="gm-tools"]').click();
-    expect(container.querySelector('.library-nav')).not.toBeNull();
-  });
-
-  it('clicking GM Tools shows the GM Tools title', () => {
-    renderLibraryPage(container);
-    container.querySelector('[data-section="gm-tools"]').click();
-    expect(container.querySelector('.page-title').textContent).toBe('GM Tools');
-  });
-
-  it('clicking GM Tools shows a back button labeled "‹ Library"', () => {
-    renderLibraryPage(container);
-    container.querySelector('[data-section="gm-tools"]').click();
-    expect(container.querySelector('.library-back-btn').textContent).toBe('‹ Library');
-  });
-
-  it('clicking GM Tools shows GM sub-sections', () => {
-    renderLibraryPage(container);
-    container.querySelector('[data-section="gm-tools"]').click();
-    const labels = Array.from(container.querySelectorAll('.library-nav__row-label')).map((el) => el.textContent);
-    expect(labels).toContain('Monsters');
-    expect(labels).toContain('Running the Game');
-    expect(labels).toContain('Encounter Tables');
-  });
-
-  it('clicking back from GM Tools returns to the main Library list', () => {
-    renderLibraryPage(container);
-    container.querySelector('[data-section="gm-tools"]').click();
-    container.querySelector('.library-back-btn').click();
-    expect(container.querySelector('.page-title').textContent).toBe('Library');
-    expect(container.querySelector('[data-section="gm-tools"]')).not.toBeNull();
-  });
-
-  it('clicking a GM sub-section calls its render function', () => {
-    renderLibraryPage(container);
-    container.querySelector('[data-section="gm-tools"]').click();
     container.querySelector('[data-section="monsters"]').click();
     expect(renderMonstersSection).toHaveBeenCalledWith(container);
   });
 
-  it('clicking a GM sub-section shows its title', () => {
+  it('clicking a GM section row updates the page title', () => {
     renderLibraryPage(container);
-    container.querySelector('[data-section="gm-tools"]').click();
     container.querySelector('[data-section="running-the-game"]').click();
     expect(container.querySelector('.page-title').textContent).toBe('Running the Game');
-  });
-
-  it('clicking back from a GM sub-section returns to GM Tools sub-nav', () => {
-    renderLibraryPage(container);
-    container.querySelector('[data-section="gm-tools"]').click();
-    container.querySelector('[data-section="monsters"]').click();
-    container.querySelector('.library-back-btn').click();
-    expect(container.querySelector('.page-title').textContent).toBe('GM Tools');
-    expect(container.querySelector('.library-nav')).not.toBeNull();
   });
 });
