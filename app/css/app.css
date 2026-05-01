@@ -548,24 +548,6 @@ body {
 
 /* ─── Generate — character sheet ────────────────────────────────────────── */
 
-/* Large primary button on the landing screen */
-.generate-btn {
-  display: block;
-  width: 100%;
-  padding: 1rem;
-  margin-top: 2rem;
-  background: var(--color-accent);
-  color: #0d0d0d;
-  border: none;
-  border-radius: 10px;
-  font-size: 1.125rem;
-  font-family: inherit;
-  font-weight: 700;
-  cursor: pointer;
-  letter-spacing: 0.03em;
-}
-
-/* Smaller secondary button on the character sheet */
 .generate-reroll-btn {
   display: block;
   width: 100%;

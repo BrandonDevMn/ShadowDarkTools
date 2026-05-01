@@ -2,13 +2,11 @@
  * Generate tab — random character generator.
  *
  * State flow:
- *   showMenu()    — list with "Generate a Character" row
- *   showLanding() — title + big Generate button
- *   showRolling() — 1-second stat-flicker animation, then calls onComplete
+ *   showMenu()      — list with "Generate a Character" row
+ *   showRolling()   — 1-second spinning d6 animation, then calls onComplete
  *   showCharacter() — character sheet + Re-roll button
  *
- * Back navigation: character → landing → menu
- * Back during rolling cancels the animation and returns to landing.
+ * Back navigation: character → menu; back during rolling → menu.
  */
 
 import { generateCharacter, fmtMod } from './character-generator.js';
@@ -62,34 +60,15 @@ export function renderGeneratePage(container) {
     indicator.textContent = '›';
     row.appendChild(indicator);
 
-    row.addEventListener('click', () => showLanding());
+    row.addEventListener('click', () => showRolling(() => showCharacter(generateCharacter())));
     nav.appendChild(row);
     container.appendChild(nav);
-  }
-
-  function showLanding() {
-    cancelAnimation();
-    container.innerHTML = '';
-
-    container.appendChild(makeBackButton('Generate', showMenu));
-
-    const title = document.createElement('h1');
-    title.className = 'page-title';
-    title.textContent = 'Generate a Character';
-    container.appendChild(title);
-
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'generate-btn';
-    btn.textContent = 'Generate';
-    btn.addEventListener('click', () => showRolling(() => showCharacter(generateCharacter())));
-    container.appendChild(btn);
   }
 
   function showRolling(onComplete) {
     container.innerHTML = '';
 
-    container.appendChild(makeBackButton('Generate', showLanding));
+    container.appendChild(makeBackButton('Generate', showMenu));
 
     const title = document.createElement('h1');
     title.className = 'page-title';
@@ -117,7 +96,7 @@ export function renderGeneratePage(container) {
   function showCharacter(char) {
     container.innerHTML = '';
 
-    container.appendChild(makeBackButton('Generate', showLanding));
+    container.appendChild(makeBackButton('Generate', showMenu));
 
     const title = document.createElement('h1');
     title.className = 'page-title';

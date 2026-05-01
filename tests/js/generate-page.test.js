@@ -78,76 +78,43 @@ describe('renderGeneratePage', () => {
     expect(generateCharacter).not.toHaveBeenCalled();
   });
 
-  // ── Level 2: landing screen ─────────────────────────────────────────────
+  // ── Level 2: rolling animation ─────────────────────────────────────────
 
-  it('clicking the row shows the landing screen', () => {
+  it('clicking the row immediately shows Rolling... title', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    expect(container.querySelector('.page-title').textContent).toBe('Generate a Character');
-  });
-
-  it('landing screen shows a Generate button', () => {
-    renderGeneratePage(container);
-    container.querySelector('.library-nav__row').click();
-    expect(container.querySelector('.generate-btn')).not.toBeNull();
-    expect(container.querySelector('.generate-btn').textContent).toBe('Generate');
-  });
-
-  it('landing screen shows a back button reading "‹ Generate"', () => {
-    renderGeneratePage(container);
-    container.querySelector('.library-nav__row').click();
-    expect(container.querySelector('.library-back-btn').textContent).toBe('‹ Generate');
-  });
-
-  it('landing screen does not call generateCharacter', () => {
-    renderGeneratePage(container);
-    container.querySelector('.library-nav__row').click();
-    expect(generateCharacter).not.toHaveBeenCalled();
-  });
-
-  // ── Level 3: rolling animation ──────────────────────────────────────────
-
-  it('clicking Generate shows Rolling... title', () => {
-    renderGeneratePage(container);
-    container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-btn').click();
     expect(container.querySelector('.page-title').textContent).toBe('Rolling...');
   });
 
-  it('clicking Generate shows the die graphic', () => {
+  it('clicking the row shows the die graphic', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-btn').click();
     expect(container.querySelector('.generate-die')).not.toBeNull();
   });
 
   it('die graphic shows 6 pips', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-btn').click();
     expect(container.querySelectorAll('.generate-die__pip').length).toBe(6);
   });
 
   it('does not call generateCharacter immediately when rolling starts', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-btn').click();
     expect(generateCharacter).not.toHaveBeenCalled();
   });
 
-  it('rolling screen shows a back button', () => {
+  it('rolling screen shows a back button reading "‹ Generate"', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-btn').click();
-    expect(container.querySelector('.library-back-btn')).not.toBeNull();
+    expect(container.querySelector('.library-back-btn').textContent).toBe('‹ Generate');
   });
 
-  // ── Level 4: character sheet (after animation) ──────────────────────────
+  // ── Level 3: character sheet (after animation) ─────────────────────────
 
   it('after 1 second the character sheet is shown', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-btn').click();
     vi.advanceTimersByTime(1000);
     expect(container.querySelector('.character-sheet')).not.toBeNull();
   });
@@ -155,7 +122,6 @@ describe('renderGeneratePage', () => {
   it('generateCharacter is called once after the animation completes', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-btn').click();
     vi.advanceTimersByTime(1000);
     expect(generateCharacter).toHaveBeenCalledOnce();
   });
@@ -163,7 +129,6 @@ describe('renderGeneratePage', () => {
   it('character sheet shows the character name as page title', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-btn').click();
     vi.advanceTimersByTime(1000);
     expect(container.querySelector('.page-title').textContent).toBe('Aldric');
   });
@@ -171,7 +136,6 @@ describe('renderGeneratePage', () => {
   it('character sheet shows the Re-roll button', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-btn').click();
     vi.advanceTimersByTime(1000);
     expect(container.querySelector('.generate-reroll-btn')).not.toBeNull();
   });
@@ -179,7 +143,6 @@ describe('renderGeneratePage', () => {
   it('character sheet shows HP', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-btn').click();
     vi.advanceTimersByTime(1000);
     expect(container.querySelector('.character-sheet__hp-value').textContent).toBe('9');
   });
@@ -187,7 +150,6 @@ describe('renderGeneratePage', () => {
   it('character sheet back button reads "‹ Generate"', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-btn').click();
     vi.advanceTimersByTime(1000);
     expect(container.querySelector('.library-back-btn').textContent).toBe('‹ Generate');
   });
@@ -195,7 +157,6 @@ describe('renderGeneratePage', () => {
   it('die graphic is gone after 1 second', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-btn').click();
     vi.advanceTimersByTime(1000);
     expect(container.querySelector('.generate-die')).toBeNull();
   });
@@ -205,7 +166,6 @@ describe('renderGeneratePage', () => {
   it('Re-roll shows the die again', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-btn').click();
     vi.advanceTimersByTime(1000);
     container.querySelector('.generate-reroll-btn').click();
     expect(container.querySelector('.generate-die')).not.toBeNull();
@@ -214,7 +174,6 @@ describe('renderGeneratePage', () => {
   it('Re-roll calls generateCharacter a second time after animation', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-btn').click();
     vi.advanceTimersByTime(1000);
     container.querySelector('.generate-reroll-btn').click();
     vi.advanceTimersByTime(1000);
@@ -223,44 +182,27 @@ describe('renderGeneratePage', () => {
 
   // ── Back navigation ─────────────────────────────────────────────────────
 
-  it('back on landing returns to the menu', () => {
+  it('back during rolling returns to the menu', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
     container.querySelector('.library-back-btn').click();
     expect(container.querySelector('.page-title').textContent).toBe('Generate');
   });
 
-  it('back on landing removes the Generate button', () => {
-    renderGeneratePage(container);
-    container.querySelector('.library-nav__row').click();
-    container.querySelector('.library-back-btn').click();
-    expect(container.querySelector('.generate-btn')).toBeNull();
-  });
-
-  it('back during rolling cancels the animation and shows landing', () => {
-    renderGeneratePage(container);
-    container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-btn').click();
-    container.querySelector('.library-back-btn').click();
-    expect(container.querySelector('.page-title').textContent).toBe('Generate a Character');
-  });
-
   it('after cancelling roll, advancing time does not call generateCharacter', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-btn').click();
     container.querySelector('.library-back-btn').click();
     vi.advanceTimersByTime(1000);
     expect(generateCharacter).not.toHaveBeenCalled();
   });
 
-  it('back on character sheet returns to landing screen', () => {
+  it('back on character sheet returns to the menu', () => {
     renderGeneratePage(container);
     container.querySelector('.library-nav__row').click();
-    container.querySelector('.generate-btn').click();
     vi.advanceTimersByTime(1000);
     container.querySelector('.library-back-btn').click();
-    expect(container.querySelector('.generate-btn')).not.toBeNull();
-    expect(container.querySelector('.page-title').textContent).toBe('Generate a Character');
+    expect(container.querySelector('.page-title').textContent).toBe('Generate');
+    expect(container.querySelector('.library-nav')).not.toBeNull();
   });
 });
