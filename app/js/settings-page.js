@@ -19,6 +19,8 @@ const EXTERNAL_LINKS = [
   },
 ];
 
+import { checkForUpdates } from './service-worker-registration.js';
+
 /**
  * Renders the settings page content into the given container.
  *
@@ -115,9 +117,61 @@ export function renderSettingsPage(container, { onDismiss = () => {} } = {}) {
 
   shareRow.appendChild(shareButton);
   section.appendChild(shareRow);
+
+  // ── Check for Update row ────────────────────────────────────────────────
+
+  const updateRow = document.createElement('div');
+  updateRow.className = 'settings__row';
+
+  const updateButton = document.createElement('button');
+  updateButton.type = 'button';
+  updateButton.className = 'settings__action-button settings__update-button';
+  updateButton.textContent = 'Check for Update';
+  updateButton.addEventListener('click', () => handleUpdateCheck(updateButton));
+
+  updateRow.appendChild(updateButton);
+  section.appendChild(updateRow);
+
   container.appendChild(section);
 
   return true;
+}
+
+/**
+ * Drives the Check for Update button through its states.
+ *
+ * Disabled + "Checking…" while the check runs. Shows "Already up to date"
+ * for 2 s then resets, or "No connection — tap to retry" on network failure.
+ * If a new SW is found the page reloads automatically via the controllerchange
+ * listener and the button never needs to reset.
+ *
+ * updateCheckFn and timerFn are injectable for tests.
+ *
+ * @param {HTMLButtonElement} button
+ * @param {function(): Promise} [updateCheckFn]
+ * @param {function(number): Promise} [timerFn]
+ * @returns {Promise<void>}
+ */
+export async function handleUpdateCheck(
+  button,
+  updateCheckFn = checkForUpdates,
+  timerFn = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+) {
+  button.disabled = true;
+  button.textContent = 'Checking…';
+
+  try {
+    await updateCheckFn();
+    button.textContent = 'Already up to date';
+    await timerFn(2000);
+  } catch {
+    button.textContent = 'No connection — tap to retry';
+    button.disabled = false;
+    return;
+  }
+
+  button.textContent = 'Check for Update';
+  button.disabled = false;
 }
 
 /**

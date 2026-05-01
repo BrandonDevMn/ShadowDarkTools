@@ -1,6 +1,12 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-import { renderSettingsPage, handleShare } from '../../app/js/settings-page.js';
+vi.mock('../../app/js/service-worker-registration.js', () => ({
+  registerServiceWorker: vi.fn().mockResolvedValue(true),
+  checkForUpdates:       vi.fn().mockResolvedValue(undefined),
+}));
+
+import { renderSettingsPage, handleShare, handleUpdateCheck } from '../../app/js/settings-page.js';
+import { checkForUpdates } from '../../app/js/service-worker-registration.js';
 
 // ── renderSettingsPage ───────────────────────────────────────────────────────
 
@@ -145,6 +151,23 @@ describe('renderSettingsPage', () => {
     expect(shareBtn).not.toBeUndefined();
   });
 
+  // ── Check for Update button ─────────────────────────────────────────────
+
+  it('renders a Check for Update button', () => {
+    renderSettingsPage(container);
+    expect(container.querySelector('.settings__update-button')).not.toBeNull();
+  });
+
+  it('Check for Update button initial text is "Check for Update"', () => {
+    renderSettingsPage(container);
+    expect(container.querySelector('.settings__update-button').textContent).toBe('Check for Update');
+  });
+
+  it('Check for Update button is not disabled on render', () => {
+    renderSettingsPage(container);
+    expect(container.querySelector('.settings__update-button').disabled).toBe(false);
+  });
+
   // ── Invalid container ───────────────────────────────────────────────────
 
   it('returns false when container is null', () => {
@@ -194,5 +217,91 @@ describe('handleShare', () => {
     const shareFn = vi.fn().mockRejectedValue(new Error('something broke'));
     const result = await handleShare('https://example.com', { share: shareFn });
     expect(result).toBe('error');
+  });
+});
+
+// ── handleUpdateCheck ────────────────────────────────────────────────────────
+
+describe('handleUpdateCheck', () => {
+  let button;
+  const instant = () => Promise.resolve();
+
+  beforeEach(() => {
+    button = document.createElement('button');
+    button.textContent = 'Check for Update';
+    vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  // ── Checking state ──────────────────────────────────────────────────────
+
+  it('disables the button immediately', async () => {
+    const updateFn = vi.fn().mockResolvedValue(undefined);
+    const promise = handleUpdateCheck(button, updateFn, instant);
+    expect(button.disabled).toBe(true);
+    await promise;
+  });
+
+  it('sets button text to "Checking…" immediately', async () => {
+    const updateFn = vi.fn().mockResolvedValue(undefined);
+    const promise = handleUpdateCheck(button, updateFn, instant);
+    expect(button.textContent).toBe('Checking…');
+    await promise;
+  });
+
+  // ── No update found ─────────────────────────────────────────────────────
+
+  it('shows "Already up to date" when updateCheckFn resolves', async () => {
+    let resolveTimer;
+    const holdTimer = () => new Promise((r) => { resolveTimer = r; });
+    const updateFn = vi.fn().mockResolvedValue(undefined);
+
+    const promise = handleUpdateCheck(button, updateFn, holdTimer);
+    // setTimeout(0) drains all pending microtasks before continuing
+    await new Promise((r) => setTimeout(r, 0));
+    expect(button.textContent).toBe('Already up to date');
+    resolveTimer();
+    await promise;
+  });
+
+  it('resets text to "Check for Update" after the timer', async () => {
+    const updateFn = vi.fn().mockResolvedValue(undefined);
+    await handleUpdateCheck(button, updateFn, instant);
+    expect(button.textContent).toBe('Check for Update');
+  });
+
+  it('re-enables the button after the timer', async () => {
+    const updateFn = vi.fn().mockResolvedValue(undefined);
+    await handleUpdateCheck(button, updateFn, instant);
+    expect(button.disabled).toBe(false);
+  });
+
+  it('calls the injected updateCheckFn', async () => {
+    const updateFn = vi.fn().mockResolvedValue(undefined);
+    await handleUpdateCheck(button, updateFn, instant);
+    expect(updateFn).toHaveBeenCalledOnce();
+  });
+
+  // ── Network error ───────────────────────────────────────────────────────
+
+  it('shows retry message when updateCheckFn rejects', async () => {
+    const updateFn = vi.fn().mockRejectedValue(new Error('offline'));
+    await handleUpdateCheck(button, updateFn, instant);
+    expect(button.textContent).toBe('No connection — tap to retry');
+  });
+
+  it('re-enables the button on error so the user can retry', async () => {
+    const updateFn = vi.fn().mockRejectedValue(new Error('offline'));
+    await handleUpdateCheck(button, updateFn, instant);
+    expect(button.disabled).toBe(false);
+  });
+
+  it('does not reset text after an error (keeps the retry message)', async () => {
+    const updateFn = vi.fn().mockRejectedValue(new Error('offline'));
+    await handleUpdateCheck(button, updateFn, instant);
+    expect(button.textContent).not.toBe('Check for Update');
   });
 });
