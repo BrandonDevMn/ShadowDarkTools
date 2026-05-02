@@ -37,11 +37,7 @@ import {
   magicItemsSection,
   treasureSection,
   npcsAndReactionsSection,
-  adventureGeneratorSection,
   overlandTravelSection,
-  encounterTablesSection,
-  randomEventsSection,
-  rumorsSection,
   settlementsSection,
 } from './library-sections-gm.js';
 
@@ -311,7 +307,6 @@ export const equipmentSection = {
 export const SECTIONS = [
   abilityScoresSection,
   advancementSection,
-  adventureGeneratorSection,
   alignmentsSection,
   ancestriesSection,
   backgroundsSection,
@@ -320,7 +315,6 @@ export const SECTIONS = [
   coreMechanicSection,
   deathAndDyingSection,
   deitiesSection,
-  encounterTablesSection,
   equipmentSection,
   languagesSection,
   lightAndDarknessSection,
@@ -330,9 +324,7 @@ export const SECTIONS = [
   npcsAndReactionsSection,
   overlandTravelSection,
   randomCharacterGenerationSection,
-  randomEventsSection,
   restingSection,
-  rumorsSection,
   runningTheGameSection,
   settlementsSection,
   spellcastingSection,

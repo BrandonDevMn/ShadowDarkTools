@@ -8,6 +8,9 @@
  *   showTerrainMenu()    — terrain picker before rolling a random encounter
  *   showResult()         — generic result card for GM generators
  *
+ * Each GM result screen includes a "Result | Table" segmented control.
+ * The Table segment shows the underlying die table(s) via a dropdown.
+ *
  * Back navigation: any result/sheet → menu; back during rolling → menu.
  */
 
@@ -28,6 +31,19 @@ import {
   getOverlandTerrains,
   getOverlandDangerLevels,
 } from './gm-generators.js';
+import {
+  adventureHookTableGroups,
+  npcTableGroups,
+  encounterTableGroups,
+  randomEventTableGroups,
+  rumorTableGroups,
+  oathTableGroups,
+  secretTableGroups,
+  blessingTableGroups,
+  magicItemTableGroups,
+  dungeonTableGroups,
+  marchTableGroups,
+} from './generate-tables.js';
 
 const ROLL_DURATION_MS = 1000;
 
@@ -86,32 +102,50 @@ export function renderGeneratePage(container) {
       },
       {
         label: 'Random Event',
-        onClick: () => showRolling(() => showResult('Random Event', generateRandomEvent().event)),
+        onClick: () => {
+          function roll() { showRolling(() => showResult('Random Event', generateRandomEvent().event, null, roll, randomEventTableGroups())); }
+          roll();
+        },
       },
       {
         label: 'Rumor',
-        onClick: () => showRolling(() => showResult('Rumor', generateRumor().rumor)),
+        onClick: () => {
+          function roll() { showRolling(() => showResult('Rumor', generateRumor().rumor, null, roll, rumorTableGroups())); }
+          roll();
+        },
       },
       {
         label: 'Oath',
-        onClick: () => showRolling(() => showResult('Oath', generateOath().oath)),
+        onClick: () => {
+          function roll() { showRolling(() => showResult('Oath', generateOath().oath, null, roll, oathTableGroups())); }
+          roll();
+        },
       },
       {
         label: 'Secret',
-        onClick: () => showRolling(() => showResult('Secret', generateSecret().secret)),
+        onClick: () => {
+          function roll() { showRolling(() => showResult('Secret', generateSecret().secret, null, roll, secretTableGroups())); }
+          roll();
+        },
       },
       {
         label: 'Blessing',
         onClick: () => {
-          const b = generateBlessing();
-          showRolling(() => showResult('Blessing', b.description, b.name));
+          function roll() {
+            const b = generateBlessing();
+            showRolling(() => showResult('Blessing', b.description, b.name, roll, blessingTableGroups()));
+          }
+          roll();
         },
       },
       {
         label: 'Magic Item',
         onClick: () => {
-          const item = generateMagicItem();
-          showRolling(() => showResult('Magic Item', item.description, item.name));
+          function roll() {
+            const item = generateMagicItem();
+            showRolling(() => showResult('Magic Item', item.description, item.name, roll, magicItemTableGroups()));
+          }
+          roll();
         },
       },
       {
@@ -141,10 +175,16 @@ export function renderGeneratePage(container) {
     const terrains = getTerrainNames();
     container.appendChild(makeNavSection(null, terrains.map((terrain) => ({
       label: terrain,
-      onClick: () => showRolling(() => {
-        const result = generateEncounter(terrain);
-        showResult(`Encounter: ${result.terrain}`, result.encounter);
-      }),
+      onClick: () => {
+        function roll() {
+          const result = generateEncounter(terrain);
+          showRolling(() => showResult(
+            `Encounter: ${result.terrain}`, result.encounter,
+            null, roll, encounterTableGroups(), terrain,
+          ));
+        }
+        roll();
+      },
     }))));
   }
 
@@ -211,10 +251,14 @@ export function renderGeneratePage(container) {
 
   /**
    * Renders a simple result card for single-output GM generators.
-   * `title` is the page heading; `body` is the result text;
-   * `subtitle` is an optional bold name above the body (e.g. blessing name).
+   *
+   * `onReroll`     — called when the Re-roll button is clicked (null = button disabled).
+   * `tableGroups`  — [{label, render}] array from generate-tables.js; adds Result|Table segment.
+   * `initialTable` — pre-selects this table label in the dropdown (used by encounter terrain).
+   *
+   * Returns the result sheet div so callers can append extra cards.
    */
-  function showResult(title, body, subtitle = null) {
+  function showResult(title, body, subtitle = null, onReroll = null, tableGroups = null, initialTable = null) {
     container.innerHTML = '';
 
     const header = document.createElement('div');
@@ -225,7 +269,7 @@ export function renderGeneratePage(container) {
     rerollBtn.type = 'button';
     rerollBtn.className = 'character-export-btn';
     rerollBtn.textContent = 'Re-roll';
-    rerollBtn.addEventListener('click', () => rerollBtn._reroll && rerollBtn._reroll());
+    rerollBtn.addEventListener('click', () => onReroll && onReroll());
     header.appendChild(rerollBtn);
     container.appendChild(header);
 
@@ -234,22 +278,31 @@ export function renderGeneratePage(container) {
     heading.textContent = title;
     container.appendChild(heading);
 
-    const sheet = document.createElement('div');
-    sheet.className = 'character-sheet generate-fade-in';
-    sheet.appendChild(makeCard(subtitle, null, body));
-    container.appendChild(sheet);
+    const resultView = document.createElement('div');
+    resultView.className = 'character-sheet generate-fade-in';
+    resultView.appendChild(makeCard(subtitle, null, body));
 
-    return rerollBtn;
+    if (tableGroups) {
+      const tableView = makeTableView(tableGroups, initialTable);
+      tableView.hidden = true;
+      container.appendChild(makeSegmentedControl(['Result', 'Table'], 0, (idx) => {
+        resultView.hidden = idx === 1;
+        tableView.hidden = idx === 0;
+      }));
+      container.appendChild(resultView);
+      container.appendChild(tableView);
+    } else {
+      container.appendChild(resultView);
+    }
+
+    return resultView;
   }
 
   // ── Adventure Hook result ───────────────────────────────────────────────
 
   function showAdventureHookResult(result) {
-    const btn = showResult('Adventure Hook', result.hook);
-    btn._reroll = () => showRolling(() => showAdventureHookResult(generateAdventureHook()));
-
-    // Site name card appended after initial render
-    const sheet = container.querySelector('.character-sheet');
+    function roll() { showRolling(() => showAdventureHookResult(generateAdventureHook())); }
+    const sheet = showResult('Adventure Hook', result.hook, null, roll, adventureHookTableGroups());
     sheet.appendChild(makeCard('Site Name', null, result.site));
   }
 
@@ -275,32 +328,29 @@ export function renderGeneratePage(container) {
     heading.textContent = npc.name;
     container.appendChild(heading);
 
-    const sheet = document.createElement('div');
-    sheet.className = 'character-sheet generate-fade-in';
+    const resultView = document.createElement('div');
+    resultView.className = 'character-sheet generate-fade-in';
 
-    sheet.appendChild(makeCard(
+    resultView.appendChild(makeCard(
       `${npc.ancestry} · ${npc.alignment}`,
       `${npc.age} · ${npc.wealth}`,
       npc.occupation,
     ));
+    resultView.appendChild(makeCard('Appearance', null, npc.appearance));
+    resultView.appendChild(makeCard('Mannerism', null, npc.does));
+    resultView.appendChild(makeCard('Secret', null, npc.secret));
+    resultView.appendChild(makeCard('Epithet', null, npc.epithet));
+    resultView.appendChild(makeCard('First Impression', `2d6 = ${npc.reactionRoll}`, npc.reaction));
 
-    sheet.appendChild(makeCard('Appearance', null, npc.appearance));
-    sheet.appendChild(makeCard('Mannerism', null, npc.does));
-    sheet.appendChild(makeCard('Secret', null, npc.secret));
+    const tableView = makeTableView(npcTableGroups());
+    tableView.hidden = true;
 
-    sheet.appendChild(makeCard(
-      'Epithet',
-      null,
-      npc.epithet,
-    ));
-
-    sheet.appendChild(makeCard(
-      'First Impression',
-      `2d6 = ${npc.reactionRoll}`,
-      npc.reaction,
-    ));
-
-    container.appendChild(sheet);
+    container.appendChild(makeSegmentedControl(['Result', 'Table'], 0, (idx) => {
+      resultView.hidden = idx === 1;
+      tableView.hidden = idx === 0;
+    }));
+    container.appendChild(resultView);
+    container.appendChild(tableView);
   }
 
   // ── March picker ────────────────────────────────────────────────────────
@@ -368,31 +418,30 @@ export function renderGeneratePage(container) {
     heading.textContent = 'New Hex';
     container.appendChild(heading);
 
-    const sheet = document.createElement('div');
-    sheet.className = 'character-sheet generate-fade-in';
+    const resultView = document.createElement('div');
+    resultView.className = 'character-sheet generate-fade-in';
 
-    // Terrain + danger summary
-    sheet.appendChild(makeCard(
-      result.terrain,
-      result.danger,
-      null,
-    ));
+    resultView.appendChild(makeCard(result.terrain, result.danger, null));
 
-    // Point of interest — only shown when one was rolled
     if (result.hasPOI && result.poi) {
       const { poi } = result;
-      const poiTitle = poi.settlementName
-        ? `${poi.location}: ${poi.settlementName}`
-        : poi.location;
-
-      sheet.appendChild(makeCard(
+      const poiTitle = poi.settlementName ? `${poi.location}: ${poi.settlementName}` : poi.location;
+      resultView.appendChild(makeCard(
         'Point of Interest',
         poiTitle,
         poi.cataclysm ? `Disaster! ${poi.cataclysm}` : poi.development,
       ));
     }
 
-    container.appendChild(sheet);
+    const tableView = makeTableView(marchTableGroups());
+    tableView.hidden = true;
+
+    container.appendChild(makeSegmentedControl(['Result', 'Table'], 0, (idx) => {
+      resultView.hidden = idx === 1;
+      tableView.hidden = idx === 0;
+    }));
+    container.appendChild(resultView);
+    container.appendChild(tableView);
   }
 
   // ── Dungeon result ──────────────────────────────────────────────────────
@@ -417,23 +466,28 @@ export function renderGeneratePage(container) {
     heading.textContent = 'Dungeon';
     container.appendChild(heading);
 
-    const sheet = document.createElement('div');
-    sheet.className = 'character-sheet generate-fade-in';
+    const resultView = document.createElement('div');
+    resultView.className = 'character-sheet generate-fade-in';
 
-    // Summary card
-    sheet.appendChild(makeCard(
+    resultView.appendChild(makeCard(
       `${dungeon.size} ${dungeon.type}`,
       `${dungeon.dangerLevel} · ${dungeon.rooms.length} rooms`,
       null,
     ));
-
-    // One card per room
     dungeon.rooms.forEach((room) => {
       const label = room.isObjective ? `${room.label} ★` : room.label;
-      sheet.appendChild(makeCard(`Room ${room.number}`, label, room.detail));
+      resultView.appendChild(makeCard(`Room ${room.number}`, label, room.detail));
     });
 
-    container.appendChild(sheet);
+    const tableView = makeTableView(dungeonTableGroups());
+    tableView.hidden = true;
+
+    container.appendChild(makeSegmentedControl(['Result', 'Table'], 0, (idx) => {
+      resultView.hidden = idx === 1;
+      tableView.hidden = idx === 0;
+    }));
+    container.appendChild(resultView);
+    container.appendChild(tableView);
   }
 
   showMenu();
@@ -803,5 +857,63 @@ function makeNavSection(heading, rows) {
   });
 
   wrap.appendChild(nav);
+  return wrap;
+}
+
+/**
+ * "Result | Table" two-button segmented control.
+ * Calls onChange(index) whenever the active segment changes.
+ */
+function makeSegmentedControl(labels, activeIdx, onChange) {
+  const wrap = document.createElement('div');
+  wrap.className = 'generate-segment';
+  let current = activeIdx;
+  const btns = labels.map((label, i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'generate-segment__btn' + (i === activeIdx ? ' generate-segment__btn--active' : '');
+    btn.textContent = label;
+    btn.addEventListener('click', () => {
+      if (i === current) return;
+      btns[current].classList.remove('generate-segment__btn--active');
+      btn.classList.add('generate-segment__btn--active');
+      current = i;
+      onChange(i);
+    });
+    return btn;
+  });
+  btns.forEach((b) => wrap.appendChild(b));
+  return wrap;
+}
+
+/**
+ * Renders a table group selector (dropdown) + table content area.
+ * `tableGroups` is [{label, render() => Element}].
+ * `initialLabel` pre-selects a specific group (e.g. the rolled terrain).
+ */
+function makeTableView(tableGroups, initialLabel = null) {
+  const wrap = document.createElement('div');
+  wrap.className = 'generate-table-view';
+
+  const effective = (initialLabel && tableGroups.some((g) => g.label === initialLabel))
+    ? initialLabel
+    : tableGroups[0].label;
+
+  const content = document.createElement('div');
+
+  function show(label) {
+    content.innerHTML = '';
+    const group = tableGroups.find((g) => g.label === label) ?? tableGroups[0];
+    content.appendChild(group.render());
+  }
+
+  if (tableGroups.length > 1) {
+    const { wrap: selWrap, select } = makeSelect('Table', tableGroups.map((g) => g.label), effective);
+    select.addEventListener('change', () => show(select.value));
+    wrap.appendChild(selWrap);
+  }
+
+  show(effective);
+  wrap.appendChild(content);
   return wrap;
 }

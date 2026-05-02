@@ -96,7 +96,7 @@ PLAYER_SECTIONS.forEach((section) => {
 describe('SECTIONS', () => {
   it('is an array', () => { expect(Array.isArray(SECTIONS)).toBe(true); });
 
-  it('has 31 entries', () => { expect(SECTIONS.length).toBe(31); });
+  it('has 27 entries', () => { expect(SECTIONS.length).toBe(27); });
 
   it('is sorted alphabetically by label', () => {
     const labels = SECTIONS.map((s) => s.label);

@@ -681,6 +681,45 @@ body {
   margin-top: 0.25rem;
 }
 
+/* ─── Generate — Result | Table segmented control ────────────────────────── */
+
+.generate-segment {
+  display: flex;
+  margin: 0.75rem 0 0.5rem;
+  border: 1px solid var(--color-accent);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.generate-segment__btn {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+  transition: background-color 0.1s ease, color 0.1s ease;
+}
+
+.generate-segment__btn + .generate-segment__btn {
+  border-left: 1px solid var(--color-accent);
+}
+
+.generate-segment__btn--active {
+  background: var(--color-accent);
+  color: var(--color-background);
+}
+
+/* ─── Generate — Table view ──────────────────────────────────────────────── */
+
+.generate-table-view {
+  padding-bottom: 1rem;
+}
+
 @keyframes generate-fadein {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
