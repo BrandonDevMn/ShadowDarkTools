@@ -171,6 +171,7 @@ import {
   generateBlessing,
   generateMagicItem,
   generateDungeon,
+  layoutRooms,
   generateMarch,
   getOverlandTerrains,
   getOverlandDangerLevels,
@@ -448,13 +449,64 @@ describe('generateMagicItem', () => {
 
 // ── Dungeon ────────────────────────────────────────────────────────────────
 
+// ── layoutRooms ────────────────────────────────────────────────────────────
+
+describe('layoutRooms', () => {
+  it('returns the correct number of positions', () => {
+    [5, 8, 12].forEach((n) => {
+      expect(layoutRooms(n).positions).toHaveLength(n);
+    });
+  });
+
+  it('no two rooms occupy the same grid cell', () => {
+    [5, 8, 12].forEach((n) => {
+      const { positions } = layoutRooms(n);
+      const keys = positions.map((p) => `${p.x},${p.y}`);
+      expect(new Set(keys).size).toBe(n);
+    });
+  });
+
+  it('every connection links adjacent cells (distance exactly 1)', () => {
+    const { positions, connections } = layoutRooms(8);
+    connections.forEach(([ai, bi]) => {
+      const a = positions[ai];
+      const b = positions[bi];
+      const dist = Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+      expect(dist).toBe(1);
+    });
+  });
+
+  it('all rooms are reachable from room 0 (graph is connected)', () => {
+    const { positions, connections } = layoutRooms(8);
+    const adj = Array.from({length: positions.length}, () => []);
+    connections.forEach(([a, b]) => { adj[a].push(b); adj[b].push(a); });
+    const visited = new Set([0]);
+    const queue = [0];
+    while (queue.length) {
+      const cur = queue.shift();
+      adj[cur].forEach((nb) => { if (!visited.has(nb)) { visited.add(nb); queue.push(nb); } });
+    }
+    expect(visited.size).toBe(positions.length);
+  });
+});
+
+// ── generateDungeon ─────────────────────────────────────────────────────────
+
 describe('generateDungeon', () => {
-  it('returns an object with size, type, dangerLevel, and rooms', () => {
+  it('returns an object with size, type, dangerLevel, rooms, and layout', () => {
     const dungeon = generateDungeon();
     expect(typeof dungeon.size).toBe('string');
     expect(typeof dungeon.type).toBe('string');
     expect(typeof dungeon.dangerLevel).toBe('string');
     expect(Array.isArray(dungeon.rooms)).toBe(true);
+    expect(dungeon.layout).toBeDefined();
+    expect(Array.isArray(dungeon.layout.positions)).toBe(true);
+    expect(Array.isArray(dungeon.layout.connections)).toBe(true);
+  });
+
+  it('layout has one position per room', () => {
+    const dungeon = generateDungeon();
+    expect(dungeon.layout.positions).toHaveLength(dungeon.rooms.length);
   });
 
   it('room count matches the dice count for the rolled size', () => {

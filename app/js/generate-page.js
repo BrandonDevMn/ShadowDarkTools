@@ -474,6 +474,7 @@ export function renderGeneratePage(container) {
       `${dungeon.dangerLevel} · ${dungeon.rooms.length} rooms`,
       null,
     ));
+    resultView.appendChild(makeDungeonMap(dungeon));
     dungeon.rooms.forEach((room) => {
       const label = room.isObjective ? `${room.label} ★` : room.label;
       resultView.appendChild(makeCard(`Room ${room.number}`, label, room.detail));
@@ -602,6 +603,97 @@ function renderCharacterSheet(container, char) {
   }
 
   container.appendChild(sheet);
+}
+
+// ── Dungeon map ────────────────────────────────────────────────────────────
+
+const DUNGEON_LABEL_ABBR = {
+  'Empty':         'Empty',
+  'Trap':          'Trap',
+  'Minor Hazard':  'Minor Haz',
+  'Solo Monster':  'Monster',
+  'NPC':           'NPC',
+  'Monster Mob':   'Mob',
+  'Major Hazard':  'Major Haz',
+  'Treasure':      'Treasure',
+  'Boss Monster':  'Boss',
+};
+
+function makeDungeonMap(dungeon) {
+  const NS   = 'http://www.w3.org/2000/svg';
+  const CELL = 100; // logical units per grid cell
+  const ROOM = 80;  // room rect size (leaves 10-unit border on each side)
+  const CORRIDOR_W = CELL * 0.28; // wide enough to visually connect rooms
+
+  const { rooms, layout } = dungeon;
+  const { positions, connections } = layout;
+
+  const xs   = positions.map((p) => p.x);
+  const ys   = positions.map((p) => p.y);
+  const minX = Math.min(...xs);
+  const minY = Math.min(...ys);
+  const cols = Math.max(...xs) - minX + 1;
+  const rows = Math.max(...ys) - minY + 1;
+
+  function cx(p) { return (p.x - minX) * CELL + CELL / 2; }
+  function cy(p) { return (p.y - minY) * CELL + CELL / 2; }
+
+  const svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('viewBox', `0 0 ${cols * CELL} ${rows * CELL}`);
+  svg.setAttribute('width', '100%');
+  svg.setAttribute('class', 'dungeon-map');
+
+  // Corridors first so rooms render on top
+  connections.forEach(([ai, bi]) => {
+    const line = document.createElementNS(NS, 'line');
+    line.setAttribute('x1', cx(positions[ai]));
+    line.setAttribute('y1', cy(positions[ai]));
+    line.setAttribute('x2', cx(positions[bi]));
+    line.setAttribute('y2', cy(positions[bi]));
+    line.setAttribute('stroke-width', CORRIDOR_W);
+    line.setAttribute('class', 'dungeon-corridor');
+    svg.appendChild(line);
+  });
+
+  // Rooms
+  rooms.forEach((room, i) => {
+    const p  = positions[i];
+    const rx = cx(p) - ROOM / 2;
+    const ry = cy(p) - ROOM / 2;
+
+    const rect = document.createElementNS(NS, 'rect');
+    rect.setAttribute('x', rx);
+    rect.setAttribute('y', ry);
+    rect.setAttribute('width', ROOM);
+    rect.setAttribute('height', ROOM);
+    rect.setAttribute('rx', '6');
+    rect.setAttribute('class', room.isObjective ? 'dungeon-room dungeon-room--boss' : 'dungeon-room');
+    svg.appendChild(rect);
+
+    const numText = document.createElementNS(NS, 'text');
+    numText.setAttribute('x', cx(p));
+    numText.setAttribute('y', cy(p) - 10);
+    numText.setAttribute('text-anchor', 'middle');
+    numText.setAttribute('dominant-baseline', 'middle');
+    numText.setAttribute('font-size', '22');
+    numText.setAttribute('font-weight', 'bold');
+    numText.setAttribute('class', room.isObjective ? 'dungeon-text dungeon-text--boss' : 'dungeon-text');
+    numText.textContent = String(room.number);
+    svg.appendChild(numText);
+
+    const abbr = DUNGEON_LABEL_ABBR[room.label] ?? room.label;
+    const lblText = document.createElementNS(NS, 'text');
+    lblText.setAttribute('x', cx(p));
+    lblText.setAttribute('y', cy(p) + 18);
+    lblText.setAttribute('text-anchor', 'middle');
+    lblText.setAttribute('dominant-baseline', 'middle');
+    lblText.setAttribute('font-size', '13');
+    lblText.setAttribute('class', room.isObjective ? 'dungeon-sublabel dungeon-sublabel--boss' : 'dungeon-sublabel');
+    lblText.textContent = abbr;
+    svg.appendChild(lblText);
+  });
+
+  return svg;
 }
 
 // ── Shared builders ────────────────────────────────────────────────────────

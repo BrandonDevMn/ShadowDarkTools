@@ -720,6 +720,48 @@ body {
   padding-bottom: 1rem;
 }
 
+.dungeon-map {
+  display: block;
+  width: 100%;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.dungeon-corridor {
+  stroke: var(--color-surface);
+  stroke-linecap: square;
+}
+
+.dungeon-room {
+  fill: var(--color-surface);
+  stroke: var(--color-accent);
+  stroke-width: 2;
+}
+
+.dungeon-room--boss {
+  fill: var(--color-accent);
+  stroke: none;
+}
+
+.dungeon-text {
+  fill: var(--color-text);
+  font-family: inherit;
+}
+
+.dungeon-text--boss {
+  fill: var(--color-background);
+  font-family: inherit;
+}
+
+.dungeon-sublabel {
+  fill: var(--color-text-muted);
+  font-family: inherit;
+}
+
+.dungeon-sublabel--boss {
+  fill: var(--color-background);
+  font-family: inherit;
+}
+
 @keyframes generate-fadein {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }

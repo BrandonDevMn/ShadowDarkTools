@@ -198,15 +198,64 @@ export function generateMagicItem() {
 // ── Dungeon ───────────────────────────────────────────────────────────────
 
 /**
+ * Places `count` rooms on a grid using a growing-tree algorithm.
+ * Starts at the origin and repeatedly attaches new rooms to a random
+ * already-placed room in a random open adjacent direction.
+ *
+ * Returns: { positions: [{x,y}], connections: [[roomA, roomB]] }
+ */
+export function layoutRooms(count) {
+  const DIRS = [{dx:1,dy:0},{dx:-1,dy:0},{dx:0,dy:1},{dx:0,dy:-1}];
+
+  function fisherYates(arr) {
+    for (let k = arr.length - 1; k > 0; k--) {
+      const j = Math.floor(Math.random() * (k + 1));
+      [arr[k], arr[j]] = [arr[j], arr[k]];
+    }
+    return arr;
+  }
+
+  const positions  = [{x: 0, y: 0}];
+  const occupied   = new Set(['0,0']);
+  const connections = [];
+
+  for (let i = 1; i < count; i++) {
+    const fromIndices = fisherYates(Array.from({length: positions.length}, (_, k) => k));
+    for (const fromIdx of fromIndices) {
+      const from = positions[fromIdx];
+      const dirs = fisherYates([...DIRS]);
+      let placed = false;
+      for (const {dx, dy} of dirs) {
+        const nx = from.x + dx;
+        const ny = from.y + dy;
+        const key = `${nx},${ny}`;
+        if (!occupied.has(key)) {
+          positions.push({x: nx, y: ny});
+          occupied.add(key);
+          connections.push([fromIdx, i]);
+          placed = true;
+          break;
+        }
+      }
+      if (placed) break;
+    }
+  }
+
+  return {positions, connections};
+}
+
+/**
  * Generates a full dungeon using the Dice Method:
  *   1. Roll d6 for size → number of room dice (d10s)
  *   2. Roll d6 for site type (Cave/Tomb/Ruins/etc.)
  *   3. Roll d6 for danger level
  *   4. Roll one d10 per room; highest roll marks the objective room(s)
  *   5. Generate inline detail for each room based on its type
+ *   6. Place rooms on a grid using layoutRooms()
  *
- * Returns: { size, type, dangerLevel, rooms[] }
+ * Returns: { size, type, dangerLevel, rooms[], layout }
  * Each room: { number, roll, label, isObjective, detail }
+ * layout: { positions: [{x,y}], connections: [[roomA, roomB]] }
  */
 export function generateDungeon() {
   const sizeRoll  = rollDie(6);
@@ -214,19 +263,19 @@ export function generateDungeon() {
   const type      = SITE_TYPES[rollDie(SITE_TYPES.length) - 1];
   const dangerLevel = DANGER_LEVELS[rollDie(DANGER_LEVELS.length) - 1];
 
-  // Roll one d10 per room
   const roomRolls = Array.from({ length: sizeEntry.dice }, () => rollDie(10));
   const maxRoll   = Math.max(...roomRolls);
+  const layout    = layoutRooms(sizeEntry.dice);
 
   const rooms = roomRolls.map((roll, i) => {
-    const content    = ROOM_CONTENTS.find((r) => roll >= r.min && roll <= r.max);
-    const label      = content?.label ?? 'Empty';
+    const content     = ROOM_CONTENTS.find((r) => roll >= r.min && roll <= r.max);
+    const label       = content?.label ?? 'Empty';
     const isObjective = roll === maxRoll;
-    const detail     = rollRoomDetail(label);
+    const detail      = rollRoomDetail(label);
     return { number: i + 1, roll, label, isObjective, detail };
   });
 
-  return { size: sizeEntry.label, type, dangerLevel, rooms };
+  return { size: sizeEntry.label, type, dangerLevel, rooms, layout };
 }
 
 /**

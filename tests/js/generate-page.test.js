@@ -61,6 +61,10 @@ const MOCK_DUNGEON   = {
     { number: 2, roll: 5, label: 'Solo Monster', isObjective: false, detail: 'Near · Hunting' },
     { number: 3, roll: 9, label: 'Treasure',     isObjective: true,  detail: null },
   ],
+  layout: {
+    positions:   [{x:0,y:0},{x:1,y:0},{x:1,y:1}],
+    connections: [[0,1],[1,2]],
+  },
 };
 
 vi.mock('../../app/js/gm-generators.js', () => ({
@@ -78,6 +82,10 @@ vi.mock('../../app/js/gm-generators.js', () => ({
     size: MOCK_DUNGEON.size, type: MOCK_DUNGEON.type,
     dangerLevel: MOCK_DUNGEON.dangerLevel,
     rooms: MOCK_DUNGEON.rooms.map((r) => ({ ...r })),
+    layout: {
+      positions:   MOCK_DUNGEON.layout.positions.map((p) => ({ ...p })),
+      connections: MOCK_DUNGEON.layout.connections.map((c) => [...c]),
+    },
   })),
   generateMarch:         vi.fn(() => ({
     terrain: 'Forest/Jungle', danger: 'Risky', hasPOI: true,
